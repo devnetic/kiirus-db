@@ -1,9 +1,18 @@
-const createError = (message, request) => {
-  if (message.includes('is not a function')) {
+const createError = (error, request) => {
+  console.log(error)
+
+  if (error.message.includes('is not a function')) {
     return { error: `${request.body.command}: command not implemented` }
   }
 
-  return { error: `Unexpected error: ${message}` }
+  if (error.code) {
+    switch (error.code) {
+      case 'ENOENT':
+        return new Error(`'${this.name}' collection doesn't exist`)
+    }
+  }
+
+  return { error: error.message }
 }
 
 module.exports = {

@@ -101,8 +101,8 @@ class Collection {
   async find (query) {
     try {
       return await this.getRecords(this.queryParser.build(query))
-    } catch (error) {
-      throw this.getError(error)
+    } catch (e) {
+      throw this.getError(e)
     }
   }
 
@@ -156,6 +156,7 @@ class Collection {
       return records
     } catch (e) {
       console.log(e)
+      throw this.getError(e)
     }
   }
 
@@ -224,7 +225,7 @@ class Collection {
    *
    * @return {Promise<Object>}
    */
-  async update ({ query, update }) {
+  async update ([query, update]) {
     const records = await this.find(query)
 
     try {
@@ -242,7 +243,7 @@ class Collection {
           record._id + '.json'
         )
 
-        const result = await storage.writeJson(pathname, record)
+        const result = await storage.writeJson(pathname, record, true)
 
         if (result) {
           response.nModified += 1
@@ -279,8 +280,7 @@ class Collection {
       try {
         await storage.writeFile(
           path.join(collection, record._id + '.json'),
-          this.cipher(JSON.stringify(record)),
-          true
+          this.cipher(JSON.stringify(record))
         )
 
         // response.push(record._id)

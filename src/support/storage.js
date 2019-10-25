@@ -179,9 +179,11 @@ const rename = (oldPath, newPath, sync = false) => {
 const writeFile = (pathname, content, sync = false, encoding = 'utf8', mode = 0o666) => {
   if (sync) {
     try {
-      return Promise.resolve(fs.writeFileSync(pathname, content, { encoding, mode }))
-    } catch (error) {
-      return Promise.reject(error)
+      fs.writeFileSync(pathname, content, { encoding, mode })
+
+      return Promise.resolve(true)
+    } catch (e) {
+      return Promise.reject(e)
     }
   }
 

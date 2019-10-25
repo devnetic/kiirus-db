@@ -1,20 +1,22 @@
 const fetch = require('@devnetic/fetch')
 
+/**
+ * @typedef {Object} Command
+ * @property {string} command The commanf name
+ * @property {Object} [options] Options for the command; this attribute is optional
+ */
+
 class Client {
   constructor (url) {
     this.url = url
-    this.command = {
-      current: null,
-      collection: null,
-      database: null
-    }
+    this.init()
 
     return new Proxy(this, {
       get (target, property, receiver) {
         if (Reflect.has(target, property)) {
           return Reflect.get(target, property)
         } else {
-          return (data) => {
+          return (...data) => {
             const command = target.createCommand(target.command.current, property, data)
 
             return target.send(command)
@@ -40,10 +42,12 @@ class Client {
   }
 
   /**
+   * Create a command in the proper formar to be sended to the server
    *
    * @param {string} type
    * @param {string} name
-   * @param {Object} options
+   * @param {Object} data
+   * @returns {Command}
    */
   createCommand (type, name, data) {
     const options = {
@@ -69,6 +73,14 @@ class Client {
     return this
   }
 
+  init () {
+    this.command = {
+      current: null,
+      collection: null,
+      database: null
+    }
+  }
+
   /**
    * Send a command to the server
    *
@@ -86,6 +98,9 @@ class Client {
         'Content-Length': Buffer.byteLength(body)
       }
     }
+
+    // Before send any command, the client state is reset
+    this.init()
 
     const response = await fetch(this.url, options)
 

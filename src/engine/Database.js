@@ -26,10 +26,7 @@ class Database {
  * @memberof Collection
  */
   getPath () {
-    return path.join(
-      process.env.DB_PATH,
-      this.database
-    )
+    return process.env.DB_PATH
   }
 
   list (options) {
