@@ -8,7 +8,7 @@ const client = Client.connect(`${host}:${port}`)
 
 client
   .db(database)
-  .list()
+  .drop()
   .then(result => {
     console.log(result)
   })

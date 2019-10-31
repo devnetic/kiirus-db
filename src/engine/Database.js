@@ -9,6 +9,10 @@ class Database {
     this.name = name
   }
 
+  drop (options) {
+    console.log(options)
+  }
+
   /**
    *
    *
@@ -29,6 +33,10 @@ class Database {
     return process.env.DB_PATH
   }
 
+  /**
+   * Get
+   * @param {Object} options
+   */
   list (options) {
     const pathname = this.getPath()
 
