@@ -14,8 +14,10 @@ class Database {
    * @param {*} options
    */
   createUser (options) {
+    // Select the `system` database
     this.use('system')
 
+    // select the `users` collection inside the `system` database
     return this.getCollection('users').insert(options)
   }
 

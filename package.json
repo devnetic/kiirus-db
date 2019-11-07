@@ -28,7 +28,9 @@
   "dependencies": {
     "@devnetic/cli": "^1.0.2",
     "@devnetic/fetch": "^1.0.1",
-    "@devnetic/server": "^1.0.1",
+    "@devnetic/server": "^1.0.1"
+  },
+  "devDependencies": {
     "standard": "^14.3.1"
   }
 }
