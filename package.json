@@ -1,0 +1,36 @@
+{
+  "name": "@devnetic/kiirus-db",
+  "version": "1.0.0",
+  "description": "A document-oriented NoSQL database, written entirely in JavaScript. ",
+  "main": "index.js",
+  "scripts": {
+    "lint": "standard",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devnetic/kiirus-db.git"
+  },
+  "keywords": [
+    "nosql",
+    "database",
+    "document-oriented",
+    "storage",
+    "portable",
+    "db"
+  ],
+  "author": "Álvaro José Agámez Licha",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/devnetic/kiirus-db/issues"
+  },
+  "homepage": "https://github.com/devnetic/kiirus-db#readme",
+  "dependencies": {
+    "@devnetic/cli": "^1.0.2",
+    "@devnetic/fetch": "^1.0.1",
+    "@devnetic/server": "^1.0.1"
+  },
+  "devDependencies": {
+    "standard": "^14.3.1"
+  }
+}
