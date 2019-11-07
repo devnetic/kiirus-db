@@ -15,7 +15,7 @@ const routes = [{
     try {
       const result = await commands.run(request)
 
-      if (result.error) {
+      if (result && result.error) {
         console.log(result)
       }
 

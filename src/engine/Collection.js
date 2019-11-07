@@ -264,7 +264,8 @@ class Collection {
 
       try {
         await storage.writeFile(
-          path.join(collection, record._id + '.json'),
+          // path.join(collection, record._id + '.json'),
+          path.join(collection, utils.uuid() + '.json'),
           this.cipher(JSON.stringify(record))
         )
 

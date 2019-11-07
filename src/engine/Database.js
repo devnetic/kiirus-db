@@ -14,16 +14,9 @@ class Database {
    * @param {*} options
    */
   createUser (options) {
-    // {
-    //   username: '<user>',
-    //   password: '<password>',
-    //   data: { employeeId: 12345 },
-    //   roles: [
-    //     { role: "readAnyDatabase", db: "admin" },
-    //   ]
-    // }
+    this.use('system')
 
-    console.log('options: %o', options)
+    return this.getCollection('users').insert(options)
   }
 
   drop (options) {

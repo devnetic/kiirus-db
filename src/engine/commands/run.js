@@ -1,5 +1,5 @@
 const Database = require('./../Database')
-const { createError } = require('./../../support')
+const { createError, utils } = require('./../../support')
 
 const databaseCommand = require('./database')
 const collectionCommand = require('./collection')
@@ -10,7 +10,7 @@ const collectionCommand = require('./collection')
  */
 const run = async (request) => {
   const { command, options } = request.body
-  const [type, operation] = command.split('-')
+  const [type, operation] = getTypeOperation(command)
   let result
 
   switch (type) {
@@ -28,7 +28,16 @@ const run = async (request) => {
       result = await databaseCommand(new Database(), operation, options)
 
       return result
+
+    default:
+      return { error: `${operation}: command not implemented` }
   }
+}
+
+const getTypeOperation = (command) => {
+  const operationMatch = command.split(/(\w+)-(.+)/)
+
+  return [operationMatch[1], utils.camelCase(operationMatch[2])]
 }
 
 module.exports = run

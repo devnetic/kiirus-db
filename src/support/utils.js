@@ -1,4 +1,15 @@
 /**
+ * Transforms a value to camel case
+ *
+ * @param {string} value
+ */
+const camelCase = (value) => {
+  return value.toLowerCase().trim().split(/[.\-_\s]/g).reduce(
+    (string, word) => string + word[0].toUpperCase() + word.slice(1)
+  )
+}
+
+/**
  * Perform a global regular expression match. Searches subject for all
  * matches to the regular expression given in pattern and return them.
  *
@@ -62,7 +73,21 @@ const setValue = (object, path, value) => {
   return object
 }
 
+/**
+ * Returns a random v4 UUID of the form xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx,
+ * where each x is replaced with a random hexadecimal digit from 0 to f, and y
+ * is replaced with a random hexadecimal digit from 8 to b.
+ *
+ * https://gist.github.com/LeverOne/1308368
+ *
+ * @param {string} a
+ * @param {string} b
+ */
+const uuid = (a, b) => { for (b = a = ''; a++ < 36; b += a * 51 & 52 ? (a ^ 15 ? 8 ^ Math.random() * (a ^ 20 ? 16 : 4) : 4).toString(16) : '-'); return b }
+
 module.exports = {
+  camelCase,
   matchAll,
-  setValue
+  setValue,
+  uuid
 }
