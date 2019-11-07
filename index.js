@@ -4,15 +4,15 @@ const path = require('path')
 const server = require('@devnetic/server')
 
 const { routes } = require('./src/')
-const { config, storage } = require('./src/support')
+const { loadEnv, storage } = require('./src/support')
 
-config.load()
+loadEnv.load()
 
 process.env.DB_PATH = path.join(__dirname, process.env.DB_PATH)
 
-storage.createDir(process.env.DB_PATH).catch(error => {
-  console.log(error)
-}).finally(() => {
+// storage.createDir(process.env.DB_PATH).catch(error => {
+//   console.log(error)
+// }).finally(() => {
   const port = process.env.SERVER_PORT || 8008
   const host = process.env.SERVER_HOST || '::'
 
@@ -23,4 +23,4 @@ storage.createDir(process.env.DB_PATH).catch(error => {
   }
 
   server.listen(port, host)
-})
+// })

@@ -36,6 +36,7 @@ const deleteDir = (pathname) => {
         return reject(error)
       }
 
+      // TODO: Refactor with async/await
       Promise.all(files.map((file) => {
         if (file.isDirectory()) {
           return deleteDir(path.join(pathname, file.name))
@@ -78,8 +79,8 @@ const readDir = (pathname, sync = false, encoding = 'utf8') => {
   if (sync) {
     try {
       return Promise.resolve(fs.readdir(pathname))
-    } catch (error) {
-      return Promise.reject(error)
+    } catch (e) {
+      return Promise.reject(e)
     }
   }
 
@@ -107,8 +108,8 @@ const readFile = (pathname, sync = false, encoding = 'utf8') => {
   if (sync) {
     try {
       return Promise.resolve(fs.readFileSync(pathname, encoding))
-    } catch (error) {
-      return Promise.reject(error)
+    } catch (e) {
+      return Promise.reject(e)
     }
   }
 
@@ -150,8 +151,8 @@ const rename = (oldPath, newPath, sync = false) => {
   if (sync) {
     try {
       return Promise.resolve(fs.renameSync(oldPath, newPath))
-    } catch (error) {
-      return Promise.reject(error)
+    } catch (e) {
+      return Promise.reject(e)
     }
   }
 
@@ -191,15 +192,6 @@ const writeFile = (pathname, content, sync = false, encoding = 'utf8', mode = 0o
     fs.writeFile(pathname, content, { encoding, mode }, async (error) => {
       if (error) {
         reject(error)
-        // if (error.code === 'ENOENT') {
-        //   try {
-        //     await createDir(path.dirname(pathname))
-
-        //     writeFile(pathname, content, sync, encoding, mode)
-        //   } catch (error) {
-        //     reject(error)
-        //   }
-        // }
       }
 
       resolve(true)

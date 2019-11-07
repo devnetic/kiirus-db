@@ -15,10 +15,17 @@ const routes = [{
     try {
       const result = await commands.run(request)
 
+      if (result.error) {
+        console.log(result)
+      }
+
       response.json(result)
     } catch (e) {
-      // TODO: return a proper message for more error types
-      response.json(createError(e, request))
+      const error = createError(e.message || e, request)
+
+      console.log(error)
+
+      response.json(error)
     }
   }
 }]

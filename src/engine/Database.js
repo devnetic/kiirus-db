@@ -1,5 +1,3 @@
-const path = require('path')
-
 const Collection = require('./Collection')
 const { storage } = require('./../support')
 
@@ -9,8 +7,38 @@ class Database {
     this.name = name
   }
 
+  /**
+   * Creates a new user on the database where you run the command. The
+   * createUser command returns a duplicate user error if the user exists.
+   *
+   * @param {*} options
+   */
+  createUser (options) {
+    // {
+    //   username: '<user>',
+    //   password: '<password>',
+    //   data: { employeeId: 12345 },
+    //   roles: [
+    //     { role: "readAnyDatabase", db: "admin" },
+    //   ]
+    // }
+
+    console.log('options: %o', options)
+  }
+
   drop (options) {
     console.log(options)
+  }
+
+  /**
+   * Removes the user from the database on which you run the command.
+   *
+   * @param {*} options
+   */
+  dropUser (options) {
+    // {
+    //   username: "<user>",
+    // }
   }
 
   /**
@@ -44,12 +72,45 @@ class Database {
   }
 
   /**
+   * Updates the user’s profile on the database on which you run the command. An
+   * update to a field completely replaces the previous field’s values,
+   * including updates to the user’s roles.
+   *
+   * @param {*} options
+   */
+  updateUser (options) {
+    // {
+    //   username: "appClient01",
+    //   password: '<password>',
+    //   data : { employeeId: "0x3039" },
+    //   roles: [{ role: "read", db: "assets" }]
+    // }
+  }
+
+  /**
    * Select the given database
    *
    * @param {string} name
    */
   use (name) {
     this.name = name
+  }
+
+  /**
+   * Returns information about one or more users.
+   *
+   * @param {*} options
+   */
+  usersInfo (options) {
+    // {
+    //   username: '<user>',
+    //   showPrivileges: true
+    // }
+
+    // {
+    //   usersInfo: [{ user: '<user>', db: "home" }, { user: '<user>', db: "myApp" }],
+    //   showPrivileges: true
+    // }
   }
 }
 

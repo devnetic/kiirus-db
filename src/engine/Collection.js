@@ -78,7 +78,7 @@ class Collection {
 
       return response
     } catch (e) {
-      return Promise.reject(e)
+      return Promise.reject(this.getError(e))
     }
   }
 
@@ -102,7 +102,7 @@ class Collection {
     try {
       return await this.getRecords(this.queryParser.build(query))
     } catch (e) {
-      throw this.getError(e)
+      return Promise.reject(this.getError(e))
     }
   }
 
@@ -113,7 +113,7 @@ class Collection {
 
     switch (error.code) {
       case 'ENOENT':
-        return new Error(`'${this.name}' collection doesn't exist`)
+        return `'${this.name}' collection doesn't exist`
     }
   }
 
@@ -155,18 +155,17 @@ class Collection {
 
       return records
     } catch (e) {
-      console.log(e)
-      throw this.getError(e)
+      return Promise.reject(this.getError(e))
     }
   }
 
   /**
- * Init the collection
- *
- * @param {*} pathname
- * @returns Promise<boolean>
- * @memberof Collection
- */
+   * Create the collection and the database directories if they don't exist
+   *
+   * @param {*} pathname
+   * @returns Promise<boolean>
+   * @memberof Collection
+   */
   async init (pathname) {
     return storage.createDir(pathname)
   }
@@ -184,20 +183,6 @@ class Collection {
 
     return this.write(pathname, data)
   }
-
-  // async list (options) {
-  //   const pathname = this.getPath()
-
-  //   console.log('pathname: %o', pathname)
-
-  //   try {
-  //     const files = await storage.readDir(pathname)
-
-  //     return files.map(file => path.basename(file, this.extension))
-  //   } catch (e) {
-  //     console.log(`Error Collection-List: ${e.message}`)
-  //   }
-  // }
 
   /**
    * Rename a file or directory
@@ -226,9 +211,9 @@ class Collection {
    * @return {Promise<Object>}
    */
   async update ([query, update]) {
-    const records = await this.find(query)
-
     try {
+      const records = await this.find(query)
+
       const response = {
         nModified: 0
       }
@@ -252,7 +237,7 @@ class Collection {
 
       return response
     } catch (e) {
-      return Promise.reject(e.message)
+      return Promise.reject(this.getError(e))
     }
   }
 
@@ -286,8 +271,6 @@ class Collection {
         // response.push(record._id)
         response.nInserted += 1
       } catch (e) {
-        console.log(e)
-
         response.writeError = {
           code: e.name,
           errmsg: e.message

@@ -4,6 +4,10 @@ const { createError } = require('./../../support')
 const databaseCommand = require('./database')
 const collectionCommand = require('./collection')
 
+/**
+ *
+ * @param {IncomingMessage} request
+ */
 const run = async (request) => {
   const { command, options } = request.body
   const [type, operation] = command.split('-')
@@ -16,7 +20,8 @@ const run = async (request) => {
 
         return result
       } catch (e) {
-        return createError(e)
+        // TODO: return a proper message for more error types
+        return createError(e.message || e, request)
       }
 
     case 'database':
