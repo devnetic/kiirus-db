@@ -1,7 +1,3 @@
-const errorTypes = [
-  'ENOENT'
-]
-
 /**
  *
  * @param {string} error

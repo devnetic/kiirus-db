@@ -18,7 +18,7 @@ class Database {
     this.use('system')
 
     // select the `users` collection inside the `system` database
-    return this.getCollection('users').insert(options)
+    return this.getCollection('users').insert([options])
   }
 
   drop (options) {
@@ -34,6 +34,13 @@ class Database {
     // {
     //   username: "<user>",
     // }
+    console.log(options)
+
+    // Select the `system` database
+    this.use('system')
+
+    // select the `users` collection inside the `system` database
+    return this.getCollection('users').delete(options)
   }
 
   /**

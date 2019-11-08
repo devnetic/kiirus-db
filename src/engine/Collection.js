@@ -62,14 +62,13 @@ class Collection {
   async delete (query) {
     try {
       const records = await this.find(query)
-      const pathname = this.getPath()
 
       const response = {
         deletedCount: 0
       }
 
       for (const record of records) {
-        const result = await storage.deleteFile(path.join(pathname, record._id + '.json'))
+        const result = await storage.deleteFile(record.file)
 
         if (result) {
           response.deletedCount += 1
@@ -145,11 +144,13 @@ class Collection {
 
       const records = []
 
-      for (const file of files) {
-        const record = await storage.readJson(path.join(pathname, file))
+      for (let file of files) {
+        file = path.join(pathname, file)
 
-        if (query(record) === true) {
-          records.push(record)
+        const data = await storage.readJson(file)
+
+        if (query(data) === true) {
+          records.push({ file, data })
         }
       }
 
@@ -220,15 +221,15 @@ class Collection {
 
       for (const record of records) {
         for (const [key, value] of Object.entries(update)) {
-          utils.setValue(record, key, value)
+          utils.setValue(record.data, key, value)
         }
 
-        const pathname = path.join(
-          this.getPath(),
-          record._id + '.json'
-        )
+        // const pathname = path.join(
+        //   this.getPath(),
+        //   record.file + this.extension
+        // )
 
-        const result = await storage.writeJson(pathname, record, true)
+        const result = await storage.writeJson(record.file, record.data, true)
 
         if (result) {
           response.nModified += 1
@@ -265,7 +266,7 @@ class Collection {
       try {
         await storage.writeFile(
           // path.join(collection, record._id + '.json'),
-          path.join(collection, utils.uuid() + '.json'),
+          path.join(collection, utils.uuid() + this.extension),
           this.cipher(JSON.stringify(record))
         )
 

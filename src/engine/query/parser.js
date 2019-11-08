@@ -1,4 +1,4 @@
-let recordName = 'record'
+const recordName = 'record'
 
 const operators = {
   comparison: {
@@ -87,7 +87,7 @@ const isLogicalOperator = (operator) => {
 const parse = (query, operator = '$eq') => {
   const queryFunction = []
 
-  for (let [key, item] of Object.entries(query)) {
+  for (const [key, item] of Object.entries(query)) {
     const type = getType(item)
 
     if (isLogicalOperator(key) || isLogicalOperator(Object.keys(item)[0])) {
@@ -99,13 +99,14 @@ const parse = (query, operator = '$eq') => {
 
           break
 
-        case 'object':
+        case 'object': {
           const [queryOperator, queryItem] = Object.entries(item)[0]
 
           // The only case for logical operator and type object is for $not
           queryFunction.push(`!(${parse({ [key]: queryItem }, queryOperator)[0]})`)
 
           break
+        }
       }
     } else { // is comparison operator
       switch (type) {
@@ -122,12 +123,13 @@ const parse = (query, operator = '$eq') => {
 
           break
 
-        case 'object':
+        case 'object': {
           const [queryOperator, queryItem] = Object.entries(item)[0]
 
           queryFunction.push(parse({ [key]: queryItem }, queryOperator)[0])
 
           break
+        }
       }
     }
   }
