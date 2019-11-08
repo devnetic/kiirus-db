@@ -10,6 +10,15 @@ const camelCase = (value) => {
 }
 
 /**
+ *
+ * @param {string} value
+ * @returns {string}
+ */
+const kebabCase = (value) => {
+  return value.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase()
+}
+
+/**
  * Perform a global regular expression match. Searches subject for all
  * matches to the regular expression given in pattern and return them.
  *
@@ -87,6 +96,7 @@ const uuid = (a, b) => { for (b = a = ''; a++ < 36; b += a * 51 & 52 ? (a ^ 15 ?
 
 module.exports = {
   camelCase,
+  kebabCase,
   matchAll,
   setValue,
   uuid

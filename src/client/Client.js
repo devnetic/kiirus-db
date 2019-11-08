@@ -1,4 +1,5 @@
 const fetch = require('@devnetic/fetch')
+const { utils } = require('./../support')
 
 /**
  * @typedef {Object} Command
@@ -16,8 +17,10 @@ class Client {
         if (Reflect.has(target, property)) {
           return Reflect.get(target, property)
         } else {
-          return (...data) => {
-            const command = target.createCommand(target.command.current, property, data)
+          return (data, ...extra) => {
+            const params = extra.length > 0 ? [data, ...extra] : data
+
+            const command = target.createCommand(target.command.current, property, params)
 
             return target.send(command)
           }
@@ -50,8 +53,10 @@ class Client {
    * @returns {Command}
    */
   createCommand (type, name, data) {
-    const options = {
-      database: this.command.database
+    const options = {}
+
+    if (this.command.database) {
+      options.database = this.command.database
     }
 
     if (this.command.collection) {
@@ -62,7 +67,7 @@ class Client {
       options.data = data
     }
 
-    return { command: `${type.toLowerCase()}-${name}`, options }
+    return { command: `${type.toLowerCase()}-${utils.kebabCase(name)}`, options }
   }
 
   db (name) {
@@ -75,7 +80,7 @@ class Client {
 
   init () {
     this.command = {
-      current: null,
+      current: 'database',
       collection: null,
       database: null
     }

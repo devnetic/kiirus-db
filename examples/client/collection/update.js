@@ -3,7 +3,7 @@ const { Client } = require('./../../../src')
 const host = 'http://localhost'
 const port = 8008
 const database = 'test-database'
-const collection = 'users'
+const collection = 'tasks'
 
 const client = Client.connect(`${host}:${port}`)
 
