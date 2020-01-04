@@ -1,4 +1,4 @@
-// const { Database } = require('./../engine')
+const { Database } = require('./../engine')
 
 const { commands } = require('./../engine')
 const { createError } = require('./../support')
@@ -13,9 +13,12 @@ const routes = [{
   */
   handler: async (request, response) => {
     try {
-      const result = await commands.run(request)
+      const { command, options } = request.body
+
+      const result = await commands.getCommand(command).run(new Database(), options)
 
       if (result && result.error) {
+        // TODO: log a proper message for this error
         console.log(result)
       }
 

@@ -1,9 +1,11 @@
-const collection = require('./collection')
-const database = require('./database')
-const run = require('./run')
+const BaseCommand = require('./BaseCommand')
+const CollectionCommand = require('./CollectionCommand')
+const DatabaseCommand = require('./DatabaseCommand')
+const { getCommand } = require('./factory')
 
 module.exports = {
-  collection,
-  database,
-  run
+  BaseCommand,
+  CollectionCommand,
+  DatabaseCommand,
+  getCommand
 }

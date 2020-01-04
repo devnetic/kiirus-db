@@ -1,12 +1,12 @@
 /**
  *
  * @param {string} error
- * @param {IncomingMessage} request
+ * @param {string} command
  * @returns {Object}
  */
-const createError = (error, request) => {
+const createError = (error, command) => {
   if (error.includes('is not a function')) {
-    return { error: `${request.body.command}: command not implemented` }
+    return { error: `${command}: command not implemented` }
   }
 
   return { error }

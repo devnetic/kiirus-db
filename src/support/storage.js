@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const util = require('util')
 
 /**
  * Recursively creates a directory in the hard disk
@@ -156,15 +157,18 @@ const rename = (oldPath, newPath, sync = false) => {
     }
   }
 
-  return new Promise((resolve, reject) => {
-    fs.rename(oldPath, newPath, async (error) => {
-      if (error) {
-        reject(error)
-      }
+  const rename = util.promisify(fs.rename)
 
-      resolve(true)
-    })
-  })
+  return rename(oldPath, newPath)
+  // return new Promise((resolve, reject) => {
+  //   fs.rename(oldPath, newPath, async (error) => {
+  //     if (error) {
+  //       reject(new Error(error))
+  //     }
+
+  //     resolve(true)
+  //   })
+  // })
 }
 
 /**

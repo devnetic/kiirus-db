@@ -9,8 +9,15 @@ const { utils } = require('./../support')
 
 class Client {
   constructor (url) {
+    this.command = {
+      current: 'database',
+      collection: null,
+      database: null,
+      payload: null
+    }
+
     this.url = url
-    this.init()
+    // this.init()
 
     return new Proxy(this, {
       get (target, property, receiver) {
@@ -20,9 +27,9 @@ class Client {
           return (data, ...extra) => {
             const params = extra.length > 0 ? [data, ...extra] : data
 
-            const command = target.createCommand(target.command.current, property, params)
+            target.command.payload = target.createCommand(target.command.current, property, params)
 
-            return target.send(command)
+            return target.send(target.command.payload)
           }
         }
       },
@@ -64,7 +71,7 @@ class Client {
     }
 
     if (data) {
-      options.data = data
+      options.body = data
     }
 
     return { command: `${type.toLowerCase()}-${utils.kebabCase(name)}`, options }
@@ -82,7 +89,8 @@ class Client {
     this.command = {
       current: 'database',
       collection: null,
-      database: null
+      database: null,
+      payload: null
     }
   }
 

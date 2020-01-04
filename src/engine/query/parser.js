@@ -27,7 +27,7 @@ const operators = {
 * @returns {Function}
 */
 const build = (query) => {
-  return new Function(recordName, `return ${parse(query).join(` && `)}`) // eslint-disable-line
+  return new Function(recordName, `return ${parse(query).join(` && `) || true}`) // eslint-disable-line
 }
 
 /**

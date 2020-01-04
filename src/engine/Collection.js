@@ -97,7 +97,7 @@ class Collection {
    * @param {function|object} query
    * @return {Promise<array>}
    */
-  async find (query) {
+  async find (query = {}) {
     try {
       return await this.getRecords(this.queryParser.build(query))
     } catch (e) {
@@ -199,7 +199,13 @@ class Collection {
       newName
     )
 
-    return storage.rename(this.getPath(), newPathname)
+    // try {
+      return storage.rename(this.getPath(), newPathname).catch(reason => {
+        return this.getError(e)
+      })
+    // } catch (e) {
+    //   return Promise.reject(this.getError(e))
+    // }
   }
 
   /**
