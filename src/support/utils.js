@@ -10,6 +10,15 @@ const camelCase = (value) => {
 }
 
 /**
+ *
+ * @param {string} value
+ * @returns {string}
+ */
+const kebabCase = (value) => {
+  return value.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase()
+}
+
+/**
  * Perform a global regular expression match. Searches subject for all
  * matches to the regular expression given in pattern and return them.
  *
@@ -32,6 +41,25 @@ const matchAll = (regex, value) => {
   }
 
   return matches
+}
+
+/**
+ * Transform a duration in miliseconds to human readable 'HH:mm:ss.m' format
+ *
+ * @param {number} duration
+ * @returns {string}
+ */
+const msToTime = (duration) => {
+  const milliseconds = parseInt((duration % 1000) / 100)
+  let seconds = Math.floor((duration / 1000) % 60)
+  let minutes = Math.floor((duration / (1000 * 60)) % 60)
+  let hours = Math.floor((duration / (1000 * 60 * 60)) % 24)
+
+  hours = (hours < 10) ? '0' + hours : hours
+  minutes = (minutes < 10) ? '0' + minutes : minutes
+  seconds = (seconds < 10) ? '0' + seconds : seconds
+
+  return `${hours}:${minutes}:${seconds}.${milliseconds}`
 }
 
 /**
@@ -87,7 +115,9 @@ const uuid = (a, b) => { for (b = a = ''; a++ < 36; b += a * 51 & 52 ? (a ^ 15 ?
 
 module.exports = {
   camelCase,
+  kebabCase,
   matchAll,
+  msToTime,
   setValue,
   uuid
 }

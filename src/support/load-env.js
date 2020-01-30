@@ -3,9 +3,9 @@ const fs = require('fs')
 /**
  * Load the .env file and set the ENV variables
  */
-const load = () => {
+const load = (filename = '.env') => {
   try {
-    const env = fs.readFileSync('./.env', 'utf8').trim().split('\n')
+    const env = fs.readFileSync(`./${filename}`, 'utf8').trim().split('\n')
     let key
     let value
 
@@ -15,6 +15,7 @@ const load = () => {
       process.env[key] = value
     })
   } catch (e) {
+    console.log(e.message)
   }
 }
 

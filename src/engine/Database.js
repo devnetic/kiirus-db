@@ -1,5 +1,5 @@
 const Collection = require('./Collection')
-const { storage } = require('./../support')
+const { getErrorMessage, storage } = require('./../support')
 
 class Database {
   constructor (name = '') {
@@ -13,12 +13,20 @@ class Database {
    *
    * @param {*} options
    */
-  createUser (options) {
+  async createUser (options) {
     // Select the `system` database
     this.use('system')
 
+    const user = await this.getCollection('users').find({
+      username: { $eq: options.username }
+    })
+
+    if (user.length > 0) {
+      throw new Error(getErrorMessage('KDB0003'))
+    }
+
     // select the `users` collection inside the `system` database
-    return this.getCollection('users').insert(options)
+    return this.getCollection('users').insert([options])
   }
 
   drop (options) {
@@ -34,13 +42,19 @@ class Database {
     // {
     //   username: "<user>",
     // }
+    console.log(options)
+
+    // Select the `system` database
+    this.use('system')
+
+    // select the `users` collection inside the `system` database
+    return this.getCollection('users').delete(options)
   }
 
   /**
    *
-   *
-   * @param {*} collection
-   * @returns
+   * @param {string} collection
+   * @returns Collection
    */
   getCollection (collection) {
     return new Collection(this.name, collection)
@@ -73,13 +87,26 @@ class Database {
    *
    * @param {*} options
    */
-  updateUser (options) {
+  async updateUser (options) {
     // {
     //   username: "appClient01",
     //   password: '<password>',
-    //   data : { employeeId: "0x3039" },
+    //   customData : { employeeId: "0x3039" },
     //   roles: [{ role: "read", db: "assets" }]
     // }
+    // Select the `system` database
+    this.use('system')
+
+    const user = await this.getCollection('users').find({
+      username: { $eq: options.username }
+    })
+
+    if (user.length === 0) {
+      throw new Error(getErrorMessage('KDB0004'))
+    }
+
+    // select the `users` collection inside the `system` database
+    return this.getCollection('users').update([options])
   }
 
   /**

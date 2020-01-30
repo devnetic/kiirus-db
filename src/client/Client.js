@@ -1,4 +1,5 @@
 const fetch = require('@devnetic/fetch')
+const { utils } = require('./../support')
 
 /**
  * @typedef {Object} Command
@@ -8,18 +9,27 @@ const fetch = require('@devnetic/fetch')
 
 class Client {
   constructor (url) {
+    this.command = {
+      current: 'database',
+      collection: null,
+      database: null,
+      payload: null
+    }
+
     this.url = url
-    this.init()
+    // this.init()
 
     return new Proxy(this, {
       get (target, property, receiver) {
         if (Reflect.has(target, property)) {
           return Reflect.get(target, property)
         } else {
-          return (...data) => {
-            const command = target.createCommand(target.command.current, property, data)
+          return (data, ...extra) => {
+            const params = extra.length > 0 ? [data, ...extra] : data
 
-            return target.send(command)
+            target.command.payload = target.createCommand(target.command.current, property, params)
+
+            return target.send(target.command.payload)
           }
         }
       },
@@ -50,8 +60,10 @@ class Client {
    * @returns {Command}
    */
   createCommand (type, name, data) {
-    const options = {
-      database: this.command.database
+    const options = {}
+
+    if (this.command.database) {
+      options.database = this.command.database
     }
 
     if (this.command.collection) {
@@ -59,10 +71,10 @@ class Client {
     }
 
     if (data) {
-      options.data = data
+      options.body = data
     }
 
-    return { command: `${type.toLowerCase()}-${name}`, options }
+    return { command: `${type.toLowerCase()}-${utils.kebabCase(name)}`, options }
   }
 
   db (name) {
@@ -75,9 +87,10 @@ class Client {
 
   init () {
     this.command = {
-      current: null,
+      current: 'database',
       collection: null,
-      database: null
+      database: null,
+      payload: null
     }
   }
 

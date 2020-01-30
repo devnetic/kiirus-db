@@ -1,0 +1,36 @@
+[
+  {
+    "command": "database-create-user",
+    "options": {
+      "data": {
+        "username": "john-doe",
+        "password": 12345678,
+        "customData": {
+          "employeeId": 12345
+        },
+        "roles": [
+          {
+            "role": "readAnyDatabase",
+            "db": "admin"
+          }
+        ]
+      }
+    }
+  }, {
+    "command": "collection-insert",
+    "options": {
+      "database": "test-database",
+      "collection": "users",
+      "body": []
+    }
+  }, {
+    "command": "role-create",
+    "options": {
+      "name": "read",
+      "permissions": [
+        "find",
+        "listCollections"
+      ]
+    }
+  }
+]
