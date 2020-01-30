@@ -1,4 +1,5 @@
 const BaseCommand = require('./BaseCommand')
+const { getErrorMessage } = require('./../../support')
 
 class CollectionCommand extends BaseCommand {
   async run (database, options) {
@@ -9,6 +10,10 @@ class CollectionCommand extends BaseCommand {
     database.use(options.database)
 
     const collection = database.getCollection(options.collection)
+
+    if (!Reflect.has(collection, this.method)) {
+      throw new Error(getErrorMessage('KDB0002'))
+    }
 
     const result = await collection[this.method](options.body)
 

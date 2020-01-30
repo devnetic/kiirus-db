@@ -94,8 +94,8 @@ class Collection {
   /**
    * Select a fields set using a query expression
    *
-   * @param {function|object} query
-   * @return {Promise<array>}
+   * @param {Function|Object} query
+   * @returns {Promise<Array>}
    */
   async find (query = {}) {
     try {
@@ -168,13 +168,13 @@ class Collection {
    * @memberof Collection
    */
   async init (pathname) {
-    return storage.createDir(pathname)
+    return storage.createDir(pathname, true, 0o766)
   }
 
   /**
    * Insert a data set into the collection
    *
-   * @param {array} data
+   * @param {Array<Object>} data
    * @return {Promise<boolean>}
    */
   async insert (data) {

@@ -3,10 +3,19 @@ const path = require('path')
 
 const server = require('@devnetic/server')
 
+const { stats } = require('./src/engine')
+
 const { routes } = require('./src/')
-const { loadEnv } = require('./src/support')
+const { loadEnv, getErrorMessage } = require('./src/support')
 
 loadEnv.load()
+loadEnv.load('.errors_description')
+
+if (!process.env.DB_PATH) {
+  console.log(getErrorMessage('KDB0001'))
+
+  process.exit()
+}
 
 process.env.DB_PATH = path.join(__dirname, process.env.DB_PATH)
 
@@ -18,5 +27,7 @@ for (const [, routesDefinition] of Object.entries(routes)) {
     server.router[route.type](route.path, route.handler)
   }
 }
+
+stats.setStartTime()
 
 server.listen(port, host)
