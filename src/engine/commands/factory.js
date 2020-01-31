@@ -1,7 +1,7 @@
 const CollectionCommand = require('./CollectionCommand')
 const DatabaseCommand = require('./DatabaseCommand')
 
-const { createError, utils } = require('./../../support')
+const { getErrorMessage, utils } = require('./../../support')
 
 /**
  *
@@ -11,20 +11,15 @@ const { createError, utils } = require('./../../support')
 const getCommand = (command) => {
   const { type, method } = parseCommand(command)
 
-  try {
-    switch (type) {
-      case 'collection':
-        return new CollectionCommand(method)
+  switch (type) {
+    case 'collection':
+      return new CollectionCommand(method)
 
-      case 'database':
-        return new DatabaseCommand(method)
+    case 'database':
+      return new DatabaseCommand(method)
 
-      default:
-        return { error: `${type}: command not implemented` }
-    }
-  } catch (e) {
-    // TODO: return a proper message for more error types
-    return createError(e.message || e, command)
+    default:
+      throw new Error(getErrorMessage('KDB0005'))
   }
 }
 

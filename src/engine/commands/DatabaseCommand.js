@@ -2,7 +2,7 @@ const BaseCommand = require('./BaseCommand')
 const { getErrorMessage } = require('./../../support')
 
 class DatabaseCommand extends BaseCommand {
-  async run (database, options = {}) {
+  async run(database, options = {}) {
     database.use(options.database)
 
     if (!Reflect.has(database, this.method)) {
@@ -10,6 +10,9 @@ class DatabaseCommand extends BaseCommand {
     }
 
     const result = await database[this.method](options)
+      .catch(error => {
+        throw new Error(getErrorMessage('KDB0007', error))
+      })
 
     return result
   }

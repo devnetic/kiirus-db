@@ -7,6 +7,24 @@ class Database {
     this.name = name
   }
 
+  async createRole ({ body, database }) {
+    // Select the `system` database
+    this.use('system')
+
+    const user = await this.getCollection('roles').find({
+      $and: [{ name: { $eq: body.name } }, { database: { $eq: database } }]
+    })
+
+    if (user.length > 0) {
+      throw new Error(getErrorMessage('KDB0006'))
+    }
+
+    body.database = database
+
+    // select the `users` collection inside the `system` database
+    return this.getCollection('roles').insert([body])
+  }
+
   /**
    * Creates a new user on the database where you run the command. The
    * createUser command returns a duplicate user error if the user exists.

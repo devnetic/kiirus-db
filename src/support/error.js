@@ -20,8 +20,8 @@ const createError = (error, command) => {
  * @param {string} code
  * @returns {string}
  */
-const getErrorMessage = (code) => {
-  return `${code}: ${process.env[code]} - ${utils.dateFormat(new Date(), 'yyyy-mm-dd HH:nn:ss')}`
+const getErrorMessage = (code, message) => {
+  return `${code}: ${process.env[code].replace('{{}}', message ? ` [${message}]` : '')} - ${utils.dateFormat(new Date(), 'yyyy-mm-dd HH:nn:ss')}`
 }
 
 module.exports = {
