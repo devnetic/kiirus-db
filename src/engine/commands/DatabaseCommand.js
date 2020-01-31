@@ -9,7 +9,7 @@ class DatabaseCommand extends BaseCommand {
       throw new Error(getErrorMessage('KDB0002'))
     }
 
-    const result = await database[this.method](options.data)
+    const result = await database[this.method](options)
 
     return result
   }
