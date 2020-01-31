@@ -1,3 +1,5 @@
+const utils = require('./../support/utils')
+
 /**
  *
  * @param {string} error
@@ -12,18 +14,14 @@ const createError = (error, command) => {
   return { error }
 }
 
+/**
+ * Generate an error message according to the given error code
+ *
+ * @param {string} code
+ * @returns {string}
+ */
 const getErrorMessage = (code) => {
-  const formatedDate = new Intl.DateTimeFormat('fr-CA', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  }).format(new Date())
-
-  return `${code}: ${process.env[code]} - ${formatedDate}`
+  return `${code}: ${process.env[code]} - ${utils.dateFormat(new Date(), 'yyyy-mm-dd HH:nn:ss')}`
 }
 
 module.exports = {

@@ -6,7 +6,6 @@
   "scripts": {
     "lint": "standard",
     "start": "node index.js",
-    "test": "ava",
     "test:watch": "ava --watch"
   },
   "repository": {
