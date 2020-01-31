@@ -209,7 +209,7 @@ class Collection {
    * Update a collection using a query to select the records to update and a
    * update object, containing the key and values to be updated
    *
-   * @param {function|object} query
+   * @param {Array<{query: Object, update: Array}>} query
    * @param {object} update
    *
    * @return {Promise<Object>}
@@ -240,8 +240,8 @@ class Collection {
       }
 
       return response
-    } catch (e) {
-      return Promise.reject(this.getError(e))
+    } catch (error) {
+      return Promise.reject(this.getError(error))
     }
   }
 

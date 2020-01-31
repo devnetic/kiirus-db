@@ -7,21 +7,27 @@ class Database {
     this.name = name
   }
 
+  /**
+  * Creates a new role on the database where you run the command. The
+  * createRole command returns a duplicate user error if the user exists.
+  *
+  * @param {*} options
+  */
   async createRole ({ body, database }) {
     // Select the `system` database
     this.use('system')
 
-    const user = await this.getCollection('roles').find({
+    const role = await this.getCollection('roles').find({
       $and: [{ name: { $eq: body.name } }, { database: { $eq: database } }]
     })
 
-    if (user.length > 0) {
+    if (role.length > 0) {
       throw new Error(getErrorMessage('KDB0006'))
     }
 
     body.database = database
 
-    // select the `users` collection inside the `system` database
+    // select the `roles` collection inside the `system` database
     return this.getCollection('roles').insert([body])
   }
 
@@ -101,13 +107,41 @@ class Database {
   }
 
   /**
+   * Updates a user-defined role. The updateRole command must run on the role’s
+   * database.
+   *
+   * @param {*} options
+   */
+  async updateRole ({ body, database }) {
+    this.use('system')
+
+    const role = await this.getCollection('roles').find({
+      $and: [{ name: { $eq: body.name } }, { database: { $eq: database } }]
+    })
+
+    if (role.length === 0) {
+      throw new Error(getErrorMessage('KDB0009'))
+    }
+
+    body.database = database
+
+    // select the `roles` collection inside the `system` database
+    return this.getCollection('roles').update([
+      {
+        $and: [{ name: { $eq: body.name } }, { database: { $eq: database } }]
+      },
+      body
+    ])
+  }
+
+  /**
    * Updates the user’s profile on the database on which you run the command. An
    * update to a field completely replaces the previous field’s values,
    * including updates to the user’s roles.
    *
    * @param {*} options
    */
-  async updateUser (options) {
+  async updateUser ({ body, database }) {
     // {
     //   username: "appClient01",
     //   password: '<password>',
@@ -118,15 +152,22 @@ class Database {
     this.use('system')
 
     const user = await this.getCollection('users').find({
-      username: { $eq: options.username }
+      $and: [{ username: { $eq: body.username } }, { database: { $eq: database } }]
     })
 
     if (user.length === 0) {
       throw new Error(getErrorMessage('KDB0004'))
     }
 
+    body.database = database
+
     // select the `users` collection inside the `system` database
-    return this.getCollection('users').update([options])
+    return this.getCollection('users').update([
+      {
+        $and: [{ username: { $eq: body.username } }, { database: { $eq: database } }]
+      },
+      body
+    ])
   }
 
   /**

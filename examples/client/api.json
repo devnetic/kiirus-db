@@ -2,7 +2,8 @@
   {
     "command": "database-create-user",
     "options": {
-      "data": {
+      "database": "test-database",
+      "body": {
         "username": "john-doe",
         "password": 12345678,
         "customData": {
@@ -16,21 +17,26 @@
         ]
       }
     }
-  }, {
+  },
+  {
     "command": "collection-insert",
     "options": {
       "database": "test-database",
       "collection": "users",
       "body": []
     }
-  }, {
-    "command": "role-create",
+  },
+  {
+    "command": "database-create-role",
     "options": {
-      "name": "read",
-      "permissions": [
-        "find",
-        "listCollections"
-      ]
+      "database": "test-database",
+      "body": {
+        "name": "read",
+        "privileges": [
+          "find",
+          "listCollections"
+        ]
+      }
     }
   }
 ]

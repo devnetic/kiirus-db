@@ -1,8 +1,9 @@
-KDB0001=No Database Path provided
+KDB0001=No database path provided
 KDB0002=Command not implemented
 KDB0003=Duplicate user
-KDB0004=The User doesn't exist
+KDB0004=The user doesn't exist
 KDB0005=Command not implemented
 KDB0006=Duplicated role
 KDB0007=Unexpected error{{}}
 KDB0008=Unexpected error starting the engine
+KDB0009=The role doesn't exist
