@@ -5,9 +5,6 @@ import * as fetch from '@devnetic/fetch'
 
 import { Client } from './../src'
 
-console.log(fetch);
-
-
 const host = 'http://localhost'
 const port = 8008
 const database = 'test-database'

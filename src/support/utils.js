@@ -10,6 +10,100 @@ const camelCase = (value) => {
 }
 
 /**
+ * Returns date formatted according to given format
+ *
+ * @param {Date} time
+ * @param {string} format
+ * @param {Array<string>} [monthNames]
+ * @param {Array<string>} [dayNames]
+ * @returns {string}
+ */
+const dateFormat = (time, format, monthNames, dayNames) => {
+  // a global month names array
+  monthNames = monthNames || [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ]
+  // a global day names array
+  dayNames = dayNames || [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday'
+  ]
+
+  if (!time) {
+    return ''
+  }
+
+  return format.replace(/(yyyy|mmmm|mmm|mm|dddd|ddd|dd|hh|HH|nn|ss|a|A)/gi,
+    ($1) => {
+      switch ($1) {
+        // A full numeric representation of a year, 4 digits. 1999 or 2003
+        case 'yyyy':
+          return time.getFullYear()
+        // A full textual representation of a month, such as January or March. January through December
+        case 'mmmm':
+          return monthNames[time.getMonth()]
+        // A short textual representation of a month, three letters. Jan through Dec
+        case 'mmm':
+          return monthNames[time.getMonth()].substr(0, 3)
+        // Numeric representation of a month, with leading zeros. 01 through 12
+        case 'mm':
+          return String(time.getMonth() + 1).padStart(2, '0')
+        // ISO-8601 numeric representation of the day of the week. 1 (for Monday) through 7 (for Sunday)
+        case 'dddd':
+          return dayNames[time.getDay()]
+        // A textual representation of a day, three letters. Mon through Sun
+        case 'ddd':
+          return dayNames[time.getDay()].substr(0, 3)
+        // Day of the month, 2 digits with leading zeros. 01 to 31
+        case 'dd':
+          return String(time.getDate()).padStart(2, '0')
+        // 12-hour format of an hour with leading zeros. 01 through 12
+        case 'hh': {
+          // const hour = time.getUTCHours() % 12
+          const hour = time.getHours() - (time.getTimezoneOffset() / 60)
+
+          return String(hour || 12).padStart(2, 0)
+        }
+        // 24-hour format of an hour with leading zeros. 00 through 23
+        case 'HH':
+          return String(time.getHours()).padStart(2, '0')
+        // Minutes with leading zeros. 00 to 59
+        case 'nn':
+          return String(time.getMinutes()).padStart(2, '0')
+        // Seconds, with leading zeros. 00 through 59
+        case 'ss':
+          return String(time.getSeconds()).padStart(2, '0')
+        // Lowercase Ante meridiem and Post meridiem. am or pm
+        case 'a':
+          return time.getHours() < 12 ? 'am' : 'pm'
+        // Microseconds
+        case 'u':
+          return time.getMilliseconds() * 1000
+        // Uppercase Ante meridiem and Post meridiem. AM or PM
+        case 'A':
+          return time.getHours() < 12 ? 'AM' : 'PM'
+      }
+    }
+  )
+}
+
+/**
  *
  * @param {string} value
  * @returns {string}
@@ -115,6 +209,7 @@ const uuid = (a, b) => { for (b = a = ''; a++ < 36; b += a * 51 & 52 ? (a ^ 15 ?
 
 module.exports = {
   camelCase,
+  dateFormat,
   kebabCase,
   matchAll,
   msToTime,

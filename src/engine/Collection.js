@@ -199,13 +199,10 @@ class Collection {
       newName
     )
 
-    // try {
-      return storage.rename(this.getPath(), newPathname).catch(reason => {
-        return this.getError(e)
+    return storage.rename(this.getPath(), newPathname)
+      .catch(error => {
+        return this.getError(error)
       })
-    // } catch (e) {
-    //   return Promise.reject(this.getError(e))
-    // }
   }
 
   /**

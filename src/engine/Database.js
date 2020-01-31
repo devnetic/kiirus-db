@@ -13,20 +13,22 @@ class Database {
    *
    * @param {*} options
    */
-  async createUser (options) {
+  async createUser ({ body, database }) {
     // Select the `system` database
     this.use('system')
 
     const user = await this.getCollection('users').find({
-      username: { $eq: options.username }
+      $and: [{ username: { $eq: body.username } }, { database: { $eq: database } }]
     })
 
     if (user.length > 0) {
       throw new Error(getErrorMessage('KDB0003'))
     }
 
+    body.database = database
+
     // select the `users` collection inside the `system` database
-    return this.getCollection('users').insert([options])
+    return this.getCollection('users').insert([body])
   }
 
   drop (options) {

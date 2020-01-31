@@ -7,7 +7,7 @@ module.exports = [{
   handler: (request, response) => {
     response.json({ uptime: stats.getUptime() })
   }
-},{
+}, {
   type: 'get',
   path: '/info/version',
   handler: (request, response) => {
