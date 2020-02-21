@@ -1,5 +1,3 @@
-const recordName = 'record'
-
 const operators = {
   comparison: {
     $eq: '===',
@@ -16,183 +14,129 @@ const operators = {
     $nor: '!',
     $not: '!',
     $or: '||'
+  },
+  aggregation: {
+    $filter: 'filter'
+  },
+  array: ['$filter', '$in', '$nin']
+}
+
+const build = () => { }
+
+const getOperatorType = (element) => {
+  if (Object.keys(operators.logical).includes(element)) {
+    return 'logical'
+  } else if (Object.keys(operators.comparison).includes(element)) {
+    return 'comparison'
+  } else if (Object.keys(operators.aggregation).includes(element)) {
+    return 'aggregation'
   }
 }
 
-/**
-* Build a query filter function
-*
-* @param {Object} query
-*
-* @returns {Function}
-*/
-const build = (query) => {
-  return new Function(recordName, `return ${parse(query).join(` && `) || true}`) // eslint-disable-line
+const isOperator = (element) => {
+  if (Object.keys(operators.logical).includes(element) ||
+    Object.keys(operators.comparison).includes(element) ||
+    Object.keys(operators.aggregation).includes(element)
+  ) {
+    return true
+  }
+
+  return false
 }
 
-/**
- *
- * @param {array} item
- * @param {string} key
- * @returns {string}
- */
-const buildComparisonArray = (item, key) => {
-  return `[${item.map((element) => {
-    return getType(element) === 'string' ? `'${element}'` : element
-  })}].includes(${recordName}.${key})`
-}
-
-/**
- *
- * @param {string} type
- * @param {string} operator
- * @returns {string}
- */
-const getOperator = (type, operator) => {
-  return operators[type][operator]
-}
-
-/**
- *
- * @param {*} item
- * @returns {}
- */
-const getType = (item) => {
+const getItemType = (item) => {
   if (Array.isArray(item)) {
     return 'array'
-  } else if (Object.keys(operators.logical).includes(item)) {
-    return 'logical'
-  } else if (Object.keys(operators.comparison).includes(item)) {
-    return 'comparison'
   } else {
     return typeof item
   }
 }
 
-/**
- *
- * @param {string} operator
- * @returns {boolean}
- */
-const isLogicalOperator = (operator) => {
-  return operators.logical[operator] !== undefined
-}
-
-/**
- *
- * @param {*} query
- * @param {string} operator
- * @returns {Array}
- */
-const parse = (query, operator = '$eq') => {
-  const queryFunction = []
+const getTokens = (query) => {
+  const tokens = []
 
   for (const [key, item] of Object.entries(query)) {
-    const type = getType(item)
+    const itemType = getItemType(item)
+    const token = {}
 
-    if (isLogicalOperator(key) || isLogicalOperator(Object.keys(item)[0])) {
-      switch (type) {
-        case 'array':
-          queryFunction.push(
-            `${parseLogicalArray(item, key)}`
-          )
+    if (isOperator(key)) {
+      token.type = 'statement'
+      token.operator = key
 
-          break
+      const statement = parseStatement(item, key, itemType)
 
-        case 'object': {
-          const [queryOperator, queryItem] = Object.entries(item)[0]
-
-          // The only case for logical operator and type object is for $not
-          queryFunction.push(`!(${parse({ [key]: queryItem }, queryOperator)[0]})`)
-
-          break
-        }
+      if (statement) {
+        token.children = statement
+      } else {
+        token.type = 'expression'
+        token.operand = key
+        token.value = item
       }
-    } else { // is comparison operator
-      switch (type) {
-        case 'array':
-          queryFunction.push(
-            `${parseComparisonArray(item, key, operator)}`
-          )
+    } else {
+      token.type = 'expression'
 
-          break
-        case 'boolean':
-        case 'number':
-        case 'string':
-          queryFunction.push(parseScalar(key, item, operator, type))
+      if (itemType === 'object') {
+        const expression = parseExpression(item, itemType)
 
-          break
-
-        case 'object': {
-          const [queryOperator, queryItem] = Object.entries(item)[0]
-
-          queryFunction.push(parse({ [key]: queryItem }, queryOperator)[0])
-
-          break
+        if (expression[0].type === 'expression') {
+          token.operator = expression[0].operator
+          token.operand = key
+          // token.operand = expression[0].operand
+          token.value = expression[0].value
+        } else {
+          // token.type = 'statement'
+          token.operand = key
+          token.children = expression
         }
+      } else {
+        token.operator = '$eq'
+        token.operand = key
+        token.value = item
       }
     }
+
+    tokens.push(token)
   }
 
-  return queryFunction
+  return tokens
 }
 
-/**
- *
- * @param {Array} item
- * @param {string} key
- * @param {string} operator
- * @returns {string}
- */
-const parseComparisonArray = (item, key, operator) => {
-  switch (operator) {
-    case '$in':
-      return buildComparisonArray(item, key)
+const parseArray = (item, operator) => {
+  if (operators.array.includes(operator)) {
+    return
+  }
 
-    case '$nin':
-      return `!${buildComparisonArray(item, key)}`
+  const tokens = []
+
+  for (const element of item) {
+    tokens.push(...getTokens(element))
+  }
+
+  return tokens
+}
+
+const parseExpression = (expression, itemType) => {
+  if (itemType === 'object') {
+    return getTokens(expression)
+  }
+
+  const values = Object.entries(expression)[0]
+
+  return { operator: values[0], value: values[1] }
+}
+
+const parseStatement = (statement, operator, itemType) => {
+  if (itemType === 'array') {
+    return parseArray(statement, operator)
+  } else if (itemType === 'object') {
+    return getTokens(statement)
   }
 }
 
-/**
- *
- * @param {Array} query
- * @param {string} operator
- * @param {string} glue
- * @returns {string}
- */
-const parseLogicalArray = (query, operator) => {
-  if (operator === '$nor') {
-    return `!(${query.map((value) => {
-      return parse(value)
-    }).join(' || ')})`
-  }
-
-  operator = getOperator('logical', operator)
-
-  return `(${query.map((value) => {
-    return parse(value)
-  }).join(` ${operator} `)})`
-}
-
-/**
- *
- * @param {string} key
- * @param {string} value
- * @param {string} operator
- * @param {string} type
- * @returns {string}
- */
-const parseScalar = (key, value, operator, type) => {
-  if (type === 'string') {
-    value = `'${value}'`
-  }
-
-  operator = getOperator('comparison', operator)
-
-  return `${recordName}.${key} ${operator} ${value}`
+const parse = (query) => {
+  return getTokens(query)
 }
 
 module.exports = {
-  build
+  parse
 }

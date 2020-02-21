@@ -15,6 +15,7 @@ class Collection {
     this.extension = '.json'
     this.name = name
     this.queryParser = queryParser
+    this.records = []
   }
 
   /**
@@ -81,7 +82,7 @@ class Collection {
     }
   }
 
-  async drop (pathname) {
+  async drop () {
     try {
       await storage.deleteDir(this.getPath())
 
@@ -92,16 +93,40 @@ class Collection {
   }
 
   /**
-   * Select a fields set using a query expression
+   * Select a reccord set using a query expression
    *
    * @param {Function|Object} query
    * @returns {Promise<Array>}
    */
   async find (query = {}) {
     try {
-      return await this.getRecords(this.queryParser.build(query))
-    } catch (e) {
-      return Promise.reject(this.getError(e))
+      const result = await this.getRecords(this.queryParser.build(query))
+
+      return result.map(record => {
+        this.records.push(record.file)
+
+        return record.data
+      })
+    } catch (error) {
+      return Promise.reject(this.getError(error))
+    }
+  }
+
+  /**
+   * Select a record using a query expression
+   *
+   * @param {Function|Object} query
+   * @returns {Promise<Array>}
+   */
+  async findOne (query = {}) {
+    try {
+      const result = await this.find(query)
+
+      this.records.push(result[0].file)
+
+      return result[0]
+    } catch (error) {
+      return Promise.reject(this.getError(error))
     }
   }
 
@@ -168,7 +193,15 @@ class Collection {
    * @memberof Collection
    */
   async init (pathname) {
-    return storage.createDir(pathname, true, 0o766)
+    try {
+      return await storage.createDir(pathname, true, 0o766)
+    } catch (error) {
+      if ((error.message || error).indexOf('EEXIST') === -1) {
+        return new Error(error)
+      }
+
+      return true
+    }
   }
 
   /**
@@ -216,7 +249,7 @@ class Collection {
    */
   async update ([query, update]) {
     try {
-      const records = await this.find(query)
+      const records = await this.getRecords(this.queryParser.build(query))
 
       const response = {
         nModified: 0

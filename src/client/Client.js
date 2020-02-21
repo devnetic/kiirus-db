@@ -43,6 +43,11 @@ class Client {
     return new Client(url)
   }
 
+  /**
+   *
+   * @param {string} name
+   * @returns {Client}
+   */
   collection (name) {
     this.command.collection = name
 

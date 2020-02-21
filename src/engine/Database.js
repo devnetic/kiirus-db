@@ -11,7 +11,7 @@ class Database {
   * Creates a new role on the database where you run the command. The
   * createRole command returns a duplicate user error if the user exists.
   *
-  * @param {*} options
+  * @param {Object<{body: Object, database: string}} options
   */
   async createRole ({ body, database }) {
     // Select the `system` database
@@ -59,17 +59,31 @@ class Database {
     console.log(options)
   }
 
+  async dropRole ({ body, database }) {
+    // Select the `system` database
+    this.use('system')
+
+    const query = {
+      $and: [{ name: { $eq: body.name } }, { database: { $eq: database } }]
+    }
+
+    const role = await this.getCollection('roles').find(query)
+
+    if (role.length === 0) {
+      throw new Error(getErrorMessage('KDB0009'))
+    }
+
+    body.database = database
+
+    return this.getCollection('roles').delete(query)
+  }
+
   /**
    * Removes the user from the database on which you run the command.
    *
    * @param {*} options
    */
   dropUser (options) {
-    // {
-    //   username: "<user>",
-    // }
-    console.log(options)
-
     // Select the `system` database
     this.use('system')
 
@@ -96,6 +110,40 @@ class Database {
     return process.env.DB_PATH
   }
 
+  async getRole ({ body, database }) {
+    // Select the `system` database
+    this.use('system')
+
+    const query = {
+      $and: [{ name: { $eq: body.name } }, { database: { $eq: database } }]
+    }
+
+    const role = await this.getCollection('roles').find(query)
+
+    if (role.length === 0) {
+      throw new Error(getErrorMessage('KDB0009'))
+    }
+
+    return this.getCollection('roles').findOne(query)
+  }
+
+  async getRoles ({ body, database }) {
+    // Select the `system` database
+    this.use('system')
+
+    const query = {
+      database: { $eq: database }
+    }
+
+    const roles = await this.getCollection('roles').find(query)
+
+    return roles.map(role => {
+      const { _id, ...rest } = role
+
+      return rest
+    })
+  }
+
   /**
    * Get
    * @param {Object} options
@@ -104,6 +152,17 @@ class Database {
     const pathname = this.getPath()
 
     return storage.readDir(pathname)
+  }
+
+  revokeRolesFromUser ({ body, database }) {
+    // Select the `system` database
+    this.use('system')
+
+    return this.getCollection('users').update({
+      $and: [{ username: { $eq: body.username } }, { database: { $eq: database } }]
+    }, {
+      $filter: { roles: body.roles }
+    })
   }
 
   /**
@@ -142,13 +201,6 @@ class Database {
    * @param {*} options
    */
   async updateUser ({ body, database }) {
-    // {
-    //   username: "appClient01",
-    //   password: '<password>',
-    //   customData : { employeeId: "0x3039" },
-    //   roles: [{ role: "read", db: "assets" }]
-    // }
-    // Select the `system` database
     this.use('system')
 
     const user = await this.getCollection('users').find({

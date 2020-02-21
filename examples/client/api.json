@@ -19,11 +19,22 @@
     }
   },
   {
-    "command": "collection-insert",
+    "command": "database-update-user",
     "options": {
       "database": "test-database",
-      "collection": "users",
-      "body": []
+      "body": {
+        "username": "john-doe",
+        "password": 12345678,
+        "customData": {
+          "employeeId": 12345
+        },
+        "roles": [
+          {
+            "role": "readAnyDatabase",
+            "db": "admin"
+          }
+        ]
+      }
     }
   },
   {
@@ -37,6 +48,54 @@
           "listCollections"
         ]
       }
+    }
+  },
+  {
+    "command": "database-drop-role",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "name": "read"
+      }
+    }
+  },
+  {
+    "command": "database-get-role",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "name": "read"
+      }
+    }
+  },
+  {
+    "command": "database-get-roles",
+    "options": {
+      "database": "test-database"
+    }
+  },
+  {
+    "command": "database-update-role",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "name": "read",
+        "privileges": [
+          "find",
+          "listCollections",
+          "listIndexes"
+        ]
+      }
+    }
+  },
+  {
+    "command": "collection-insert",
+    "options": {
+      "database": "test-database",
+      "collection": "users",
+      "body": [
+        {}
+      ]
     }
   }
 ]

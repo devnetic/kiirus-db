@@ -190,7 +190,20 @@ const setValue = (object, path, value) => {
     object = object[path]
   }
 
-  object[keys.shift()] = value
+  const key = keys.shift()
+
+  switch (key) {
+    case '$filter': {
+      const [keyName, filter] = Object.entries(value)[0]
+
+      object[keyName] = object[keyName].filter(item => !filter.includes(item))
+
+      break
+    }
+    default:
+      object[key] = value
+  }
+
 
   return object
 }
