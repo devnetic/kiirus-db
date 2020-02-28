@@ -212,7 +212,7 @@ test('QueryParser logical operator: simple nor', t => {
 test('QueryParser logical operator: simple not', t => {
   const query = { price: { $not: { $gt: 1.99 } } }
   // const parsedQuery = '!(record.price > 1.99)'
-  let syntaxTree = [{
+  const syntaxTree = [{
     type: 'expression',
     operand: 'price',
     children: [
@@ -221,9 +221,9 @@ test('QueryParser logical operator: simple not', t => {
         operator: '$not',
         children: [
           {
-            type: 'expression',
+            type: 'expression-partial',
             operator: '$gt',
-            operand: '$gt',
+            operand: null,
             value: 1.99
           }
         ]
@@ -303,3 +303,24 @@ test('QueryParser aggregation operator: filter', t => {
   // t.is(parsedQuery, parser.parse(query))
   t.deepEqual(syntaxTree, parser.parse(query))
 })
+
+// test('QueryParser query an array of embedded documents', t => {
+//   const query = { instock: { warehouse: 'A', qty: 5 } }
+//   const syntaxTree = [{
+//     type: 'expression',
+//     operand: 'instock',
+//     children: [{
+//       type: 'expression',
+//       operator: '$eq',
+//       operand: 'warehouse',
+//       value: 'A'
+//     }, {
+//       type: 'expression',
+//       operator: '$eq',
+//       operand: 'qty',
+//       value: 5
+//     }]
+//   }]
+
+//   t.deepEqual(syntaxTree, parser.parse(query))
+// })

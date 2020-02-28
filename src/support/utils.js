@@ -204,7 +204,6 @@ const setValue = (object, path, value) => {
       object[key] = value
   }
 
-
   return object
 }
 

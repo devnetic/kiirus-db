@@ -16,7 +16,8 @@ let parsed = []
 // -----------------------------------------------------------------------------
 
 // query = { qty: 50 }
-// query = { instock: { warehouse: 'A', qty: 5 } }
+// query = { qty: { $lt: 50 } }
+// query = { instock: { warehouse: 'A', qty: 5 } } // don't accept this syntat, $filter is more appropied
 // query = { $and: [{ qty: { $ne: 25 } }, { status: { $eq: 'A' } }] }
 // query = {
 //   $and: [
@@ -28,7 +29,7 @@ let parsed = []
 // query = { qty: { $nin: [1, 2, 3] } }
 // query = { price: { $not: { $gt: 1.99 } } }
 // query = { status: 'A', qty: { $lt: 30 } }
-query = { $filter: { numbers: [1] } }
+// query = { $filter: { numbers: [1] } }
 // query = {
 //   item: 'journal',
 //   qty: { $lt: 50 },
@@ -39,7 +40,9 @@ query = { $filter: { numbers: [1] } }
 
 parsed = parser.parse(query)
 
-console.log(JSON.stringify(parsed, null, '  '))
+// console.log(JSON.stringify(parsed, null, '  '))
+
+console.log(parser.build(parsed))
 
 // [
 //   {

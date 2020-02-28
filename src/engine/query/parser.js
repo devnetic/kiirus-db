@@ -21,7 +21,53 @@ const operators = {
   array: ['$filter', '$in', '$nin']
 }
 
-const build = () => { }
+const compile = (syntaxTree) => {
+  const compiled = []
+
+  for (const token of syntaxTree) {
+    if (token.type === 'expression') {
+      if (!token.children) {
+        compiled.push(compileExpression(token))
+      } else {
+        compiled.push(compileExpression(token))
+
+        for (const child of token.children) {
+          compiled.push(compileExpression(child))
+        }
+      }
+    }
+  }
+
+  return compiled
+}
+
+const compileExpression = (expression) => {
+  // if (!expression.children) {
+    const { operand, operator, value } = expression
+
+    const type = getType(value || '')
+
+    switch (type) {
+      case 'boolean':
+      case 'number':
+      case 'string':
+        return `${operand} ${getOperator(operator)} ${value}`
+    }
+  // } else {
+  //   for (const child of expression.children) {
+  //     return compileExpression(child)
+  //   }
+  // }
+}
+
+/**
+ *
+ * @param {string} operator
+ * @returns {string}
+ */
+const getOperator = (operator = '$eq') => {
+  return operators[getOperatorType(operator)][operator]
+}
 
 const getOperatorType = (element) => {
   if (Object.keys(operators.logical).includes(element)) {
@@ -30,6 +76,23 @@ const getOperatorType = (element) => {
     return 'comparison'
   } else if (Object.keys(operators.aggregation).includes(element)) {
     return 'aggregation'
+  }
+}
+
+/**
+ *
+ * @param {*} item
+ * @returns {}
+ */
+const getType = (item) => {
+  if (Array.isArray(item)) {
+    return 'array'
+  } else if (Object.keys(operators.logical).includes(item)) {
+    return 'logical'
+  } else if (Object.keys(operators.comparison).includes(item)) {
+    return 'comparison'
+  } else {
+    return typeof item
   }
 }
 
@@ -59,7 +122,8 @@ const getTokens = (query) => {
     const itemType = getItemType(item)
     const token = {}
 
-    if (isOperator(key)) {
+    // if (isOperator(key)) {
+    if (['logical', 'aggregation'].includes(getOperatorType(key))) {
       token.type = 'statement'
       token.operator = key
 
@@ -78,7 +142,7 @@ const getTokens = (query) => {
       if (itemType === 'object') {
         const expression = parseExpression(item, itemType)
 
-        if (expression[0].type === 'expression') {
+        if (expression[0].type === 'expression-partial') {
           token.operator = expression[0].operator
           token.operand = key
           // token.operand = expression[0].operand
@@ -89,8 +153,15 @@ const getTokens = (query) => {
           token.children = expression
         }
       } else {
-        token.operator = '$eq'
-        token.operand = key
+        if (isOperator(key)) {
+          token.type = 'expression-partial'
+          token.operator = key
+          token.operand = null
+        } else {
+          token.operator = '$eq'
+          token.operand = key
+        }
+
         token.value = item
       }
     }
@@ -138,5 +209,6 @@ const parse = (query) => {
 }
 
 module.exports = {
+  compile,
   parse
 }
