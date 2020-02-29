@@ -215,20 +215,16 @@ test('QueryParser logical operator: simple not', t => {
   const syntaxTree = [{
     type: 'expression',
     operand: 'price',
-    children: [
-      {
-        type: 'statement',
-        operator: '$not',
-        children: [
-          {
-            type: 'expression-partial',
-            operator: '$gt',
-            operand: null,
-            value: 1.99
-          }
-        ]
-      }
-    ]
+    children: [{
+      type: 'statement',
+      operator: '$not',
+      children: [{
+        type: 'expression-partial',
+        operator: '$gt',
+        operand: null,
+        value: 1.99
+      }]
+    }]
   }]
 
   // t.is(parsedQuery, parser.parse(query))

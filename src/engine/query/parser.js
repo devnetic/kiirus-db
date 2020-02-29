@@ -1,3 +1,5 @@
+const RECORD_NAME = 'record'
+
 const operators = {
   comparison: {
     $eq: '===',
@@ -21,38 +23,114 @@ const operators = {
   array: ['$filter', '$in', '$nin']
 }
 
-const compile = (syntaxTree) => {
+/**
+ *
+ * @param {string} compiled
+ * @returns {Function}
+ */
+const build = (compiled) => {
+  return new Function(RECORD_NAME, `return ${compiled || true}`) // eslint-disable-line
+}
+
+/**
+ *
+ * @param {Array<Object>} syntaxTree
+ * @param {string} [join='&&']
+ * @returns {string}
+ */
+const compile = (syntaxTree, join = '&&') => {
   const compiled = []
 
   for (const token of syntaxTree) {
-    if (token.type === 'expression') {
-      if (!token.children) {
-        compiled.push(compileExpression(token))
-      } else {
-        compiled.push(compileExpression(token))
+    // console.log('token: %o', JSON.stringify(token))
 
-        for (const child of token.children) {
-          compiled.push(compileExpression(child))
-        }
-      }
+    // if (token.type === 'statement') {
+    //   join = getOperator(token.operator)
+    // }
+
+    if (token.children) {
+      compiled.push(`(${compile(token.children, getOperator(token.operator))})`)
+    }
+
+    if (token.type === 'expression') {
+      compiled.push(compileExpression(token))
     }
   }
 
-  return compiled
+  return compiled.join(` ${join} `)
+
+  // for (const token of syntaxTree) {
+  //   switch (token.type) {
+  //     case 'expression':
+  //       if (!token.children) {
+  //         compiled.push(compileExpression(token))
+  //       } else {
+  //         if (token.value) {
+  //           compiled.push(compileExpression(token))
+  //         } else {
+  //           compiled.push(token.operand)
+  //         }
+
+  //         for (const child of token.children) {
+  //           compiled.push(compileExpression(child))
+  //         }
+  //       }
+
+  //       break
+
+  //     case 'statement':
+  //       for (const expression of token.children) {
+  //         // compiled.push(compileExpression(expression))
+  //         compiled.push(compile(expression))
+  //       }
+  //   }
+  // }
+
+  // return compiled
 }
 
+/**
+ *
+ * @param {Array} values
+ * @param {string} key
+ * @returns {string}
+ */
+const compileComparisonArray = (values, key) => {
+  return `[${values.map(value => {
+    return getType(value) === 'string' ? `'${value}'` : value
+  })}].includes(${RECORD_NAME}.${key})`
+}
+
+/**
+ *
+ * @param {Object} expression
+ * @returns {string}
+ */
 const compileExpression = (expression) => {
   // if (!expression.children) {
-    const { operand, operator, value } = expression
+  const { operand, operator, value } = expression
 
-    const type = getType(value || '')
+  const type = getType(value)
 
-    switch (type) {
-      case 'boolean':
-      case 'number':
-      case 'string':
-        return `${operand} ${getOperator(operator)} ${value}`
-    }
+  switch (type) {
+    case 'array':
+      switch (operator) {
+        case '$in':
+          // return `[${value}].includes(${RECORD_NAME}.${operand})`
+          return compileComparisonArray(value, operand)
+        case '$nin':
+          // return `![${value}].includes(${RECORD_NAME}.${operand})`
+          return `!${compileComparisonArray(value, operand)}`
+      }
+
+      break
+    case 'boolean':
+    case 'number':
+    case 'string':
+      return `${RECORD_NAME}.${operand} ${getOperator(operator)} ${compileScalar(value)}`
+    default:
+      return getOperator(operator)
+  }
   // } else {
   //   for (const child of expression.children) {
   //     return compileExpression(child)
@@ -62,19 +140,37 @@ const compileExpression = (expression) => {
 
 /**
  *
+ * @param {*} value
+ * @returns {*}
+ */
+const compileScalar = (value) => {
+  if (getType(value) === 'string') {
+    return `'${value}'`
+  }
+
+  return value
+}
+
+/**
+ *
  * @param {string} operator
  * @returns {string}
  */
 const getOperator = (operator = '$eq') => {
-  return operators[getOperatorType(operator)][operator]
+  return operators[getOperatorType(operator)][operator] || undefined
 }
 
-const getOperatorType = (element) => {
-  if (Object.keys(operators.logical).includes(element)) {
+/**
+ *
+ * @param {string} operator
+ * @returns {string}
+ */
+const getOperatorType = (operator) => {
+  if (Object.keys(operators.logical).includes(operator)) {
     return 'logical'
-  } else if (Object.keys(operators.comparison).includes(element)) {
+  } else if (Object.keys(operators.comparison).includes(operator)) {
     return 'comparison'
-  } else if (Object.keys(operators.aggregation).includes(element)) {
+  } else if (Object.keys(operators.aggregation).includes(operator)) {
     return 'aggregation'
   }
 }
@@ -96,6 +192,11 @@ const getType = (item) => {
   }
 }
 
+/**
+ *
+ * @param {string} element
+ * @returns {boolean}
+ */
 const isOperator = (element) => {
   if (Object.keys(operators.logical).includes(element) ||
     Object.keys(operators.comparison).includes(element) ||
@@ -107,6 +208,11 @@ const isOperator = (element) => {
   return false
 }
 
+/**
+ *
+ * @param {*} item
+ * @returns {string}
+ */
 const getItemType = (item) => {
   if (Array.isArray(item)) {
     return 'array'
@@ -115,6 +221,11 @@ const getItemType = (item) => {
   }
 }
 
+/**
+ *
+ * @param {Object} query
+ * @returns {Array<Object>}
+ */
 const getTokens = (query) => {
   const tokens = []
 
@@ -172,6 +283,12 @@ const getTokens = (query) => {
   return tokens
 }
 
+/**
+ *
+ * @param {Array<Object>} item
+ * @param {string} operator
+ * @returns {Array<Object>}
+ */
 const parseArray = (item, operator) => {
   if (operators.array.includes(operator)) {
     return
@@ -186,6 +303,12 @@ const parseArray = (item, operator) => {
   return tokens
 }
 
+/**
+ *
+ * @param {Object} expression
+ * @param {string} itemType
+ * @returns {Object}
+ */
 const parseExpression = (expression, itemType) => {
   if (itemType === 'object') {
     return getTokens(expression)
@@ -196,6 +319,13 @@ const parseExpression = (expression, itemType) => {
   return { operator: values[0], value: values[1] }
 }
 
+/**
+ *
+ * @param {Object} statement
+ * @param {string} operator
+ * @param {string} itemType
+ * @returns {Array<Object>}
+ */
 const parseStatement = (statement, operator, itemType) => {
   if (itemType === 'array') {
     return parseArray(statement, operator)
@@ -204,11 +334,17 @@ const parseStatement = (statement, operator, itemType) => {
   }
 }
 
+/**
+ *
+ * @param {Object} query
+ * @returns {Array<Object>}
+ */
 const parse = (query) => {
   return getTokens(query)
 }
 
 module.exports = {
+  build,
   compile,
   parse
 }
