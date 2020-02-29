@@ -13,8 +13,8 @@ const operators = {
   },
   logical: {
     $and: '&&',
-    $nor: '!',
-    $not: '!',
+    $nor: { name: '$nor', template: '!(BODY)', join: '||' },
+    $not: { name: '$not', template: '!(OPERAND BODY)', join: '&&' },
     $or: '||'
   },
   aggregation: {
@@ -42,51 +42,30 @@ const compile = (syntaxTree, join = '&&') => {
   const compiled = []
 
   for (const token of syntaxTree) {
-    // console.log('token: %o', JSON.stringify(token))
-
-    // if (token.type === 'statement') {
-    //   join = getOperator(token.operator)
-    // }
-
     if (token.children) {
-      compiled.push(`(${compile(token.children, getOperator(token.operator))})`)
+      let children = `(${compile(token.children, getOperator(token.operator))})`
+
+      if (token.type === 'expression') {
+        children = children.replace('OPERAND', `${RECORD_NAME}.${token.operand}`)
+      }
+
+      compiled.push(children)
     }
 
-    if (token.type === 'expression') {
-      compiled.push(compileExpression(token))
+    if (token.type === 'expression' || token.type === 'expression-partial') {
+      const expression = compileExpression(token)
+
+      if (expression) {
+        compiled.push(expression)
+      }
     }
   }
 
+  if (getType(join) === 'object') {
+    return join.template.replace('BODY', compiled.join(` ${join.join} `))
+  }
+
   return compiled.join(` ${join} `)
-
-  // for (const token of syntaxTree) {
-  //   switch (token.type) {
-  //     case 'expression':
-  //       if (!token.children) {
-  //         compiled.push(compileExpression(token))
-  //       } else {
-  //         if (token.value) {
-  //           compiled.push(compileExpression(token))
-  //         } else {
-  //           compiled.push(token.operand)
-  //         }
-
-  //         for (const child of token.children) {
-  //           compiled.push(compileExpression(child))
-  //         }
-  //       }
-
-  //       break
-
-  //     case 'statement':
-  //       for (const expression of token.children) {
-  //         // compiled.push(compileExpression(expression))
-  //         compiled.push(compile(expression))
-  //       }
-  //   }
-  // }
-
-  // return compiled
 }
 
 /**
@@ -107,7 +86,6 @@ const compileComparisonArray = (values, key) => {
  * @returns {string}
  */
 const compileExpression = (expression) => {
-  // if (!expression.children) {
   const { operand, operator, value } = expression
 
   const type = getType(value)
@@ -116,10 +94,8 @@ const compileExpression = (expression) => {
     case 'array':
       switch (operator) {
         case '$in':
-          // return `[${value}].includes(${RECORD_NAME}.${operand})`
           return compileComparisonArray(value, operand)
         case '$nin':
-          // return `![${value}].includes(${RECORD_NAME}.${operand})`
           return `!${compileComparisonArray(value, operand)}`
       }
 
@@ -127,15 +103,14 @@ const compileExpression = (expression) => {
     case 'boolean':
     case 'number':
     case 'string':
+      if (operand === null) {
+        return `${getOperator(operator)} ${compileScalar(value)}`
+      }
+
       return `${RECORD_NAME}.${operand} ${getOperator(operator)} ${compileScalar(value)}`
     default:
-      return getOperator(operator)
+      return operator ? getOperator(operator) : undefined
   }
-  // } else {
-  //   for (const child of expression.children) {
-  //     return compileExpression(child)
-  //   }
-  // }
 }
 
 /**
@@ -233,7 +208,6 @@ const getTokens = (query) => {
     const itemType = getItemType(item)
     const token = {}
 
-    // if (isOperator(key)) {
     if (['logical', 'aggregation'].includes(getOperatorType(key))) {
       token.type = 'statement'
       token.operator = key
@@ -256,10 +230,8 @@ const getTokens = (query) => {
         if (expression[0].type === 'expression-partial') {
           token.operator = expression[0].operator
           token.operand = key
-          // token.operand = expression[0].operand
           token.value = expression[0].value
         } else {
-          // token.type = 'statement'
           token.operand = key
           token.children = expression
         }
