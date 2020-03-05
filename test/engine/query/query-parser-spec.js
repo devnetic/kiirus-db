@@ -1,6 +1,6 @@
 import test from 'ava'
 
-const { parser } = require('./../src/engine')
+const { parser } = require('../../../src/engine')
 
 test('QueryParser comparision operator: simple equal with operator', t => {
   const query = { qty: 50 }
@@ -188,17 +188,13 @@ test('QueryParser logical operator: simple nor', t => {
 test('QueryParser logical operator: simple not', t => {
   const query = { price: { $not: { $gt: 1.99 } } }
   const syntaxTree = [{
-    type: 'expression',
-    operand: 'price',
+    type: 'statement',
+    operator: '$not',
     children: [{
-      type: 'statement',
-      operator: '$not',
-      children: [{
-        type: 'expression-partial',
-        operator: '$gt',
-        operand: null,
-        value: 1.99
-      }]
+      type: 'expression',
+      operator: '$gt',
+      operand: 'price',
+      value: 1.99
     }]
   }]
 
@@ -254,17 +250,13 @@ test('QueryParser logical operator: complex query', t => {
 
 test('QueryParser aggregation operator: filter', t => {
   const query = {
-    $filter: { numbers: [1, 2, 3] }
+    numbers: { $filter: [1, 2, 3] }
   }
   const syntaxTree = [{
-    type: 'statement',
+    type: 'expression',
     operator: '$filter',
-    children: [{
-      type: 'expression',
-      operator: '$eq',
-      operand: 'numbers',
-      value: [1, 2, 3]
-    }]
+    operand: 'numbers',
+    value: [1, 2, 3]
   }]
 
   t.deepEqual(syntaxTree, parser.parse(query))

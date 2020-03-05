@@ -1,4 +1,19 @@
+const assert = require('assert').strict
+
 const { parser } = require('./../src/engine')
+
+const isEqual = (value, other) => {
+  try {
+    assert.deepEqual(value, other)
+
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
+console.log(isEqual({ a: 1 }, { a: '1' }))
+
 
 // parser.parse({
 //   $filter: { numbers: [1] }
@@ -17,7 +32,7 @@ let parsed = []
 
 // query = { qty: 50 }
 // query = { qty: { $ne: 50 } }
-query = { $and: [{ qty: { $ne: 25 } }, { status: { $eq: 'A' } }] }
+// query = { $and: [{ qty: { $ne: 25 } }, { status: { $eq: 'A' } }] }
 // query = { $or: [{ qty: { $ne: 25 } }, { status: { $eq: 'A' } }] }
 // query = {
 //   $and: [
@@ -29,7 +44,7 @@ query = { $and: [{ qty: { $ne: 25 } }, { status: { $eq: 'A' } }] }
 // query = { status: { $nin: ['A', 'B'] } }
 // query = { price: { $not: { $gt: 1.99 } } }
 // query = { status: 'A', qty: { $lt: 30 } }
-// query = { $filter: { numbers: [1] } }
+query = { numbers: { $filter: [1] } }
 // query = {
 //   item: 'journal',
 //   qty: { $lt: 50 },
