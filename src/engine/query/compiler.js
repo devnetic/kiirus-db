@@ -10,7 +10,8 @@ const compile = (syntaxTree, join = '&&') => {
   const compiled = []
 
   for (const token of syntaxTree) {
-    if (token.children) {
+    // if (token.children) {
+    if (token.type === 'statement') {
       let children = `(${compile(token.children, getOperator(token.operator))})`
 
       if (token.type === 'expression') {
@@ -18,10 +19,8 @@ const compile = (syntaxTree, join = '&&') => {
       }
 
       compiled.push(children)
-    }
-
-    // if (token.type === 'expression' || token.type === 'expression-partial') {
-    if (token.type === 'expression') {
+    } else {
+    // if (token.type === 'expression') {
       const expression = compileExpression(token)
 
       if (expression) {
@@ -44,9 +43,7 @@ const compile = (syntaxTree, join = '&&') => {
  * @returns {string}
  */
 const compileComparisonArray = (key, values) => {
-  return `[${values.map(value => {
-    return getType(value) === 'string' ? `'${value}'` : value
-  })}].includes(${RECORD_NAME}.${key})`
+  return `[${values.map(value => compileScalar(value)).join(',')}].includes(${RECORD_NAME}.${key})`
 }
 
 const compileArrayValues = (values) => {
@@ -80,18 +77,21 @@ const compileExpression = (expression) => {
     case 'boolean':
     case 'number':
     case 'string':
+      // TODO: Check if this block is dead code
       if (operand === null) {
         return `${getOperator(operator)} ${compileScalar(value)}`
       }
 
       return `${RECORD_NAME}.${operand} ${getOperator(operator)} ${compileScalar(value)}`
     default:
+      // TODO: Check if this block is dead code
       return operator ? getOperator(operator) : undefined
   }
 }
 
-const compileFilter = (operand, value) => {
-  return `${RECORD_NAME}.${operand}.filter(item => ${compileArrayValues(value)}.includes(item))`
+const compileFilter = (operand, values) => {
+  // return `${RECORD_NAME}.${operand}.filter(item => ${compileArrayValues(value)}.includes(item))`
+  return `[${values.map(value => compileScalar(value)).join(',')}].filter(value => isEqual(value, ${RECORD_NAME}.${operand}))`
 }
 
 /**
@@ -100,11 +100,7 @@ const compileFilter = (operand, value) => {
  * @returns {*}
  */
 const compileScalar = (value) => {
-  if (getType(value) === 'string') {
-    return `'${value}'`
-  }
-
-  return value
+  return typeof value === 'string' ? `'${value}'` : value
 }
 
 /**

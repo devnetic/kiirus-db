@@ -29,6 +29,10 @@ const getItemType = (item) => {
   }
 }
 
+const getOperand = (key, operand) => {
+  return !isOperator(key) ? key : (operand !== undefined ? operand : undefined)
+}
+
 /**
  *
  * @param {Object} query
@@ -41,60 +45,63 @@ const getTokens = (query, operand) => {
     const itemType = getItemType(item)
     const token = {}
 
-    if (itemType === 'object') {
-      const partialExpression = getTokens(item, !isOperator(key) ? key : undefined)[0]
-
-      if (isOperator(key)) {
-        if (operand) {
-          partialExpression.operand = operand
+    switch (itemType) {
+      case 'array':
+        if (!isOperator(key)) {
+          token.operator = '$eq'
+        } else {
+          token.operator = key
         }
 
-        token.type = 'statement'
-        token.operator = key
-        token.children = [partialExpression]
+        if (OPERATORS.array.includes(key)) {
+          token.type = 'expression'
+          token.operand = operand
+
+          token.value = item
+        } else {
+          token.type = 'statement'
+          token.children = []
+
+          for (const element of item) {
+            token.children.push(...getTokens(element))
+          }
+        }
 
         tokens.push(token)
-      } else {
-        if (partialExpression.type === 'expression') {
-          partialExpression.operand = key // TODO: Testing this
+
+        break
+
+      case 'object': {
+        const parsedTokens = getTokens(item, getOperand(key, operand))
+
+        if (isOperator(key)) {
+          token.type = 'statement'
+          token.operator = key
+          token.children = [...parsedTokens]
+
+          tokens.push(token)
+        } else {
+          tokens.push(...parsedTokens)
         }
 
-        tokens.push(partialExpression)
-      }
-    } else if (itemType === 'array') {
-      if (!isOperator(key)) {
-        token.operator = '$eq'
-      } else {
-        token.operator = key
+        break
       }
 
-      if (OPERATORS.array.includes(key)) {
+      default:
         token.type = 'expression'
-
         token.value = item
-      } else {
-        token.type = 'statement'
-        token.children = []
 
-        for (const element of item) {
-          token.children.push(...getTokens(element))
+        if (isOperator(key)) {
+          token.operator = key
+          token.operand = operand
+        } else {
+          token.operand = key
+          token.operator = '$eq'
         }
-      }
 
-      tokens.push(token)
-    } else {
-      token.type = 'expression'
+        tokens.push(token)
 
-      if (isOperator(key)) {
-        token.operator = key
-        token.operand = null
-      } else {
-        token.operand = key
-        token.operator = '$eq'
-      }
-
-      token.value = item
-      tokens.push(token)
+        break
     }
   }
 

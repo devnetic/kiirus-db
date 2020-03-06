@@ -6,7 +6,7 @@ const { RECORD_NAME } = require('./common')
  * @returns {Function}
  */
 const build = (compiled) => {
-  return new Function(RECORD_NAME, `return ${compiled || true}`) // eslint-disable-line
+  return new Function(RECORD_NAME, 'isEqual', `debugger; return ${compiled || true}`) // eslint-disable-line
 }
 
 module.exports = {

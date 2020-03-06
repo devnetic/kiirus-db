@@ -1,19 +1,6 @@
-const assert = require('assert').strict
+const { builder, compiler, parser } = require('./../src/engine')
 
-const { parser } = require('./../src/engine')
-
-const isEqual = (value, other) => {
-  try {
-    assert.deepEqual(value, other)
-
-    return true
-  } catch (error) {
-    return false
-  }
-}
-
-console.log(isEqual({ a: 1 }, { a: '1' }))
-
+const { utils } = require('./../src/support')
 
 // parser.parse({
 //   $filter: { numbers: [1] }
@@ -40,11 +27,12 @@ let parsed = []
 //     { $or: [{ sale: true }, { qty: { $lt: 20 } }] }
 //   ]
 // }
-// query = { status: { $in: ['A', 'B'] } }
+// query = { qty: { $in: [1, 2, 3] } }
 // query = { status: { $nin: ['A', 'B'] } }
-// query = { price: { $not: { $gt: 1.99 } } }
+query = { price: { $not: { $gt: 1.99 } } }
 // query = { status: 'A', qty: { $lt: 30 } }
-query = { numbers: { $filter: [1] } }
+// query = { numbers: { $filter: [1, 'A', 'B'] } }
+// query = { instock: { $filter: [{ warehouse: 'A', qty: 5 }] } }
 // query = {
 //   item: 'journal',
 //   qty: { $lt: 50 },
@@ -54,27 +42,26 @@ query = { numbers: { $filter: [1] } }
 // }
 // query = { instock: { warehouse: 'A', qty: 5 } } // don't accept this syntat, $filter is more appropied
 // query = { $nor: [{ price: 1.99 }, { item: 'journal' }] }
-// query = { price: { $not: { $gt: 1.99 } } }
 
 parsed = parser.parse(query)
 
 // console.log(JSON.stringify(parsed, null, '  '))
 
-const compiled = parser.compile(parsed)
-const builded = parser.build(compiled)
+const compiled = compiler.compile(parsed)
+const builded = builder.build(compiled)
 
 console.log(compiled)
 // console.log(builded)
 
-const data = [
-  { item: 'journal', price: 1.99, instock: [{ warehouse: 'A', qty: 5 }, { warehouse: 'C', qty: 15 }] },
-  { item: 'notebook', price: 2.99, instock: [{ warehouse: 'C', qty: 5 }] },
-  { item: 'paper', price: 4.99, instock: [{ warehouse: 'A', qty: 60 }, { warehouse: 'B', qty: 15 }] },
-  { item: 'planner', price: 1.99, instock: [{ warehouse: 'A', qty: 40 }, { warehouse: 'B', qty: 5 }] },
-  { item: 'postcard', price: 5.99, instock: [{ warehouse: 'B', qty: 15 }, { warehouse: 'C', qty: 35 }] }
-]
+// const data = [
+//   { item: 'journal', price: 1.99, instock: [{ warehouse: 'A', qty: 5 }, { warehouse: 'C', qty: 15 }] },
+//   { item: 'notebook', price: 2.99, instock: [{ warehouse: 'C', qty: 5 }] },
+//   { item: 'paper', price: 4.99, instock: [{ warehouse: 'A', qty: 60 }, { warehouse: 'B', qty: 15 }] },
+//   { item: 'planner', price: 1.99, instock: [{ warehouse: 'A', qty: 40 }, { warehouse: 'B', qty: 5 }] },
+//   { item: 'postcard', price: 5.99, instock: [{ warehouse: 'B', qty: 15 }, { warehouse: 'C', qty: 35 }] }
+// ]
 
-console.log(data.filter(builded))
+// console.log(data.filter((param) => builded(param, utils.isEqual)))
 
 // [
 //   {
