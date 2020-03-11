@@ -24,7 +24,23 @@ const OPERATORS = {
   array: ['$filter', '$in', '$nin']
 }
 
+/**
+ *
+ * @param {string} operator
+ * @returns {string}
+ */
+const getOperatorType = (operator) => {
+  if (Object.keys(OPERATORS.logical).includes(operator)) {
+    return 'logical'
+  } else if (Object.keys(OPERATORS.comparison).includes(operator)) {
+    return 'comparison'
+  } else if (Object.keys(OPERATORS.aggregation).includes(operator)) {
+    return 'aggregation'
+  }
+}
+
 module.exports = {
   OPERATORS,
-  RECORD_NAME
+  RECORD_NAME,
+  getOperatorType
 }

@@ -1,24 +1,24 @@
 import test from 'ava'
-import sinon from 'sinon'
+// import sinon from 'sinon'
 
-import * as fetch from '@devnetic/fetch'
+// import * as fetch from '@devnetic/fetch'
 
-import { Client } from './../src'
+// import { Client } from './../src'
 
-const host = 'http://localhost'
-const port = 8008
-const database = 'test-database'
-const collection = 'tasks'
+// const host = 'http://localhost'
+// const port = 8008
+// const database = 'test-database'
+// const collection = 'tasks'
 
-const client = Client.connect(`${host}:${port}`)
+// const client = Client.connect(`${host}:${port}`)
 
-let fetchStub
-let sendSpy
+// let fetchStub
+// let sendSpy
 
-test.beforeEach(t => {
-  fetchStub = sinon.stub(fetch, 'default')
-  sendSpy = sinon.spy(client, 'send')
-})
+// test.beforeEach(t => {
+//   fetchStub = sinon.stub(fetch, 'default')
+//   sendSpy = sinon.spy(client, 'send')
+// })
 
 test('collection insert records succesfully', async (t) => {
   // const expectedCommand = {

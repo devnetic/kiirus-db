@@ -1,4 +1,4 @@
-const { OPERATORS, RECORD_NAME } = require('./common')
+const { OPERATORS, RECORD_NAME, getOperatorType } = require('./common')
 
 /**
  *
@@ -36,6 +36,12 @@ const compile = (syntaxTree, join = '&&') => {
   return compiled.join(` ${join} `)
 }
 
+const compileArrayValues = (values) => {
+  return `[${values.map(value => {
+    return getType(value) === 'string' ? `'${value}'` : value
+  })}]`
+}
+
 /**
  *
  * @param {Array} values
@@ -44,12 +50,6 @@ const compile = (syntaxTree, join = '&&') => {
  */
 const compileComparisonArray = (key, values) => {
   return `[${values.map(value => compileScalar(value)).join(',')}].includes(${RECORD_NAME}.${key})`
-}
-
-const compileArrayValues = (values) => {
-  return `[${values.map(value => {
-    return getType(value) === 'string' ? `'${value}'` : value
-  })}]`
 }
 
 /**
@@ -64,22 +64,33 @@ const compileExpression = (expression) => {
 
   switch (type) {
     case 'array':
+    case 'object':
       switch (operator) {
+        case '$eq':
+          return `isEqual(${RECORD_NAME}.${operand}, ${JSON.stringify(value)})`
         case '$filter':
-          return compileFilter(operand, value)
+          return compileFilter(operand, value, type)
         case '$in':
           return compileComparisonArray(operand, value)
         case '$nin':
           return `!${compileComparisonArray(operand, value)}`
+        default:
+          return value
       }
-
-      break
     case 'boolean':
     case 'number':
     case 'string':
       // TODO: Check if this block is dead code
       if (operand === null) {
         return `${getOperator(operator)} ${compileScalar(value)}`
+      }
+
+      if (operator === '$eq') {
+        return `isEqual(${RECORD_NAME}.${operand}, ${compileScalar(value)})`
+      }
+
+      if (operator === '$ne') {
+        return `!isEqual(${RECORD_NAME}.${operand}, ${compileScalar(value)})`
       }
 
       return `${RECORD_NAME}.${operand} ${getOperator(operator)} ${compileScalar(value)}`
@@ -89,9 +100,20 @@ const compileExpression = (expression) => {
   }
 }
 
-const compileFilter = (operand, values) => {
+const compileFilter = (operand, value, type) => {
   // return `${RECORD_NAME}.${operand}.filter(item => ${compileArrayValues(value)}.includes(item))`
-  return `[${values.map(value => compileScalar(value)).join(',')}].filter(value => isEqual(value, ${RECORD_NAME}.${operand}))`
+  // return `[${values.map(value => compileScalar(value)).join(',')}].filter(value => isEqual(value, ${RECORD_NAME}.${operand}))`
+  // return `${RECORD_NAME}.${operand}.filter(item => ${compile(values)})`
+  // return `${RECORD_NAME}.${operand}.filter(item => isEqual(item, ${value}))`
+  return `${RECORD_NAME}.${operand}.filter(item => ${compileFilterValue(value, type)})`
+}
+
+const compileFilterValue = (value, type) => {
+  if (type === 'object') {
+    return `isEqual(item, ${JSON.stringify(value)})`
+  } else if (type === 'array') {
+    return `${compileArrayValues(value)}.some(element => isEqual(element, item))`
+  }
 }
 
 /**
@@ -117,15 +139,15 @@ const getOperator = (operator = '$eq') => {
  * @param {string} operator
  * @returns {string}
  */
-const getOperatorType = (operator) => {
-  if (Object.keys(OPERATORS.logical).includes(operator)) {
-    return 'logical'
-  } else if (Object.keys(OPERATORS.comparison).includes(operator)) {
-    return 'comparison'
-  } else if (Object.keys(OPERATORS.aggregation).includes(operator)) {
-    return 'aggregation'
-  }
-}
+// const getOperatorType = (operator) => {
+//   if (Object.keys(OPERATORS.logical).includes(operator)) {
+//     return 'logical'
+//   } else if (Object.keys(OPERATORS.comparison).includes(operator)) {
+//     return 'comparison'
+//   } else if (Object.keys(OPERATORS.aggregation).includes(operator)) {
+//     return 'aggregation'
+//   }
+// }
 
 /**
  *

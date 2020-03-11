@@ -2,13 +2,54 @@ import test from 'ava'
 
 const { parser } = require('../../../src/engine')
 
-test('QueryParser comparision operator: simple equal with operator', t => {
+test('QueryParser comparision operator: simple equal without operator', t => {
   const query = { qty: 50 }
   const syntaxTree = [{
     type: 'expression',
     operator: '$eq',
     operand: 'qty',
     value: 50
+  }]
+
+  t.deepEqual(syntaxTree, parser.parse(query))
+})
+
+test('QueryParser comparision operator: simple equal with operator', t => {
+  const query = { qty: { $eq: 50 } }
+  const syntaxTree = [{
+    type: 'expression',
+    operator: '$eq',
+    operand: 'qty',
+    value: 50
+  }]
+
+  t.deepEqual(syntaxTree, parser.parse(query))
+})
+
+test('QueryParser comparision operator: complex equal with operator', t => {
+  const query = { size: { h: 14, w: 21, uom: 'cm' } }
+  const syntaxTree = [{
+    type: 'expression',
+    operator: '$eq',
+    operand: 'size',
+    value: { h: 14, w: 21, uom: 'cm' }
+  }]
+
+  t.deepEqual(syntaxTree, parser.parse(query))
+})
+
+test('QueryParser comparision operator: multiple operators', t => {
+  const query = { qty: { $gt: 10, $lte: 20 } }
+  const syntaxTree = [{
+    type: 'expression',
+    operator: '$gt',
+    operand: 'qty',
+    value: 10
+  }, {
+    type: 'expression',
+    operator: '$lte',
+    operand: 'qty',
+    value: 20
   }]
 
   t.deepEqual(syntaxTree, parser.parse(query))
@@ -248,7 +289,7 @@ test('QueryParser logical operator: complex query', t => {
   t.deepEqual(syntaxTree, parser.parse(query))
 })
 
-test('QueryParser aggregation operator: filter', t => {
+test('QueryParser aggregation operator: filter with array value', t => {
   const query = {
     numbers: { $filter: [1, 2, 3] }
   }
@@ -262,23 +303,14 @@ test('QueryParser aggregation operator: filter', t => {
   t.deepEqual(syntaxTree, parser.parse(query))
 })
 
-// test('QueryParser query an array of embedded documents', t => {
-//   const query = { instock: { warehouse: 'A', qty: 5 } }
-//   const syntaxTree = [{
-//     type: 'expression',
-//     operand: 'instock',
-//     children: [{
-//       type: 'expression',
-//       operator: '$eq',
-//       operand: 'warehouse',
-//       value: 'A'
-//     }, {
-//       type: 'expression',
-//       operator: '$eq',
-//       operand: 'qty',
-//       value: 5
-//     }]
-//   }]
+test('QueryParser aggregation operator: filter with object value', t => {
+  const query = { instock: { $filter: { warehouse: 'A', qty: 5 } } }
+  const syntaxTree = [{
+    type: 'expression',
+    operator: '$filter',
+    operand: 'instock',
+    value: { warehouse: 'A', qty: 5 }
+  }]
 
-//   t.deepEqual(syntaxTree, parser.parse(query))
-// })
+  t.deepEqual(syntaxTree, parser.parse(query))
+})
