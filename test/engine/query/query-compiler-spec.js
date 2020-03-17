@@ -24,7 +24,7 @@ test('QueryParser comparision operator: simple equal with operator', t => {
 
 test('QueryParser comparision operator: complex equal with operator', t => {
   const query = { size: { h: 14, w: 21, uom: 'cm' } }
-  const compiledQuery = `isEqual(${RECORD_NAME}.size, {"h":14,"w":21,"uom":"cm"})`
+  const compiledQuery = 'getType(record.size) === \'array\' ? record.size.find(item => isEqual(item, {"h":14,"w":21,"uom":"cm"})) : isEqual(record.size, {"h":14,"w":21,"uom":"cm"})'
 
   const parsed = parser.parse(query)
 
