@@ -13,7 +13,7 @@ let parsed = []
 
 // query = { qty: 50 }
 // query = { qty: { $ne: 50 } }
-query = { size: { h: 14, w: 21, uom: 'cm' } }
+// query = { size: { h: 14, w: 21, uom: 'cm' } }
 // query = { qty: { $gt: 10, $lte: 20 } }
 // query = { $and: [{ qty: { $ne: 25 } }, { status: { $eq: 'A' } }] }
 // query = { $or: [{ qty: { $ne: 25 } }, { status: { $eq: 'A' } }] }
@@ -37,7 +37,8 @@ query = { size: { h: 14, w: 21, uom: 'cm' } }
 //   'size.h': { $lte: 8.5 },
 //   $or: [{ 'size.w': 14 }, { 'size.h': { $gte: 8.5 } }]
 // }
-// query = { instock: { warehouse: 'A', qty: 5 } } // don't accept this syntat, $filter is more appropied
+// query = { instock: { warehouse: 'A', qty: 5 } }
+query = { test: { foo: 'bar' } }
 // query = { $nor: [{ price: 1.99 }, { item: 'journal' }] }
 
 parsed = parser.parse(query)
@@ -58,7 +59,13 @@ const data = [
   { item: 'postcard', price: 5.99, instock: [{ warehouse: 'B', qty: 15 }, { warehouse: 'C', qty: 35 }] }
 ]
 
-console.log(data.filter((param) => builded(param, utils.isEqual)))
+console.log(JSON.stringify(data.filter((param) => builded(param, utils.isEqual, utils.getType)), null, '  '))
+
+// const result = data.filter(item => {
+//   return utils.getType(item.instock) === 'array' ? item.instock.find(item => utils.isEqual(item, { "warehouse": "A", "qty": 5 })) : isEqual(item.instock, { "warehouse": "A", "qty": 5 })
+// })
+
+// console.log(JSON.stringify(result, null, '  '))
 
 // [
 //   {

@@ -103,6 +103,45 @@ const dateFormat = (time, format, monthNames, dayNames) => {
   )
 }
 
+const getType = (value) => {
+  return Array.isArray(value) ? 'array' : typeof value
+}
+
+/**
+ * Performs a deep comparison between two values to determine if they are
+ * equal.
+ *
+ * @param {*} value First value to compare.
+ * @param {*} other Second value to compare.
+ */
+const isEqual = (value, other) => {
+  if (Object.is(value, other)) {
+    return true
+  }
+
+  // Test the types
+  if (Object.prototype.toString.call(value) !== Object.prototype.toString.call(other)) {
+    return false
+  }
+
+  // Test object keys length
+  if (Object.keys(value).length !== Object.keys(other).length) {
+    return false
+  }
+
+  for (const key of Object.keys(value)) {
+    if (typeof value[key] === 'object') {
+      if (!isEqual(value[key], other[key])) {
+        return false
+      }
+    } else if (value[key] !== other[key]) {
+      return false
+    }
+  }
+
+  return true
+}
+
 /**
  *
  * @param {string} value
@@ -219,44 +258,10 @@ const setValue = (object, path, value) => {
  */
 const uuid = (a, b) => { for (b = a = ''; a++ < 36; b += a * 51 & 52 ? (a ^ 15 ? 8 ^ Math.random() * (a ^ 20 ? 16 : 4) : 4).toString(16) : '-'); return b }
 
-/**
- * Performs a deep comparison between two values to determine if they are
- * equal.
- *
- * @param {*} value First value to compare.
- * @param {*} other Second value to compare.
- */
-const isEqual = (value, other) => {
-  if (Object.is(value, other)) {
-    return true
-  }
-
-  // Test the types
-  if (Object.prototype.toString.call(value) !== Object.prototype.toString.call(other)) {
-    return false
-  }
-
-  // Test object keys length
-  if (Object.keys(value).length !== Object.keys(other).length) {
-    return false
-  }
-
-  for (const key of Object.keys(value)) {
-    if (typeof value[key] === 'object') {
-      if (!isEqual(value[key], other[key])) {
-        return false
-      }
-    } else if (value[key] !== other[key]) {
-      return false
-    }
-  }
-
-  return true
-}
-
 module.exports = {
   camelCase,
   dateFormat,
+  getType,
   isEqual,
   kebabCase,
   matchAll,

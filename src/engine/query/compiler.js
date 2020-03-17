@@ -10,17 +10,9 @@ const compile = (syntaxTree, join = '&&') => {
   const compiled = []
 
   for (const token of syntaxTree) {
-    // if (token.children) {
     if (token.type === 'statement') {
-      let children = `(${compile(token.children, getOperator(token.operator))})`
-
-      if (token.type === 'expression') {
-        children = children.replace('OPERAND', `${RECORD_NAME}.${token.operand}`)
-      }
-
-      compiled.push(children)
+      compiled.push(`(${compile(token.children, getOperator(token.operator))})`)
     } else {
-    // if (token.type === 'expression') {
       const expression = compileExpression(token)
 
       if (expression) {
@@ -67,7 +59,7 @@ const compileExpression = (expression) => {
     case 'object':
       switch (operator) {
         case '$eq':
-          return `isEqual(${RECORD_NAME}.${operand}, ${JSON.stringify(value)})`
+          return `getType(${RECORD_NAME}.${operand}) === 'array' ? ${compileFind(operand, value, type)} : isEqual(${RECORD_NAME}.${operand}, ${JSON.stringify(value)})`
         case '$filter':
           return compileFilter(operand, value, type)
         case '$in':
@@ -80,19 +72,6 @@ const compileExpression = (expression) => {
     case 'boolean':
     case 'number':
     case 'string':
-      // TODO: Check if this block is dead code
-      if (operand === null) {
-        return `${getOperator(operator)} ${compileScalar(value)}`
-      }
-
-      if (operator === '$eq') {
-        return `isEqual(${RECORD_NAME}.${operand}, ${compileScalar(value)})`
-      }
-
-      if (operator === '$ne') {
-        return `!isEqual(${RECORD_NAME}.${operand}, ${compileScalar(value)})`
-      }
-
       return `${RECORD_NAME}.${operand} ${getOperator(operator)} ${compileScalar(value)}`
     default:
       // TODO: Check if this block is dead code
@@ -101,11 +80,11 @@ const compileExpression = (expression) => {
 }
 
 const compileFilter = (operand, value, type) => {
-  // return `${RECORD_NAME}.${operand}.filter(item => ${compileArrayValues(value)}.includes(item))`
-  // return `[${values.map(value => compileScalar(value)).join(',')}].filter(value => isEqual(value, ${RECORD_NAME}.${operand}))`
-  // return `${RECORD_NAME}.${operand}.filter(item => ${compile(values)})`
-  // return `${RECORD_NAME}.${operand}.filter(item => isEqual(item, ${value}))`
   return `${RECORD_NAME}.${operand}.filter(item => ${compileFilterValue(value, type)})`
+}
+
+const compileFind = (operand, value, type) => {
+  return `${RECORD_NAME}.${operand}.find(item => ${compileFilterValue(value, type)})`
 }
 
 const compileFilterValue = (value, type) => {
@@ -126,6 +105,7 @@ const compileScalar = (value) => {
 }
 
 /**
+ * Get the language operator symbol for the given query symbol
  *
  * @param {string} operator
  * @returns {string}
@@ -135,34 +115,20 @@ const getOperator = (operator = '$eq') => {
 }
 
 /**
+ * Return the operand type <array|logical|comparison|object|primitive>
  *
- * @param {string} operator
+ * @param {*} value
  * @returns {string}
  */
-// const getOperatorType = (operator) => {
-//   if (Object.keys(OPERATORS.logical).includes(operator)) {
-//     return 'logical'
-//   } else if (Object.keys(OPERATORS.comparison).includes(operator)) {
-//     return 'comparison'
-//   } else if (Object.keys(OPERATORS.aggregation).includes(operator)) {
-//     return 'aggregation'
-//   }
-// }
-
-/**
- *
- * @param {*} item
- * @returns {}
- */
-const getType = (item) => {
-  if (Array.isArray(item)) {
+const getType = (value) => {
+  if (Array.isArray(value)) {
     return 'array'
-  } else if (Object.keys(OPERATORS.logical).includes(item)) {
+  } else if (Object.keys(OPERATORS.logical).includes(value)) {
     return 'logical'
-  } else if (Object.keys(OPERATORS.comparison).includes(item)) {
+  } else if (Object.keys(OPERATORS.comparison).includes(value)) {
     return 'comparison'
   } else {
-    return typeof item
+    return typeof value
   }
 }
 
