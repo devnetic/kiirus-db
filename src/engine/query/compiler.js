@@ -69,13 +69,17 @@ const compileExpression = (expression, type = 'query') => {
     case 'object':
       switch (operator) {
         case '$eq':
-          return `getType(${RECORD_NAME}.${operand}) === 'array' ? ${compileFind(operand, value, valueType)} : isEqual(${RECORD_NAME}.${operand}, ${JSON.stringify(value)})`
+          return `getType(${RECORD_NAME}.${operand}) === 'array' ? ${compileFind(operand, operator, value, valueType)} : isEqual(${RECORD_NAME}.${operand}, ${JSON.stringify(value)})`
         case '$filter':
-          return compileFilter(operand, value, valueType)
+          return compileFilter(operand, operator, value, valueType)
         case '$in':
           return compileComparisonArray(operand, value)
         case '$nin':
           return `!${compileComparisonArray(operand, value)}`
+        case '$pull':
+          return compileFilter(operand, operator, value, valueType)
+        case '$push':
+          return compilePush(operand, value, valueType)
         default:
           // TODO: Check if this block is dead code
           return value
@@ -90,20 +94,24 @@ const compileExpression = (expression, type = 'query') => {
   }
 }
 
-const compileFilter = (operand, value, type) => {
-  return `${RECORD_NAME}.${operand} = ${RECORD_NAME}.${operand}.filter(item => ${compileFilterValue(value, type)})`
+const compileFilter = (operand, operator, value, type) => {
+  return `${RECORD_NAME}.${operand} = ${RECORD_NAME}.${operand}.filter(item => ${compileFilterValue(operator, value, type)})`
 }
 
-const compileFind = (operand, value, type) => {
-  return `${RECORD_NAME}.${operand}.find(item => ${compileFilterValue(value, type)})`
+const compileFind = (operand, operator, value, type) => {
+  return `${RECORD_NAME}.${operand}.find(item => ${compileFilterValue(operator, value, type)})`
 }
 
-const compileFilterValue = (value, type) => {
+const compileFilterValue = (operator, value, type) => {
   if (type === 'object') {
     return `isEqual(item, ${JSON.stringify(value)})`
   } else if (type === 'array') {
-    return `${compileArrayValues(value)}.some(element => isEqual(element, item))`
+    return `${operator === '$pull' ? '!' : ''}${compileArrayValues(value)}.some(element => isEqual(element, item))`
   }
+}
+
+const compilePush = (operand, value, valueType) => {
+  return `${RECORD_NAME}.${operand}.push(${valueType === 'array' ? '...' : ''}${compileArrayValues(value)})`
 }
 
 /**

@@ -118,13 +118,13 @@ class Database {
       $and: [{ name: { $eq: body.name } }, { database: { $eq: database } }]
     }
 
-    const role = await this.getCollection('roles').find(query)
+    const role = await this.getCollection('roles').findOne(query)
 
-    if (role.length === 0) {
+    if (!role) {
       throw new Error(getErrorMessage('KDB0009'))
     }
 
-    return this.getCollection('roles').findOne(query)
+    return role
   }
 
   async getRoles ({ body, database }) {
@@ -144,6 +144,34 @@ class Database {
     })
   }
 
+  async grantRolesToUser ({ body, database }) {
+    // Select the `system` database
+    this.use('system')
+
+    return this.getCollection('users').update([{
+      $and: [{ username: { $eq: body.username } }, { database: { $eq: database } }]
+    }, {
+      roles: { $push: body.roles }
+    }])
+  }
+
+  async getUser ({ body, database }) {
+    // Select the `system` database
+    this.use('system')
+
+    const query = {
+      $and: [{ username: { $eq: body.username } }, { database: { $eq: database } }]
+    }
+
+    const user = await this.getCollection('users').findOne(query)
+
+    if (!user) {
+      throw new Error(getErrorMessage('KDB0010'))
+    }
+
+    return user
+  }
+
   /**
    * Get
    * @param {Object} options
@@ -161,7 +189,7 @@ class Database {
     return this.getCollection('users').update([{
       $and: [{ username: { $eq: body.username } }, { database: { $eq: database } }]
     }, {
-      roles: { $filter: body.roles }
+      roles: { $pull: body.roles }
     }])
   }
 

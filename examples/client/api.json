@@ -38,6 +38,15 @@
     }
   },
   {
+    "command": "database-get-user",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "username": "john-doe"
+      }
+    }
+  },
+  {
     "command": "database-create-role",
     "options": {
       "database": "test-database",
@@ -97,6 +106,25 @@
         "roles": [
           "read",
           "readWrite"
+        ]
+      }
+    }
+  },
+  {
+    "command": "database-grant-roles-to-user",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "username": "john-doe",
+        "roles": [
+          {
+            "role": "readAnyDatabase",
+            "db": "admin"
+          },
+          {
+            "role": "readWrite",
+            "db": "test-database"
+          }
         ]
       }
     }

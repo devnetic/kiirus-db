@@ -28,7 +28,7 @@ let parsed = []
 // query = { $nor: [{ price: 1.99 }, { sale: true }] }
 // query = { status: 'A', qty: { $lt: 30 } }
 // query = { numbers: { $filter: [1, 'A', 'B'] } }
-query = { instock: { $filter: { warehouse: 'A', qty: 5 } } }
+// query = { instock: { $filter: { warehouse: 'A', qty: 5 } } }
 // query = { instock: { $filter: [{ warehouse: 'A', qty: 5 }] } }
 // query = {
 //   item: 'journal',
@@ -46,6 +46,9 @@ query = { instock: { $filter: { warehouse: 'A', qty: 5 } } }
 //   status: 'P'
 // }
 
+// query = { fruits: { $pull: ['apples', 'oranges'] } }
+query = { fruits: { $push: ['passion fruit', 'watermelon'] } }
+
 const type = 'query'
 const join = '; '
 parsed = parser.parse(query)
@@ -58,12 +61,16 @@ const builded = builder.build(compiled, type)
 console.log(compiled)
 // console.log(builded)
 
+// const data = [
+//   { item: 'journal', price: 1.99, instock: [{ warehouse: 'A', qty: 5 }, { warehouse: 'C', qty: 15 }] },
+//   { item: 'notebook', price: 2.99, instock: [{ warehouse: 'C', qty: 5 }] },
+//   { item: 'paper', price: 4.99, instock: [{ warehouse: 'A', qty: 60 }, { warehouse: 'B', qty: 15 }] },
+//   { item: 'planner', price: 1.99, instock: [{ warehouse: 'A', qty: 40 }, { warehouse: 'B', qty: 5 }] },
+//   { item: 'postcard', price: 5.99, instock: [{ warehouse: 'B', qty: 15 }, { warehouse: 'C', qty: 35 }] }
+// ]
+
 const data = [
-  { item: 'journal', price: 1.99, instock: [{ warehouse: 'A', qty: 5 }, { warehouse: 'C', qty: 15 }] },
-  { item: 'notebook', price: 2.99, instock: [{ warehouse: 'C', qty: 5 }] },
-  { item: 'paper', price: 4.99, instock: [{ warehouse: 'A', qty: 60 }, { warehouse: 'B', qty: 15 }] },
-  { item: 'planner', price: 1.99, instock: [{ warehouse: 'A', qty: 40 }, { warehouse: 'B', qty: 5 }] },
-  { item: 'postcard', price: 5.99, instock: [{ warehouse: 'B', qty: 15 }, { warehouse: 'C', qty: 35 }] }
+  { fruits: ['apples', 'pears', 'oranges', 'grapes', 'bananas'] }
 ]
 
 // const data = [{

@@ -19,7 +19,9 @@ const OPERATORS = {
     $or: '||'
   },
   aggregation: {
-    $filter: 'filter'
+    $filter: 'filter',
+    $pull: 'filter',
+    $push: 'push'
   },
   array: ['$filter', '$in', '$nin']
 }

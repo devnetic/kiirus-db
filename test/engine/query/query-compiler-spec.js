@@ -177,7 +177,7 @@ test('logical operator: complex query', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('aggregation operator: filter with scalar values', t => {
+test('aggregation operator: $filter with scalar values', t => {
   const query = {
     numbers: { $filter: [1, 2, 3, 'a'] }
   }
@@ -188,7 +188,7 @@ test('aggregation operator: filter with scalar values', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('aggregation operator: filter with object value', t => {
+test('aggregation operator: $filter with object value', t => {
   const query = { instock: { $filter: { warehouse: 'A', qty: 5 } } }
   const compiledQuery = 'record.instock = record.instock.filter(item => isEqual(item, {"warehouse":"A","qty":5}))'
 
@@ -197,7 +197,7 @@ test('aggregation operator: filter with object value', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('aggregation operator: filter with array value', t => {
+test('aggregation operator: $filter with array value', t => {
   const query = { instock: { $filter: [{ warehouse: 'A', qty: 5 }] } }
   const compiledQuery = 'record.instock = record.instock.filter(item => [{"warehouse":"A","qty":5}].some(element => isEqual(element, item)))'
 
@@ -209,6 +209,24 @@ test('aggregation operator: filter with array value', t => {
 test('aggregation operator: set values', t => {
   const query = { 'size.uom': 'in', status: 'P' }
   const compiledQuery = 'record.size.uom = \'in\'; record.status = \'P\''
+
+  const parsed = parser.parse(query)
+
+  t.is(compiledQuery, compiler.compile(parsed, 'aggregation', ';'))
+})
+
+test('aggregation operator: $pull values', t => {
+  const query = { fruits: { $pull: ['apples', 'oranges'] } }
+  const compiledQuery = 'record.fruits = record.fruits.filter(item => ![\'apples\',\'oranges\'].some(element => isEqual(element, item)))'
+
+  const parsed = parser.parse(query)
+
+  t.is(compiledQuery, compiler.compile(parsed, 'aggregation', ';'))
+})
+
+test('aggregation operator: $push values', t => {
+  const query = { fruits: { $push: ['apples', 'oranges'] } }
+  const compiledQuery = 'record.fruits.push(...[\'apples\',\'oranges\'])'
 
   const parsed = parser.parse(query)
 

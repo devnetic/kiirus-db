@@ -124,7 +124,7 @@ class Collection {
     try {
       const result = await this.find(query)
 
-      this.records.push(result[0].file)
+      // this.records.push(result[0])
 
       return result[0]
     } catch (error) {
