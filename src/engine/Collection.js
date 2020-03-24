@@ -1,7 +1,8 @@
 const path = require('path')
 
 const ObjectId = require('./ObjectId')
-const queryParser = require('./query/parser')
+// const queryParser = require('./query/parser')
+const { runner } = require('./query')
 const { storage, utils } = require('./../support')
 
 class Collection {
@@ -14,7 +15,7 @@ class Collection {
     this.database = database
     this.extension = '.json'
     this.name = name
-    this.queryParser = queryParser
+    this.query = runner
     this.records = []
   }
 
@@ -100,7 +101,8 @@ class Collection {
    */
   async find (query = {}) {
     try {
-      const result = await this.getRecords(this.queryParser.build(query))
+      // const result = await this.getRecords(this.queryParser.build(query))
+      const result = await this.getRecords(this.query.run(query))
 
       return result.map(record => {
         this.records.push(record.file)
@@ -249,21 +251,23 @@ class Collection {
    */
   async update ([query, update]) {
     try {
-      const records = await this.getRecords(this.queryParser.build(query))
+      const records = await this.getRecords(this.query.run(query))
 
       const response = {
         nModified: 0
       }
 
       for (const record of records) {
-        for (const [key, value] of Object.entries(update)) {
-          utils.setValue(record.data, key, value)
-        }
+        // for (const [key, value] of Object.entries(update)) {
+        //   utils.setValue(record.data, key, value)
+        // }
 
         // const pathname = path.join(
         //   this.getPath(),
         //   record.file + this.extension
         // )
+
+        record.data = this.query.run(update, 'aggregation', '; ')(record.data, utils.isEqual, utils.getType)
 
         const result = await storage.writeJson(record.file, record.data, true)
 

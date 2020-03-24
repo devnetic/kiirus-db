@@ -4,7 +4,7 @@ const { compiler, parser } = require('../../../src/engine')
 
 const RECORD_NAME = 'record'
 
-test('QueryParser comparision operator: simple equal without operator', t => {
+test('comparision operator: simple equal without operator', t => {
   const query = { qty: 50 }
   const compiledQuery = `${RECORD_NAME}.qty === 50`
 
@@ -13,7 +13,7 @@ test('QueryParser comparision operator: simple equal without operator', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser comparision operator: simple equal with operator', t => {
+test('comparision operator: simple equal with operator', t => {
   const query = { qty: { $eq: 50 } }
   const compiledQuery = `${RECORD_NAME}.qty === 50`
 
@@ -22,7 +22,7 @@ test('QueryParser comparision operator: simple equal with operator', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser comparision operator: complex equal with operator', t => {
+test('comparision operator: complex equal with operator', t => {
   const query = { size: { h: 14, w: 21, uom: 'cm' } }
   const compiledQuery = 'getType(record.size) === \'array\' ? record.size.find(item => isEqual(item, {"h":14,"w":21,"uom":"cm"})) : isEqual(record.size, {"h":14,"w":21,"uom":"cm"})'
 
@@ -31,7 +31,7 @@ test('QueryParser comparision operator: complex equal with operator', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser comparision operator: multiple operators', t => {
+test('comparision operator: multiple operators', t => {
   const query = { qty: { $gt: 10, $lte: 20 } }
   const compiledQuery = `${RECORD_NAME}.qty > 10 && ${RECORD_NAME}.qty <= 20`
 
@@ -40,7 +40,7 @@ test('QueryParser comparision operator: multiple operators', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser comparision operator: simple not equal', t => {
+test('comparision operator: simple not equal', t => {
   const query = { qty: { $ne: 50 } }
   const compiledQuery = `${RECORD_NAME}.qty !== 50`
 
@@ -49,7 +49,7 @@ test('QueryParser comparision operator: simple not equal', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser comparision operator: simple less than', t => {
+test('comparision operator: simple less than', t => {
   const query = { qty: { $lt: 50 } }
   const compiledQuery = `${RECORD_NAME}.qty < 50`
 
@@ -58,7 +58,7 @@ test('QueryParser comparision operator: simple less than', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser comparision operator: simple greater than', t => {
+test('comparision operator: simple greater than', t => {
   const query = { qty: { $gt: 50 } }
   const compiledQuery = `${RECORD_NAME}.qty > 50`
 
@@ -67,7 +67,7 @@ test('QueryParser comparision operator: simple greater than', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser comparision operator: simple less than or equal', t => {
+test('comparision operator: simple less than or equal', t => {
   const query = { qty: { $lte: 50 } }
   const compiledQuery = `${RECORD_NAME}.qty <= 50`
 
@@ -76,7 +76,7 @@ test('QueryParser comparision operator: simple less than or equal', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser comparision operator: simple greater than or equal', t => {
+test('comparision operator: simple greater than or equal', t => {
   const query = { qty: { $gte: 50 } }
   const compiledQuery = `${RECORD_NAME}.qty >= 50`
 
@@ -85,7 +85,7 @@ test('QueryParser comparision operator: simple greater than or equal', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser comparision operator: simple in', t => {
+test('comparision operator: simple in', t => {
   let query = { qty: { $in: [1, 2, 3] } }
   let compiledQuery = `[1,2,3].includes(${RECORD_NAME}.qty)`
 
@@ -101,7 +101,7 @@ test('QueryParser comparision operator: simple in', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser comparision operator: simple not in', t => {
+test('comparision operator: simple not in', t => {
   let query = { qty: { $nin: [1, 2, 3] } }
   let compiledQuery = `![1,2,3].includes(${RECORD_NAME}.qty)`
 
@@ -117,7 +117,7 @@ test('QueryParser comparision operator: simple not in', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser logical operator: simple and', t => {
+test('logical operator: simple and', t => {
   const query = { $and: [{ qty: { $ne: 25 } }, { status: { $eq: 'A' } }] }
   const compiledQuery = `(${RECORD_NAME}.qty !== 25 && ${RECORD_NAME}.status === 'A')`
 
@@ -126,7 +126,7 @@ test('QueryParser logical operator: simple and', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser logical operator: simple or', t => {
+test('logical operator: simple or', t => {
   const query = { $or: [{ qty: { $ne: 25 } }, { status: { $eq: 'A' } }] }
   const compiledQuery = `(${RECORD_NAME}.qty !== 25 || ${RECORD_NAME}.status === 'A')`
 
@@ -135,7 +135,7 @@ test('QueryParser logical operator: simple or', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser logical operator: simple nor', t => {
+test('logical operator: simple nor', t => {
   let query = { $nor: [{ price: 1.99 }, { sale: true }] }
   let compiledQuery = `(!(${RECORD_NAME}.price === 1.99 || ${RECORD_NAME}.sale === true))`
 
@@ -151,7 +151,7 @@ test('QueryParser logical operator: simple nor', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser logical operator: simple not', t => {
+test('logical operator: simple not', t => {
   const query = { price: { $not: { $gt: 1.99 } } }
   const compiledQuery = '(!(record.price > 1.99))'
 
@@ -160,7 +160,7 @@ test('QueryParser logical operator: simple not', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser logical operator: complex query', t => {
+test('logical operator: complex query', t => {
   const query = {
     item: 'journal',
     qty: { $lt: 50 },
@@ -177,22 +177,40 @@ test('QueryParser logical operator: complex query', t => {
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser aggregation operator: filter with array value', t => {
+test('aggregation operator: filter with scalar values', t => {
   const query = {
-    numbers: { $filter: [1, 2, 3] }
+    numbers: { $filter: [1, 2, 3, 'a'] }
   }
-  const compiledQuery = 'record.numbers.filter(item => [1,2,3].some(element => isEqual(element, item)))'
+  const compiledQuery = 'record.numbers = record.numbers.filter(item => [1,2,3,\'a\'].some(element => isEqual(element, item)))'
 
   const parsed = parser.parse(query)
 
   t.is(compiledQuery, compiler.compile(parsed))
 })
 
-test('QueryParser aggregation operator: filter with object value', t => {
+test('aggregation operator: filter with object value', t => {
   const query = { instock: { $filter: { warehouse: 'A', qty: 5 } } }
-  const compiledQuery = 'record.instock.filter(item => isEqual(item, {"warehouse":"A","qty":5}))'
+  const compiledQuery = 'record.instock = record.instock.filter(item => isEqual(item, {"warehouse":"A","qty":5}))'
 
   const parsed = parser.parse(query)
 
   t.is(compiledQuery, compiler.compile(parsed))
+})
+
+test('aggregation operator: filter with array value', t => {
+  const query = { instock: { $filter: [{ warehouse: 'A', qty: 5 }] } }
+  const compiledQuery = 'record.instock = record.instock.filter(item => [{"warehouse":"A","qty":5}].some(element => isEqual(element, item)))'
+
+  const parsed = parser.parse(query)
+
+  t.is(compiledQuery, compiler.compile(parsed))
+})
+
+test('aggregation operator: set values', t => {
+  const query = { 'size.uom': 'in', status: 'P' }
+  const compiledQuery = 'record.size.uom = \'in\'; record.status = \'P\''
+
+  const parsed = parser.parse(query)
+
+  t.is(compiledQuery, compiler.compile(parsed, 'aggregation', ';'))
 })

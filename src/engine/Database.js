@@ -158,11 +158,11 @@ class Database {
     // Select the `system` database
     this.use('system')
 
-    return this.getCollection('users').update({
+    return this.getCollection('users').update([{
       $and: [{ username: { $eq: body.username } }, { database: { $eq: database } }]
     }, {
-      $filter: { roles: body.roles }
-    })
+      roles: { $filter: body.roles }
+    }])
   }
 
   /**

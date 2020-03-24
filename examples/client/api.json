@@ -89,6 +89,19 @@
     }
   },
   {
+    "command": "database-revoke-roles-from-user",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "username": "john-doe",
+        "roles": [
+          "read",
+          "readWrite"
+        ]
+      }
+    }
+  },
+  {
     "command": "collection-insert",
     "options": {
       "database": "test-database",
