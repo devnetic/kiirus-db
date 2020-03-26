@@ -1,12 +1,12 @@
 import test from 'ava'
 
-const { utils } = require('../../src/support')
+import { utils } from '../../src/support'
 
 test('simple values should pass', async (t) => {
   t.true(utils.isEqual(1, 1))
 })
 
-test('no type cohersion should be applied', async (t) => {
+test('no type coercion should be applied', async (t) => {
   t.false(utils.isEqual(1, '1'))
 })
 

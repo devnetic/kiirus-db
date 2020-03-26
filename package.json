@@ -11,6 +11,11 @@
     "coverage": "nyc ava",
     "report": "nyc report --reporter=html"
   },
+  "ava": {
+    "require": [
+      "esm"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/devnetic/kiirus-db.git"
