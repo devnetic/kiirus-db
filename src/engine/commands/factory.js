@@ -1,7 +1,7 @@
-const CollectionCommand = require('./CollectionCommand')
-const DatabaseCommand = require('./DatabaseCommand')
-
-const { getErrorMessage, utils } = require('./../../support')
+import CollectionCommand from './CollectionCommand'
+import DatabaseCommand from './DatabaseCommand'
+import RoleCommand from './RoleCommand'
+import { getErrorMessage, utils } from './../../support'
 
 /**
  *
@@ -17,6 +17,9 @@ const getCommand = (command) => {
 
     case 'database':
       return new DatabaseCommand(method)
+
+    case 'role':
+      return new RoleCommand(method)
 
     default:
       throw new Error(getErrorMessage('KDB0005'))
@@ -37,6 +40,4 @@ const parseCommand = (command) => {
   }
 }
 
-module.exports = {
-  getCommand
-}
+export default getCommand

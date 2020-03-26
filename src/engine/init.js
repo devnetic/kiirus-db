@@ -1,6 +1,6 @@
-const path = require('path')
+import path from 'path'
 
-const { storage } = require('./../support')
+import { storage } from './../support'
 
 /**
  * Create the roles collection
@@ -29,7 +29,7 @@ const createUsersCollection = () => {
 /**
  * Create the system databases and collections
  */
-const initEngine = async () => {
+const startEngine = async () => {
   try {
     const roles = await createRolesCollection()
 
@@ -50,4 +50,4 @@ const initEngine = async () => {
   }
 }
 
-module.exports = initEngine
+export default startEngine

@@ -47,7 +47,7 @@
     }
   },
   {
-    "command": "database-create-role",
+    "command": "role-create",
     "options": {
       "database": "test-database",
       "body": {
@@ -60,7 +60,7 @@
     }
   },
   {
-    "command": "database-drop-role",
+    "command": "role-drop",
     "options": {
       "database": "test-database",
       "body": {
@@ -69,7 +69,7 @@
     }
   },
   {
-    "command": "database-get-role",
+    "command": "role-get",
     "options": {
       "database": "test-database",
       "body": {
@@ -78,13 +78,13 @@
     }
   },
   {
-    "command": "database-get-roles",
+    "command": "role-get-all",
     "options": {
       "database": "test-database"
     }
   },
   {
-    "command": "database-update-role",
+    "command": "role-update",
     "options": {
       "database": "test-database",
       "body": {
@@ -98,7 +98,7 @@
     }
   },
   {
-    "command": "database-revoke-roles-from-user",
+    "command": "role-revoke-roles-from-user",
     "options": {
       "database": "test-database",
       "body": {
@@ -111,7 +111,7 @@
     }
   },
   {
-    "command": "database-grant-roles-to-user",
+    "command": "role-grant-roles-to-user",
     "options": {
       "database": "test-database",
       "body": {

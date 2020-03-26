@@ -47,10 +47,18 @@ let parsed = []
 // }
 
 // query = { fruits: { $pull: ['apples', 'oranges'] } }
-query = { fruits: { $push: ['passion fruit', 'watermelon'] } }
+// query = { fruits: { $push: ['passion fruit', 'watermelon'] } }
+query = {
+  name: 'read',
+  privileges: [
+    'find',
+    'listCollections',
+    'listIndexes'
+  ]
+}
 
-const type = 'query'
-const join = '; '
+const type = 'aggregation'
+const join = ';'
 parsed = parser.parse(query)
 
 // console.log(JSON.stringify(parsed, null, '  '))

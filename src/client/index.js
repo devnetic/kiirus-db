@@ -1,5 +1,3 @@
-const Client = require('./Client')
+import Client from './Client'
 
-module.exports = {
-  Client
-}
+export default Client

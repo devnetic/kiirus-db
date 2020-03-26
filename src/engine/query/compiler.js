@@ -1,4 +1,4 @@
-const { OPERATORS, RECORD_NAME, getOperatorType } = require('./common')
+import { OPERATORS, RECORD_NAME, getOperatorType } from './common'
 
 /**
  *
@@ -53,6 +53,18 @@ const compileComparisonArray = (key, values) => {
   return `[${values.map(value => compileScalar(value)).join(',')}].includes(${RECORD_NAME}.${key})`
 }
 
+const compileEqual = (expression, type, valueTypee) => {
+  const { operand, operator, value } = expression
+
+  const valueType = getType(value)
+
+  if (type === 'query') {
+    return `getType(${RECORD_NAME}.${operand}) === 'array' ? ${compileFind(operand, operator, value, valueType)} : isEqual(${RECORD_NAME}.${operand}, ${JSON.stringify(value)})`
+  } else {
+    return `${RECORD_NAME}.${operand} = ${compileArrayValues(value)}`
+  }
+}
+
 /**
  *
  * @param {Object} expression
@@ -69,7 +81,7 @@ const compileExpression = (expression, type = 'query') => {
     case 'object':
       switch (operator) {
         case '$eq':
-          return `getType(${RECORD_NAME}.${operand}) === 'array' ? ${compileFind(operand, operator, value, valueType)} : isEqual(${RECORD_NAME}.${operand}, ${JSON.stringify(value)})`
+          return compileEqual(expression, type, valueType)
         case '$filter':
           return compileFilter(operand, operator, value, valueType)
         case '$in':
@@ -160,6 +172,4 @@ const getType = (value) => {
   }
 }
 
-module.exports = {
-  compile
-}
+export default compile

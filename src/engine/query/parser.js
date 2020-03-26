@@ -1,4 +1,4 @@
-const { OPERATORS, getOperatorType } = require('./common')
+import { OPERATORS, getOperatorType } from './common'
 
 /**
  *
@@ -108,6 +108,4 @@ const parse = (query) => {
   return getTokens(query)
 }
 
-module.exports = {
-  parse
-}
+export default parse

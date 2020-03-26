@@ -1,11 +1,10 @@
-const path = require('path')
+import path from 'path'
 
-const ObjectId = require('./ObjectId')
-// const queryParser = require('./query/parser')
-const { runner } = require('./query')
-const { storage, utils } = require('./../support')
+import ObjectId from '../ObjectId'
+import { runner } from '../query'
+import { storage, utils } from '../../support'
 
-class Collection {
+export default class Collection {
   /**
    *
    * @param {string} database
@@ -15,7 +14,7 @@ class Collection {
     this.database = database
     this.extension = '.json'
     this.name = name
-    this.query = runner
+    this.query = { run: runner }
     this.records = []
   }
 
@@ -123,8 +122,6 @@ class Collection {
   async findOne (query = {}) {
     try {
       const result = await this.find(query)
-
-      // this.records.push(result[0])
 
       return result[0]
     } catch (error) {
@@ -267,7 +264,7 @@ class Collection {
         //   record.file + this.extension
         // )
 
-        record.data = this.query.run(update, 'aggregation', '; ')(record.data, utils.isEqual, utils.getType)
+        record.data = this.query.run(update, 'aggregation', ';')(record.data, utils.isEqual, utils.getType)
 
         const result = await storage.writeJson(record.file, record.data, true)
 
@@ -323,5 +320,3 @@ class Collection {
     return response
   }
 }
-
-module.exports = Collection

@@ -41,7 +41,7 @@ const getOperatorType = (operator) => {
   }
 }
 
-module.exports = {
+export {
   OPERATORS,
   RECORD_NAME,
   getOperatorType

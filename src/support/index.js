@@ -1,13 +1,13 @@
-const loadEnv = require('./load-env')
-const error = require('./error')
-const help = require('./help')
-const storage = require('./storage')
-const utils = require('./utils')
+import * as loadEnv from './load-env'
+import * as storage from './storage'
+import * as utils from './utils'
+import help from './help'
 
-module.exports = {
-  loadEnv,
-  ...error,
+export {
   help,
+  loadEnv,
   storage,
   utils
 }
+
+export * from './error'

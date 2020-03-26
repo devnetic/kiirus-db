@@ -1,4 +1,4 @@
-const utils = require('./../support/utils')
+import { utils } from './../support'
 
 /**
  *
@@ -24,7 +24,7 @@ const getErrorMessage = (code, message) => {
   return `${code}: ${process.env[code].replace('{{}}', message ? ` [${message}]` : '')} - ${utils.dateFormat(new Date(), 'yyyy-mm-dd HH:nn:ss')}`
 }
 
-module.exports = {
+export {
   createError,
   getErrorMessage
 }

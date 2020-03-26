@@ -1,7 +1,7 @@
-const packageInfo = require('./../../package')
-const { stats } = require('./../engine')
+import packageInfo from './../../package'
+import { stats } from './../engine'
 
-module.exports = [{
+const routes = [{
   type: 'get',
   path: '/info',
   handler: (request, response) => {
@@ -14,3 +14,5 @@ module.exports = [{
     response.json({ version: packageInfo.version })
   }
 }]
+
+export default routes

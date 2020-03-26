@@ -32,7 +32,8 @@
   "dependencies": {
     "@devnetic/cli": "^1.0.2",
     "@devnetic/fetch": "^1.0.1",
-    "@devnetic/server": "^1.0.1"
+    "@devnetic/server": "^1.0.1",
+    "esm": "^3.2.25"
   },
   "devDependencies": {
     "ava": "^2.4.0",

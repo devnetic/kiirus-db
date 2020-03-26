@@ -1,6 +1,6 @@
-const Database = require('./Database')
-const commands = require('./commands')
-const { createError } = require('./../support')
+import * as commands from './commands'
+import { Database } from './entities'
+import { createError } from './../support'
 
 /**
  * Main execution point for the engine
@@ -31,4 +31,4 @@ const run = async (request, response) => {
   }
 }
 
-module.exports = run
+export default run

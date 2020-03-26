@@ -1,6 +1,6 @@
-const fs = require('fs')
-const path = require('path')
-const util = require('util')
+import fs from 'fs'
+import path from 'path'
+import util from 'util'
 
 /**
  * Recursively creates a directory in the hard disk
@@ -217,7 +217,7 @@ const writeJson = (pathname, content, sync = false, encoding = 'utf8', mode = 0o
   return writeFile(pathname, JSON.stringify(content), sync, encoding, mode)
 }
 
-module.exports = {
+export {
   createDir,
   deleteDir,
   deleteFile,

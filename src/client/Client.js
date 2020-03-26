@@ -1,5 +1,6 @@
-const fetch = require('@devnetic/fetch')
-const { utils } = require('./../support')
+import fetch from '@devnetic/fetch'
+
+import { utils } from './../support'
 
 /**
  * @typedef {Object} Command
@@ -7,7 +8,7 @@ const { utils } = require('./../support')
  * @property {Object} [options] Options for the command; this attribute is optional
  */
 
-class Client {
+export default class Client {
   constructor (url) {
     this.command = {
       current: 'database',
@@ -125,5 +126,3 @@ class Client {
     return response.json()
   }
 }
-
-module.exports = Client

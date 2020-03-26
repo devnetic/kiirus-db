@@ -1,4 +1,4 @@
-const fs = require('fs')
+import fs from 'fs'
 
 /**
  * Load the .env file and set the ENV variables
@@ -29,7 +29,7 @@ const set = (key, value) => {
   process.env[key] = value
 }
 
-module.exports = {
+export {
   load,
   set
 }

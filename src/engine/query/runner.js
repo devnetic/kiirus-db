@@ -1,16 +1,14 @@
-const { build } = require('./builder')
-const { compile } = require('./compiler')
-const { parse } = require('./parser')
+import build from './builder'
+import compile from './compiler'
+import parse from './parser'
 
 /**
  *
  * @param {string} compiled
  * @returns {Function}
  */
-const run = (query, type = 'query', join = ' && ') => {
+const runner = (query, type = 'query', join = ' && ') => {
   return build(compile(parse(query), type, join), type)
 }
 
-module.exports = {
-  run
-}
+export default runner
