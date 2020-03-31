@@ -31,7 +31,6 @@ const compile = (syntaxTree, commandType = 'query', join = '&&') => {
 
 const compileEqual = (operand, operator, value, valueType, commandType) => {
   if (commandType === 'query') {
-    // return `isEqual(${RECORD_NAME}.${operand}, ${compileValue(value, valueType)})`
     return `getType(${RECORD_NAME}.${operand}) === 'array' ? ${compileFind(operand, operator, value, valueType)} : isEqual(${RECORD_NAME}.${operand}, ${compileValue(value, valueType)})`
   }
 
@@ -41,18 +40,6 @@ const compileEqual = (operand, operator, value, valueType, commandType) => {
 const compileNotEqual = (operand, value, valueType) => {
   return `!${compileEqual(operand, value, valueType)}`
 }
-
-// const compileEqual = (token, commandType, valueType) => {
-//   const { operand, operator, value } = token
-
-//   // const valueType = getType(value)
-
-//   if (commandType === 'query') {
-//     return `${RECORD_NAME}.${operand} === ${compileValue(value, valueType)}`
-//   } else {
-//     return `${RECORD_NAME}.${operand} = ${compileValue(value, valueType)}`
-//   }
-// }
 
 const compileExpression = (token, commandType = 'query') => {
   const { operand, operator, value } = token
@@ -84,32 +71,6 @@ const compileExpression = (token, commandType = 'query') => {
           return compilePush(operand, value, valueType)
       }
   }
-
-  // switch (operator) {
-  //   case '$ne':
-  //   case '$eq':
-  //     // return compileEqual(token, commandType, valueType)
-  //     switch (valueType) {
-  //       case 'array':
-  //       case 'object':
-  //         if (commandType === 'query') {
-  //           // return compileRuntimeExpression(operand, operator, value)
-  //           return `isEqual(${RECORD_NAME}.${operand}, ${compileValue(value, valueType)})`
-  //         } else {
-  //           return `${RECORD_NAME}.${operand} = ${compileValue(value, valueType)}`
-  //         }
-  //       default:
-  //         return `${RECORD_NAME}.${operand} ${getOperator(operator, commandType)} ${compileValue(value, valueType)}`
-  //     }
-  // }
-
-  // switch (valueType) {
-  //   case 'object':
-
-  //   case 'number':
-  //   case 'string':
-  //     return `${RECORD_NAME}.${operand} ${getOperator(operator, type)} ${compileValue(value, valueType)}`
-  // }
 }
 
 const compileFilter = (operand, operator, value, valueType) => {
