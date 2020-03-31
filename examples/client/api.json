@@ -1,6 +1,6 @@
 [
   {
-    "command": "database-create-user",
+    "command": "user-create",
     "options": {
       "database": "test-database",
       "body": {
@@ -19,31 +19,46 @@
     }
   },
   {
-    "command": "database-update-user",
-    "options": {
-      "database": "test-database",
-      "body": {
-        "username": "john-doe",
-        "password": 12345678,
-        "customData": {
-          "employeeId": 12345
-        },
-        "roles": [
-          {
-            "role": "readAnyDatabase",
-            "db": "admin"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "command": "database-get-user",
+    "command": "user-get",
     "options": {
       "database": "test-database",
       "body": {
         "username": "john-doe"
       }
+    }
+  },
+  {
+    "command": "user-update",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "username": "john-doe",
+        "password": 12345678,
+        "customData": {
+          "employeeId": 12345
+        },
+        "roles": [
+          {
+            "role": "readAnyDatabase",
+            "db": "admin"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "command": "user-drop",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "username": "john-doe"
+      }
+    }
+  },
+  {
+    "command": "user-get-all",
+    "options": {
+      "database": "test-database"
     }
   },
   {
@@ -60,15 +75,6 @@
     }
   },
   {
-    "command": "role-drop",
-    "options": {
-      "database": "test-database",
-      "body": {
-        "name": "read"
-      }
-    }
-  },
-  {
     "command": "role-get",
     "options": {
       "database": "test-database",
@@ -78,9 +84,12 @@
     }
   },
   {
-    "command": "role-get-all",
+    "command": "role-drop",
     "options": {
-      "database": "test-database"
+      "database": "test-database",
+      "body": {
+        "name": "read"
+      }
     }
   },
   {
@@ -95,6 +104,12 @@
           "listIndexes"
         ]
       }
+    }
+  },
+  {
+    "command": "role-get-all",
+    "options": {
+      "database": "test-database"
     }
   },
   {

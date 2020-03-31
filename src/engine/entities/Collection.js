@@ -62,7 +62,7 @@ export default class Collection {
    */
   async delete (query) {
     try {
-      const records = await this.find(query)
+      const records = await this.getRecords(this.query.run(query))
 
       const response = {
         deletedCount: 0
@@ -77,8 +77,8 @@ export default class Collection {
       }
 
       return response
-    } catch (e) {
-      return Promise.reject(this.getError(e))
+    } catch (error) {
+      return Promise.reject(this.getError(error))
     }
   }
 
@@ -93,14 +93,13 @@ export default class Collection {
   }
 
   /**
-   * Select a reccord set using a query expression
+   * Select a record set using a query expression
    *
    * @param {Function|Object} query
    * @returns {Promise<Array>}
    */
   async find (query = {}) {
     try {
-      // const result = await this.getRecords(this.queryParser.build(query))
       const result = await this.getRecords(this.query.run(query))
 
       return result.map(record => {
