@@ -153,5 +153,80 @@
         {}
       ]
     }
+  },
+  {
+    "command": "collection-find",
+    "options": {
+      "database": "test-database",
+      "collection": "users",
+      "body": {
+      }
+    }
+  },
+  {
+    "command": "collection-find-one",
+    "options": {
+      "database": "test-database",
+      "collection": "users",
+      "body": {
+      }
+    }
+  },
+  {
+    "command": "collection-delete",
+    "options": {
+      "database": "test-database",
+      "collection": "users",
+      "body": {
+      }
+    }
+  },
+  {
+    "command": "collection-update",
+    "options": {
+      "database": "test-database",
+      "collection": "users",
+      "body": [
+      ]
+    }
+  },
+  {
+    "command": "collection-list",
+    "options": {
+      "database": "test-database"
+    }
+  },
+  {
+    "command": "collection-rename",
+    "options": {
+      "database": "test-database",
+      "collection": "users2014",
+      "body": "users"
+    }
+  },
+  {
+    "command": "collection-drop",
+    "options": {
+      "database": "test-database",
+      "collection": "users"
+    }
+  },
+  {
+    "command": "collection-count",
+    "options": {
+      "database": "test-database",
+      "collection": "users",
+      "body": {
+      }
+    }
+  },
+  {
+    "command": "database-list"
+  },
+  {
+    "command": "database-drop",
+    "options": {
+      "database": "test-database"
+    }
   }
 ]

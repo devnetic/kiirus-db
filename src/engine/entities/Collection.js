@@ -10,7 +10,7 @@ export default class Collection {
    * @param {string} database
    * @param {string} name
    */
-  constructor (database, name) {
+  constructor (database, name = '') {
     this.database = database
     this.extension = '.json'
     this.name = name
@@ -216,6 +216,12 @@ export default class Collection {
     return this.write(pathname, data)
   }
 
+  async list () {
+    const pathname = this.getPath()
+
+    return storage.readDir(pathname)
+  }
+
   /**
    * Rename a file or directory
    *
@@ -223,17 +229,26 @@ export default class Collection {
    * @returns {Promise<boolean|NodeJS.ErrnoException>}
    * @memberof Collection
    */
-  rename (newName) {
+  async rename (newName) {
     const newPathname = path.join(
       process.env.DB_PATH,
       this.database,
       newName
     )
 
-    return storage.rename(this.getPath(), newPathname)
-      .catch(error => {
-        return this.getError(error)
-      })
+    const response = {
+      nModified: 0
+    }
+
+    try {
+      await storage.rename(this.getPath(), newPathname)
+
+      response.nModified = 1
+
+      return response
+    } catch (error) {
+      return this.getError(error)
+    }
   }
 
   /**
