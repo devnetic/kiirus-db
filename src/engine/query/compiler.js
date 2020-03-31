@@ -7,14 +7,14 @@ import { OPERATORS, RECORD_NAME, getOperatorType } from './common'
  * @param {string} [join='&&']
  * @returns {string}
  */
-const compile = (syntaxTree, type = 'query', join = '&&') => {
+const compile = (syntaxTree, commandType = 'query', join = '&&') => {
   const compiled = []
 
   for (const token of syntaxTree) {
     if (token.type === 'statement') {
-      compiled.push(`(${compile(token.children, type, getOperator(token.operator))})`)
+      compiled.push(`(${compile(token.children, commandType, getOperator(token.operator))})`)
     } else {
-      const expression = compileExpression(token, type)
+      const expression = compileExpression(token, commandType)
 
       if (expression) {
         compiled.push(expression)
@@ -29,110 +29,132 @@ const compile = (syntaxTree, type = 'query', join = '&&') => {
   return compiled.join(`${formatJoin(join)}`)
 }
 
-const compileArrayValues = (values) => {
-  return `[${values.map(value => {
-    const type = getType(value)
-
-    if (type === 'string') {
-      return `'${value}'`
-    } else if (type === 'object') {
-      return JSON.stringify(value)
-    } else {
-      return value
-    }
-  })}]`
-}
-
-/**
- *
- * @param {Array} values
- * @param {string} key
- * @returns {string}
- */
-const compileComparisonArray = (key, values) => {
-  return `[${values.map(value => compileScalar(value)).join(',')}].includes(${RECORD_NAME}.${key})`
-}
-
-const compileEqual = (expression, type, valueTypee) => {
-  const { operand, operator, value } = expression
-
-  const valueType = getType(value)
-
-  if (type === 'query') {
-    return `getType(${RECORD_NAME}.${operand}) === 'array' ? ${compileFind(operand, operator, value, valueType)} : isEqual(${RECORD_NAME}.${operand}, ${JSON.stringify(value)})`
-  } else {
-    return `${RECORD_NAME}.${operand} = ${compileArrayValues(value)}`
+const compileEqual = (operand, operator, value, valueType, commandType) => {
+  if (commandType === 'query') {
+    // return `isEqual(${RECORD_NAME}.${operand}, ${compileValue(value, valueType)})`
+    return `getType(${RECORD_NAME}.${operand}) === 'array' ? ${compileFind(operand, operator, value, valueType)} : isEqual(${RECORD_NAME}.${operand}, ${compileValue(value, valueType)})`
   }
+
+  return `${RECORD_NAME}.${operand} = ${compileValue(value, valueType)}`
 }
 
-/**
- *
- * @param {Object} expression
- * @param {string} [type='query']
- * @returns {string}
- */
-const compileExpression = (expression, type = 'query') => {
-  const { operand, operator, value } = expression
+const compileNotEqual = (operand, value, valueType) => {
+  return `!${compileEqual(operand, value, valueType)}`
+}
+
+// const compileEqual = (token, commandType, valueType) => {
+//   const { operand, operator, value } = token
+
+//   // const valueType = getType(value)
+
+//   if (commandType === 'query') {
+//     return `${RECORD_NAME}.${operand} === ${compileValue(value, valueType)}`
+//   } else {
+//     return `${RECORD_NAME}.${operand} = ${compileValue(value, valueType)}`
+//   }
+// }
+
+const compileExpression = (token, commandType = 'query') => {
+  const { operand, operator, value } = token
 
   const valueType = getType(value)
 
   switch (valueType) {
+    case 'boolean':
+    case 'number':
+    case 'string':
+      return `${RECORD_NAME}.${operand} ${getOperator(operator, commandType)} ${compileValue(value, valueType)}`
+
     case 'array':
     case 'object':
       switch (operator) {
         case '$eq':
-          return compileEqual(expression, type, valueType)
+          return compileEqual(operand, operator, value, valueType, commandType)
         case '$filter':
           return compileFilter(operand, operator, value, valueType)
         case '$in':
-          return compileComparisonArray(operand, value)
+          return compileIn(operand, value, valueType)
+        case '$ne':
+          return compileNotEqual(operand, value, valueType)
         case '$nin':
-          return `!${compileComparisonArray(operand, value)}`
+          return compileNotIn(operand, value, valueType)
         case '$pull':
-          return compileFilter(operand, operator, value, valueType)
+          return compilePull(operand, operator, value, valueType)
         case '$push':
           return compilePush(operand, value, valueType)
-        default:
-          // TODO: Check if this block is dead code
-          return value
       }
-    case 'boolean':
-    case 'number':
-    case 'string':
-      return `${RECORD_NAME}.${operand} ${getOperator(operator, type)} ${compileScalar(value)}`
-    default:
-      // TODO: Check if this block is dead code
-      return operator ? getOperator(operator) : undefined
   }
+
+  // switch (operator) {
+  //   case '$ne':
+  //   case '$eq':
+  //     // return compileEqual(token, commandType, valueType)
+  //     switch (valueType) {
+  //       case 'array':
+  //       case 'object':
+  //         if (commandType === 'query') {
+  //           // return compileRuntimeExpression(operand, operator, value)
+  //           return `isEqual(${RECORD_NAME}.${operand}, ${compileValue(value, valueType)})`
+  //         } else {
+  //           return `${RECORD_NAME}.${operand} = ${compileValue(value, valueType)}`
+  //         }
+  //       default:
+  //         return `${RECORD_NAME}.${operand} ${getOperator(operator, commandType)} ${compileValue(value, valueType)}`
+  //     }
+  // }
+
+  // switch (valueType) {
+  //   case 'object':
+
+  //   case 'number':
+  //   case 'string':
+  //     return `${RECORD_NAME}.${operand} ${getOperator(operator, type)} ${compileValue(value, valueType)}`
+  // }
 }
 
-const compileFilter = (operand, operator, value, type) => {
-  return `${RECORD_NAME}.${operand} = ${RECORD_NAME}.${operand}.filter(item => ${compileFilterValue(operator, value, type)})`
+const compileFilter = (operand, operator, value, valueType) => {
+  return `${RECORD_NAME}.${operand} = ${RECORD_NAME}.${operand}.filter(item => ${compileFilterValue(value, valueType)})`
 }
 
-const compileFind = (operand, operator, value, type) => {
-  return `${RECORD_NAME}.${operand}.find(item => ${compileFilterValue(operator, value, type)})`
+const compileFind = (operand, operator, value, valueType) => {
+  return `${RECORD_NAME}.${operand}.find(item => ${compileFilterValue(value, valueType)})`
 }
 
-const compileFilterValue = (operator, value, type) => {
-  if (type === 'object') {
+const compileFilterValue = (value, valueType) => {
+  if (valueType === 'object') {
     return `isEqual(item, ${JSON.stringify(value)})`
-  } else if (type === 'array') {
-    return `${operator === '$pull' ? '!' : ''}${compileArrayValues(value)}.some(element => isEqual(element, item))`
+  } else {
+    return `${JSON.stringify(value)}.some(element => isEqual(item, element))`
   }
+}
+
+const compileIn = (operand, value, valueType) => {
+  return `${compileValue(value, valueType)}.includes(${RECORD_NAME}.${operand})`
+}
+
+const compileNotIn = (operand, value, valueType) => {
+  return `!${compileIn(operand, value, valueType)}`
+}
+
+const compilePull = (operand, operator, value, valueType) => {
+  return `${RECORD_NAME}.${operand} = ${RECORD_NAME}.${operand}.filter(item => !${compileFilterValue(value, valueType)})`
 }
 
 const compilePush = (operand, value, valueType) => {
-  return `${RECORD_NAME}.${operand}.push(${valueType === 'array' ? '...' : ''}${compileArrayValues(value)})`
+  return `${RECORD_NAME}.${operand}.push(${valueType === 'array' ? '...' : ''}${compileValue(value, valueType)})`
 }
 
-/**
- *
- * @param {*} value
- * @returns {*}
- */
-const compileScalar = (value) => {
-  return typeof value === 'string' ? `'${value}'` : value
+const compileValue = (value, type) => {
+  switch (type) {
+    case 'array':
+    case 'object':
+      return JSON.stringify(value)
+    case 'boolean':
+    case 'number':
+      return value
+    case 'string':
+      return `'${value}'`
+  }
 }
 
 const formatJoin = (join) => {
@@ -146,8 +168,8 @@ const formatJoin = (join) => {
  * @param {string} [type='query|aggregation']
  * @returns {string}
  */
-const getOperator = (operator = '$eq', type = 'query') => {
-  if (type === 'aggregation') {
+const getOperator = (operator = '$eq', commandType = 'query') => {
+  if (commandType === 'aggregation') {
     return '='
   }
 

@@ -1,70 +1,95 @@
-const { builder, compiler, parser } = require('./../src/engine')
+import { query } from './../src/engine'
 
 const { utils } = require('./../src/support')
 
 // parser.parse({
 //   $filter: { numbers: [1] }
 // })
-let query = {}
+let testQuery = {}
 let parsed = []
 
 // -----------------------------------------------------------------------------
+// EXPRESSIONS QUERIES
 
-// query = { qty: 50 }
-// query = { qty: { $ne: 50 } }
-// query = { size: { h: 14, w: 21, uom: 'cm' } }
-// query = { qty: { $gt: 10, $lte: 20 } }
-// query = { $and: [{ qty: { $ne: 25 } }, { status: { $eq: 'A' } }] }
-// query = { $or: [{ qty: { $ne: 25 } }, { status: { $eq: 'A' } }] }
-// query = {
+// testQuery = { qty: 50 }
+// testQuery = { qty: { $ne: 50 } }
+testQuery = { size: { h: 14, w: 21, uom: 'cm' } }
+// testQuery = { qty: { $gt: 10, $lte: 20 } }
+// testQuery = { qty: { $in: [1, 2, 3] } }
+// testQuery = { status: { $nin: ['A', 'B'] } }
+// testQuery = { status: 'A', qty: { $lt: 30 } }
+// testQuery = {
+//   'size.uom': 'in',
+//   status: 'P'
+// }
+// testQuery = { instock: { warehouse: 'A', qty: 5 } }
+// -----------------------------------------------------------------------------
+
+// STATEMENTS QUERIES
+
+// testQuery = { $and: [{ qty: { $ne: 25 } }, { status: { $eq: 'A' } }] }
+// testQuery = { $or: [{ qty: { $ne: 25 } }, { status: { $eq: 'A' } }] }
+// testQuery = {
 //   $and: [
 //     { $or: [{ price: 0.99 }, { price: 1.99 }] },
 //     { $or: [{ sale: true }, { qty: { $lt: 20 } }] }
 //   ]
 // }
-// query = { qty: { $in: [1, 2, 3] } }
-// query = { status: { $nin: ['A', 'B'] } }
-// query = { price: { $not: { $gt: 1.99 } } }
-// query = { $nor: [{ price: 1.99 }, { sale: true }] }
-// query = { status: 'A', qty: { $lt: 30 } }
-// query = { numbers: { $filter: [1, 'A', 'B'] } }
-// query = { instock: { $filter: { warehouse: 'A', qty: 5 } } }
-// query = { instock: { $filter: [{ warehouse: 'A', qty: 5 }] } }
-// query = {
+// testQuery = { price: { $not: { $gt: 1.99 } } }
+// testQuery = { $nor: [{ price: 1.99 }, { sale: true }] }
+// testQuery = { $nor: [{ price: 1.99 }, { item: 'journal' }] }
+// testQuery = {
 //   item: 'journal',
 //   qty: { $lt: 50 },
 //   status: { $eq: 'A' },
 //   'size.h': { $lte: 8.5 },
 //   $or: [{ 'size.w': 14 }, { 'size.h': { $gte: 8.5 } }]
 // }
-// query = { instock: { warehouse: 'A', qty: 5 } }
-// query = { test: { foo: 'bar' } }
-// query = { $nor: [{ price: 1.99 }, { item: 'journal' }] }
-// query = { roles: { $filter: [{ role: 'readAnyDatabase', db: 'admin' }, { role: 'read', db: 'test-database' }, { role: 'readWrite', db: 'test-database' } ] } }
-// query = {
-//   'size.uom': 'in',
-//   status: 'P'
+
+// -----------------------------------------------------------------------------
+
+// AGGREGATION QUERIES
+
+// testQuery = { numbers: { $filter: [1, 'A', 'B'] } }
+// testQuery = { numbers: { $filter: [1, 2, 3, 'a'] } }
+// testQuery = { instock: { $filter: { warehouse: 'A', qty: 5 } } }
+// testQuery = { instock: { $filter: [{ warehouse: 'A', qty: 5 }] } }
+// testQuery = { roles: { $filter: [{ role: 'readAnyDatabase', db: 'admin' }, { role: 'read', db: 'test-database' }, { role: 'readWrite', db: 'test-database' } ] } }
+
+// testQuery = { fruits: { $pull: ['apples', 'oranges'] } }
+// testQuery = { fruits: { $push: ['passion fruit', 'watermelon'] } }
+// testQuery = { fruits: { $push: { warehouse: 'A', qty: 5 } } }
+// testQuery = {
+//   name: 'read',
+//   privileges: [
+//     'find',
+//     'listCollections',
+//     'listIndexes'
+//   ]
 // }
 
-// query = { fruits: { $pull: ['apples', 'oranges'] } }
-// query = { fruits: { $push: ['passion fruit', 'watermelon'] } }
-query = {
-  name: 'read',
-  privileges: [
-    'find',
-    'listCollections',
-    'listIndexes'
-  ]
-}
+// testQuery = {
+//   username: 'john-doe',
+//   password: 123456789,
+//   customData: {
+//     employeeId: 12345
+//   },
+//   roles: [
+//     {
+//       role: 'readAnyDatabase',
+//       db: 'admin'
+//     }
+//   ]
+// }
 
 const type = 'aggregation'
 const join = ';'
-parsed = parser.parse(query)
+parsed = query.parse(testQuery)
 
 // console.log(JSON.stringify(parsed, null, '  '))
 
-const compiled = compiler.compile(parsed, type, join)
-const builded = builder.build(compiled, type)
+const compiled = query.compile(parsed, type, join)
+const builded = query.build(compiled, type)
 
 console.log(compiled)
 // console.log(builded)

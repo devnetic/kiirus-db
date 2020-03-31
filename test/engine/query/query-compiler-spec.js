@@ -94,7 +94,7 @@ test('comparison operator: simple in', t => {
   t.is(compiledQuery, query.compile(parsed))
 
   testQuery = { qty: { $in: ['A', 'B', 'C'] } }
-  compiledQuery = `['A','B','C'].includes(${RECORD_NAME}.qty)`
+  compiledQuery = `["A","B","C"].includes(${RECORD_NAME}.qty)`
 
   parsed = query.parse(testQuery)
 
@@ -110,7 +110,7 @@ test('comparison operator: simple not in', t => {
   t.is(compiledQuery, query.compile(parsed))
 
   testQuery = { qty: { $nin: ['A', 'B', 'C'] } }
-  compiledQuery = `!['A','B','C'].includes(${RECORD_NAME}.qty)`
+  compiledQuery = `!["A","B","C"].includes(${RECORD_NAME}.qty)`
 
   parsed = query.parse(testQuery)
 
@@ -177,11 +177,32 @@ test('logical operator: complex query', t => {
   t.is(compiledQuery, query.compile(parsed))
 })
 
+test('aggregation operator: complex query', t => {
+  const testQuery = {
+    username: 'john-doe',
+    password: 123456789,
+    customData: {
+      employeeId: 12345
+    },
+    roles: [
+      {
+        role: 'readAnyDatabase',
+        db: 'admin'
+      }
+    ]
+  }
+  const compiledQuery = 'record.username = \'john-doe\'; record.password = 123456789; record.customData = {"employeeId":12345}; record.roles = [{"role":"readAnyDatabase","db":"admin"}]'
+
+  const parsed = query.parse(testQuery)
+
+  t.is(compiledQuery, query.compile(parsed, 'aggregation', ';'))
+})
+
 test('aggregation operator: $filter with scalar values', t => {
   const testQuery = {
     numbers: { $filter: [1, 2, 3, 'a'] }
   }
-  const compiledQuery = 'record.numbers = record.numbers.filter(item => [1,2,3,\'a\'].some(element => isEqual(element, item)))'
+  const compiledQuery = 'record.numbers = record.numbers.filter(item => [1,2,3,"a"].some(element => isEqual(item, element)))'
 
   const parsed = query.parse(testQuery)
 
@@ -199,7 +220,7 @@ test('aggregation operator: $filter with object value', t => {
 
 test('aggregation operator: $filter with array value', t => {
   const testQuery = { instock: { $filter: [{ warehouse: 'A', qty: 5 }] } }
-  const compiledQuery = 'record.instock = record.instock.filter(item => [{"warehouse":"A","qty":5}].some(element => isEqual(element, item)))'
+  const compiledQuery = 'record.instock = record.instock.filter(item => [{"warehouse":"A","qty":5}].some(element => isEqual(item, element)))'
 
   const parsed = query.parse(testQuery)
 
@@ -217,7 +238,7 @@ test('aggregation operator: set values', t => {
 
 test('aggregation operator: $pull values', t => {
   const testQuery = { fruits: { $pull: ['apples', 'oranges'] } }
-  const compiledQuery = 'record.fruits = record.fruits.filter(item => ![\'apples\',\'oranges\'].some(element => isEqual(element, item)))'
+  const compiledQuery = 'record.fruits = record.fruits.filter(item => !["apples","oranges"].some(element => isEqual(item, element)))'
 
   const parsed = query.parse(testQuery)
 
@@ -226,7 +247,7 @@ test('aggregation operator: $pull values', t => {
 
 test('aggregation operator: $push values', t => {
   const testQuery = { fruits: { $push: ['apples', 'oranges'] } }
-  const compiledQuery = 'record.fruits.push(...[\'apples\',\'oranges\'])'
+  const compiledQuery = 'record.fruits.push(...["apples","oranges"])'
 
   const parsed = query.parse(testQuery)
 

@@ -1,6 +1,12 @@
-import CollectionCommand from './CollectionCommand'
-import DatabaseCommand from './DatabaseCommand'
-import RoleCommand from './RoleCommand'
+// import CollectionCommand from './CollectionCommand'
+// import DatabaseCommand from './DatabaseCommand'
+// import RoleCommand from './RoleCommand'
+import {
+  CollectionCommand,
+  DatabaseCommand,
+  RoleCommand,
+  UserCommand
+} from './'
 import { getErrorMessage, utils } from './../../support'
 
 /**
@@ -20,6 +26,9 @@ const getCommand = (command) => {
 
     case 'role':
       return new RoleCommand(method)
+
+    case 'user':
+      return new UserCommand(method)
 
     default:
       throw new Error(getErrorMessage('KDB0005'))
