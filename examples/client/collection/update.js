@@ -7,19 +7,47 @@ const collection = 'tasks'
 
 const client = Client.connect(`${host}:${port}`)
 
-client
-  .db(database)
-  .collection(collection)
-  .update({
-    item: 'journal'
-  }, {
-    'size.uom': 'in',
-    status: 'A'
-  }).then((result) => {
-    console.log(result)
-  }).catch((error) => {
-    console.log(error)
-  })
+// client
+//   .db(database)
+//   .collection(collection)
+//   .update({
+//     item: 'journal'
+//   }, {
+//     'size.uom': 'in',
+//     status: 'A'
+//   }).then((result) => {
+//     console.log(result)
+//   }).catch((error) => {
+//     console.log(error)
+//   })
+
+// client
+//   .db(database)
+//   .collection(collection)
+//   .update({
+//     item: 'journal'
+//   }, {
+//     'size.uom': 'in',
+//     status: 'B'
+//   }).then((result) => {
+//     console.log(result)
+//   }).catch((error) => {
+//     console.log(error)
+//   })
+
+// client
+//   .db(database)
+//   .collection(collection)
+//   .update({
+//     item: 'journal'
+//   }, {
+//     'size.uom': 'in',
+//     status: 'C'
+//   }).then((result) => {
+//     console.log(result)
+//   }).catch((error) => {
+//     console.log(error)
+//   })
 
 client
   .db(database)
@@ -27,22 +55,7 @@ client
   .update({
     item: 'journal'
   }, {
-    'size.uom': 'in',
-    status: 'B'
-  }).then((result) => {
-    console.log(result)
-  }).catch((error) => {
-    console.log(error)
-  })
-
-client
-  .db(database)
-  .collection(collection)
-  .update({
-    item: 'journal'
-  }, {
-    'size.uom': 'in',
-    status: 'C'
+    $filter: { numbers: [1] }
   }).then((result) => {
     console.log(result)
   }).catch((error) => {

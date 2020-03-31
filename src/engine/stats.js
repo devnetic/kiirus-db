@@ -1,4 +1,4 @@
-const { utils } = require('./../support')
+import { utils } from './../support'
 
 const stats = {
   startTime: undefined,
@@ -17,7 +17,7 @@ const setStartTime = () => {
   stats.startTime = Date.now()
 }
 
-module.exports = {
+export {
   getUptime,
   setEndTime,
   setStartTime

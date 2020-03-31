@@ -1,4 +1,4 @@
-class BaseCommand {
+export default class BaseCommand {
   constructor (method) {
     this.method = method
   }
@@ -16,5 +16,3 @@ class BaseCommand {
   async run (database, options) {
   }
 }
-
-module.exports = BaseCommand

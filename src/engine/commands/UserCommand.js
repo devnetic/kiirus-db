@@ -1,15 +1,16 @@
 import BaseCommand from './BaseCommand'
 import { getErrorMessage } from './../../support'
+import { User } from '../entities'
 
-export default class DatabaseCommand extends BaseCommand {
+export default class UserCommand extends BaseCommand {
   async run (database, options = {}) {
-    database.use(options.database)
+    const user = new User()
 
-    if (!Reflect.has(database, this.method)) {
+    if (!Reflect.has(user, this.method)) {
       throw new Error(getErrorMessage('KDB0002'))
     }
 
-    const result = await database[this.method](options)
+    const result = await user[this.method](options)
       .catch(error => {
         const message = error.message || error
 

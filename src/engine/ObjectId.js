@@ -1,9 +1,10 @@
 // https://github.com/mongodb/js-bson/blob/master/lib/objectid.js
 
-const Buffer = require('buffer').Buffer
+import { Buffer } from 'buffer'
+import crypto from 'crypto'
 
 // constants
-const PROCESS_UNIQUE = require('crypto').randomBytes(5)
+const PROCESS_UNIQUE = crypto.randomBytes(5)
 
 class ObjectId {
   constructor () {
@@ -63,4 +64,4 @@ class ObjectId {
 
 ObjectId.index = ~~(Math.random() * 0xffffff)
 
-module.exports = ObjectId
+export default ObjectId

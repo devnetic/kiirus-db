@@ -1,7 +1,7 @@
-const BaseCommand = require('./BaseCommand')
-const { getErrorMessage } = require('./../../support')
+import BaseCommand from './BaseCommand'
+import { getErrorMessage } from './../../support'
 
-class CollectionCommand extends BaseCommand {
+export default class CollectionCommand extends BaseCommand {
   async run (database, options) {
     if (!options.database) {
       throw new Error('No database selected')
@@ -20,5 +20,3 @@ class CollectionCommand extends BaseCommand {
     return result
   }
 }
-
-module.exports = CollectionCommand

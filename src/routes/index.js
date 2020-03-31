@@ -1,7 +1,7 @@
-const engine = require('./engine')
-const info = require('./info')
+import engine from './engine'
+import info from './info'
 
-module.exports = {
+export {
   engine,
   info
 }

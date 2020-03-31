@@ -6,7 +6,15 @@
   "scripts": {
     "lint": "standard",
     "start": "node index.js",
-    "test:watch": "ava --watch"
+    "test": "ava --verbose",
+    "test:watch": "ava --verbose --watch",
+    "coverage": "nyc ava",
+    "report": "nyc report --reporter=html"
+  },
+  "ava": {
+    "require": [
+      "esm"
+    ]
   },
   "repository": {
     "type": "git",
@@ -27,13 +35,15 @@
   },
   "homepage": "https://github.com/devnetic/kiirus-db#readme",
   "dependencies": {
-    "@devnetic/cli": "^1.0.2",
+    "@devnetic/cli": "^1.1.0",
     "@devnetic/fetch": "^1.0.1",
-    "@devnetic/server": "^1.0.1"
+    "@devnetic/server": "^1.1.0",
+    "esm": "^3.2.25"
   },
   "devDependencies": {
-    "ava": "^2.4.0",
-    "sinon": "^7.5.0",
-    "standard": "^14.3.1"
+    "ava": "^3.5.2",
+    "nyc": "^15.0.0",
+    "sinon": "^9.0.1",
+    "standard": "^14.3.3"
   }
 }

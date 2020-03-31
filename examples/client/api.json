@@ -2,7 +2,8 @@
   {
     "command": "database-create-user",
     "options": {
-      "data": {
+      "database": "test-database",
+      "body": {
         "username": "john-doe",
         "password": 12345678,
         "customData": {
@@ -16,20 +17,125 @@
         ]
       }
     }
-  }, {
+  },
+  {
+    "command": "database-update-user",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "username": "john-doe",
+        "password": 12345678,
+        "customData": {
+          "employeeId": 12345
+        },
+        "roles": [
+          {
+            "role": "readAnyDatabase",
+            "db": "admin"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "command": "database-get-user",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "username": "john-doe"
+      }
+    }
+  },
+  {
+    "command": "role-create",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "name": "read",
+        "privileges": [
+          "find",
+          "listCollections"
+        ]
+      }
+    }
+  },
+  {
+    "command": "role-drop",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "name": "read"
+      }
+    }
+  },
+  {
+    "command": "role-get",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "name": "read"
+      }
+    }
+  },
+  {
+    "command": "role-get-all",
+    "options": {
+      "database": "test-database"
+    }
+  },
+  {
+    "command": "role-update",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "name": "read",
+        "privileges": [
+          "find",
+          "listCollections",
+          "listIndexes"
+        ]
+      }
+    }
+  },
+  {
+    "command": "role-revoke-roles-from-user",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "username": "john-doe",
+        "roles": [
+          "read",
+          "readWrite"
+        ]
+      }
+    }
+  },
+  {
+    "command": "role-grant-roles-to-user",
+    "options": {
+      "database": "test-database",
+      "body": {
+        "username": "john-doe",
+        "roles": [
+          {
+            "role": "readAnyDatabase",
+            "db": "admin"
+          },
+          {
+            "role": "readWrite",
+            "db": "test-database"
+          }
+        ]
+      }
+    }
+  },
+  {
     "command": "collection-insert",
     "options": {
       "database": "test-database",
       "collection": "users",
-      "body": []
-    }
-  }, {
-    "command": "role-create",
-    "options": {
-      "name": "read",
-      "permissions": [
-        "find",
-        "listCollections"
+      "body": [
+        {}
       ]
     }
   }

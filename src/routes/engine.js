@@ -1,4 +1,4 @@
-const { run } = require('./../engine')
+import { run } from './../engine'
 
 const routes = [{
   type: 'post',
@@ -13,4 +13,4 @@ const routes = [{
   }
 }]
 
-module.exports = routes
+export default routes

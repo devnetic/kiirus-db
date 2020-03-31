@@ -1,8 +1,8 @@
-const Client = require('./client/Client')
-const help = require('./support/help')
-const routes = require('./routes')
+import Client from './client/Client'
+import help from './support/help'
+import * as routes from './routes'
 
-module.exports = {
+export {
   Client,
   help,
   routes

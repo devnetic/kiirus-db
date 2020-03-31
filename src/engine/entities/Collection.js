@@ -1,10 +1,10 @@
-const path = require('path')
+import path from 'path'
 
-const ObjectId = require('./ObjectId')
-const queryParser = require('./query/parser')
-const { storage, utils } = require('./../support')
+import ObjectId from '../ObjectId'
+import { runner } from '../query'
+import { storage, utils } from '../../support'
 
-class Collection {
+export default class Collection {
   /**
    *
    * @param {string} database
@@ -14,7 +14,8 @@ class Collection {
     this.database = database
     this.extension = '.json'
     this.name = name
-    this.queryParser = queryParser
+    this.query = { run: runner }
+    this.records = []
   }
 
   /**
@@ -81,7 +82,7 @@ class Collection {
     }
   }
 
-  async drop (pathname) {
+  async drop () {
     try {
       await storage.deleteDir(this.getPath())
 
@@ -92,16 +93,39 @@ class Collection {
   }
 
   /**
-   * Select a fields set using a query expression
+   * Select a reccord set using a query expression
    *
    * @param {Function|Object} query
    * @returns {Promise<Array>}
    */
   async find (query = {}) {
     try {
-      return await this.getRecords(this.queryParser.build(query))
-    } catch (e) {
-      return Promise.reject(this.getError(e))
+      // const result = await this.getRecords(this.queryParser.build(query))
+      const result = await this.getRecords(this.query.run(query))
+
+      return result.map(record => {
+        this.records.push(record.file)
+
+        return record.data
+      })
+    } catch (error) {
+      return Promise.reject(this.getError(error))
+    }
+  }
+
+  /**
+   * Select a record using a query expression
+   *
+   * @param {Function|Object} query
+   * @returns {Promise<Array>}
+   */
+  async findOne (query = {}) {
+    try {
+      const result = await this.find(query)
+
+      return result[0]
+    } catch (error) {
+      return Promise.reject(this.getError(error))
     }
   }
 
@@ -168,7 +192,15 @@ class Collection {
    * @memberof Collection
    */
   async init (pathname) {
-    return storage.createDir(pathname, true, 0o766)
+    try {
+      return await storage.createDir(pathname, true, 0o766)
+    } catch (error) {
+      if ((error.message || error).indexOf('EEXIST') === -1) {
+        return new Error(error)
+      }
+
+      return true
+    }
   }
 
   /**
@@ -209,28 +241,30 @@ class Collection {
    * Update a collection using a query to select the records to update and a
    * update object, containing the key and values to be updated
    *
-   * @param {function|object} query
+   * @param {Array<{query: Object, update: Array}>} query
    * @param {object} update
    *
    * @return {Promise<Object>}
    */
   async update ([query, update]) {
     try {
-      const records = await this.find(query)
+      const records = await this.getRecords(this.query.run(query))
 
       const response = {
         nModified: 0
       }
 
       for (const record of records) {
-        for (const [key, value] of Object.entries(update)) {
-          utils.setValue(record.data, key, value)
-        }
+        // for (const [key, value] of Object.entries(update)) {
+        //   utils.setValue(record.data, key, value)
+        // }
 
         // const pathname = path.join(
         //   this.getPath(),
         //   record.file + this.extension
         // )
+
+        record.data = this.query.run(update, 'aggregation', ';')(record.data, utils.isEqual, utils.getType)
 
         const result = await storage.writeJson(record.file, record.data, true)
 
@@ -240,8 +274,8 @@ class Collection {
       }
 
       return response
-    } catch (e) {
-      return Promise.reject(this.getError(e))
+    } catch (error) {
+      return Promise.reject(this.getError(error))
     }
   }
 
@@ -286,5 +320,3 @@ class Collection {
     return response
   }
 }
-
-module.exports = Collection

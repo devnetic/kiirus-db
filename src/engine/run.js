@@ -1,9 +1,9 @@
-const Database = require('./Database')
-const commands = require('./commands')
-const { createError } = require('./../support')
+import * as commands from './commands'
+import { Database } from './entities'
+import { createError } from './../support'
 
 /**
- * Main execution point in the engine
+ * Main execution point for the engine
  *
  * @param {IncomingMessage} request
  * @param {Response} response
@@ -25,10 +25,10 @@ const run = async (request, response) => {
 
     const stack = e.stack.split(/\n/g).slice(1).map(line => '  ' + line.trim())
 
-    console.log(`${e.message} \n[\n%s\n]`, stack.join('\n'))
+    console.log(`${e.message} - Stack \n[\n%s\n]`, stack.join('\n'))
 
     response.json(error)
   }
 }
 
-module.exports = run
+export default run

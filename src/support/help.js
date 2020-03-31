@@ -1,4 +1,4 @@
-const { usage } = require('@devnetic/cli')
+import { usage } from '@devnetic/cli'
 
 const help = () => {
   usage('Usage: $0 [options]')
@@ -10,4 +10,4 @@ const help = () => {
     .show()
 }
 
-module.exports = help
+export default help
