@@ -1,5 +1,5 @@
 import BaseEntity from './BaseEntity'
-import { getErrorMessage, storage } from './../../support'
+import { storage } from './../../support'
 
 export default class Database extends BaseEntity {
   constructor (name = '') {
