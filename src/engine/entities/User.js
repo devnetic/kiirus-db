@@ -9,16 +9,50 @@ export default class User extends BaseEntity {
   }
 
   /**
+   * Creates a new user on the database where you run the command. The
+   * createUser command returns a duplicate user error if the user exists.
+   *
+   * @param {*} options
+   */
+  async create ({ body, database }) {
+    // Select the `system` database
+    this.use('system')
+
+    const user = await this.getCollection('users').findOne({
+      $and: [{ username: { $eq: body.username } }, { database: { $eq: database } }]
+    })
+
+    if (user) {
+      throw new Error(getErrorMessage('KDB0003'))
+    }
+
+    body.database = database
+
+    // select the `users` collection inside the `system` database
+    return this.getCollection('users').insert([body])
+  }
+
+  /**
  * Removes the user from the database on which you run the command.
  *
  * @param {*} options
  */
-  drop (options) {
+  async drop ({ body, database }) {
     // Select the `system` database
     this.use(this.name)
 
+    const user = await this.getCollection('users').findOne({
+      $and: [{ username: { $eq: body.username } }, { database: { $eq: database } }]
+    })
+
+    if (!user) {
+      throw new Error(getErrorMessage('KDB0004'))
+    }
+
     // select the `users` collection inside the `system` database
-    return this.getCollection('users').delete(options)
+    return this.getCollection('users').delete({
+      $and: [{ username: { $eq: body.username } }, { database: { $eq: database } }]
+    })
   }
 
   async getAll ({ body, database }) {
