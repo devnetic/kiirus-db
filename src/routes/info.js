@@ -1,18 +1,16 @@
-import packageInfo from './../../package'
-import { stats } from './../engine'
+import packageInfo from './../../package.json'
+import { getUptime } from './../engine'
 
-const routes = [{
+export const info = [{
   type: 'get',
   path: '/info',
   handler: (request, response) => {
-    response.json({ uptime: stats.getUptime() })
+    response.send({ uptime: getUptime() })
   }
 }, {
   type: 'get',
   path: '/info/version',
   handler: (request, response) => {
-    response.json({ version: packageInfo.version })
+    response.send({ version: packageInfo.version })
   }
 }]
-
-export default routes

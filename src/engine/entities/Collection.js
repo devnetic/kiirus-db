@@ -1,10 +1,12 @@
 import path from 'path'
 
-import ObjectId from '../ObjectId'
-import { runner } from '../query'
-import { storage, utils } from '../../support'
+import * as utils from '@devnetic/utils'
 
-export default class Collection {
+import * as storage from './../storage'
+import { ObjectId } from '../ObjectId'
+import { runner } from './../query'
+
+export class Collection {
   /**
    *
    * @param {string} database
@@ -30,157 +32,17 @@ export default class Collection {
   }
 
   /**
-   * Returns the count of documents that would match a find() query for the
-   * collection
+   * Return the collection path
    *
-   * @param {object} query
-   * @returns {number}
-   */
-  async count (query) {
-    const result = await this.find(query)
-
-    return result.length
-  }
-
-  /**
-   * Perform a decipher over the data
-   *
-   * @param {string} data
    * @returns {string}
    * @memberof Collection
    */
-  decipher (data) {
-    return data
-  }
-
-  /**
-   * Delete one or many records from the collection using a query
-   *
-   * @param {function|string} query
-   *
-   * @return Promise<Object>|Object
-   */
-  async delete (query) {
-    try {
-      const records = await this.getRecords(this.query.run(query))
-
-      const response = {
-        deletedCount: 0
-      }
-
-      for (const record of records) {
-        const result = await storage.deleteFile(record.file)
-
-        if (result) {
-          response.deletedCount += 1
-        }
-      }
-
-      return response
-    } catch (error) {
-      return Promise.reject(this.getError(error))
-    }
-  }
-
-  async drop () {
-    try {
-      await storage.deleteDir(this.getPath())
-
-      return true
-    } catch (e) {
-      return false
-    }
-  }
-
-  /**
-   * Select a record set using a query expression
-   *
-   * @param {Function|Object} query
-   * @returns {Promise<Array>}
-   */
-  async find (query = {}) {
-    try {
-      const result = await this.getRecords(this.query.run(query))
-
-      return result.map(record => {
-        this.records.push(record.file)
-
-        return record.data
-      })
-    } catch (error) {
-      return Promise.reject(this.getError(error))
-    }
-  }
-
-  /**
-   * Select a record using a query expression
-   *
-   * @param {Function|Object} query
-   * @returns {Promise<Array>}
-   */
-  async findOne (query = {}) {
-    try {
-      const result = await this.find(query)
-
-      return result[0]
-    } catch (error) {
-      return Promise.reject(this.getError(error))
-    }
-  }
-
-  getError (error) {
-    if (!error.code) {
-      return error
-    }
-
-    switch (error.code) {
-      case 'ENOENT':
-        return `'${this.name}' collection doesn't exist`
-    }
-  }
-
-  /**
- * Return the collection path
- *
- * @returns {string}
- * @memberof Collection
- */
   getPath () {
     return path.join(
       process.env.DB_PATH,
       this.database,
       this.name
     )
-  }
-
-  /**
-   * Read a set of files from the collection path
-   *
-   * @param {object} query
-   * @returns {Promise<array>}
-   */
-  async getRecords (query) {
-    const pathname = this.getPath()
-
-    try {
-      const files = await storage.readDir(pathname)
-
-      const records = []
-
-      for (let file of files) {
-        file = path.join(pathname, file)
-
-        const data = await storage.readJson(file)
-
-        if (query(data) === true) {
-          records.push({ file, data })
-        }
-      }
-
-      return records
-    } catch (e) {
-      return Promise.reject(this.getError(e))
-    }
   }
 
   /**
@@ -216,83 +78,6 @@ export default class Collection {
     return this.write(pathname, data)
   }
 
-  async list () {
-    const pathname = this.getPath()
-
-    return storage.readDir(pathname)
-  }
-
-  /**
-   * Rename a file or directory
-   *
-   * @param {string} newName
-   * @returns {Promise<boolean|NodeJS.ErrnoException>}
-   * @memberof Collection
-   */
-  async rename (newName) {
-    const newPathname = path.join(
-      process.env.DB_PATH,
-      this.database,
-      newName
-    )
-
-    const response = {
-      nModified: 0
-    }
-
-    try {
-      await storage.rename(this.getPath(), newPathname)
-
-      response.nModified = 1
-
-      return response
-    } catch (error) {
-      return this.getError(error)
-    }
-  }
-
-  /**
-   * Update a collection using a query to select the records to update and a
-   * update object, containing the key and values to be updated
-   *
-   * @param {Array<{query: Object, update: Array}>} query
-   * @param {object} update
-   *
-   * @return {Promise<Object>}
-   */
-  async update ([query, update]) {
-    try {
-      const records = await this.getRecords(this.query.run(query))
-
-      const response = {
-        nModified: 0
-      }
-
-      for (const record of records) {
-        // for (const [key, value] of Object.entries(update)) {
-        //   utils.setValue(record.data, key, value)
-        // }
-
-        // const pathname = path.join(
-        //   this.getPath(),
-        //   record.file + this.extension
-        // )
-
-        record.data = this.query.run(update, 'aggregation', ';')(record.data, utils.isEqual, utils.getType)
-
-        const result = await storage.writeJson(record.file, record.data, true)
-
-        if (result) {
-          response.nModified += 1
-        }
-      }
-
-      return response
-    } catch (error) {
-      return Promise.reject(this.getError(error))
-    }
-  }
-
   /**
    * Write a ate set to a given collection and return the records ids
    *
@@ -316,17 +101,15 @@ export default class Collection {
 
       try {
         await storage.writeFile(
-          // path.join(collection, record._id + '.json'),
           path.join(collection, utils.uuid() + this.extension),
           this.cipher(JSON.stringify(record))
         )
 
-        // response.push(record._id)
         response.nInserted += 1
-      } catch (e) {
+      } catch (error) {
         response.writeError = {
-          code: e.name,
-          errmsg: e.message
+          code: error.name,
+          errmsg: error.message
         }
       }
     }

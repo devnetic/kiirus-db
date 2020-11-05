@@ -1,6 +1,6 @@
-import { run } from './../engine'
+import { executeCommand } from './../engine'
 
-const routes = [{
+export const engine = [{
   type: 'post',
   path: '/',
   /**
@@ -9,8 +9,6 @@ const routes = [{
    * @param {Response} response
   */
   handler: (request, response) => {
-    run(request, response)
+    executeCommand(request, response)
   }
 }]
-
-export default routes

@@ -16,6 +16,11 @@
       "esm"
     ]
   },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/devnetic/kiirus-db.git"
@@ -35,15 +40,22 @@
   },
   "homepage": "https://github.com/devnetic/kiirus-db#readme",
   "dependencies": {
-    "@devnetic/cli": "^1.1.0",
-    "@devnetic/fetch": "^1.0.1",
-    "@devnetic/server": "^1.1.0",
-    "esm": "^3.2.25"
+    "@devnetic/cli": "^1.2.1",
+    "@devnetic/load-env": "^1.1.0",
+    "@devnetic/server": "^1.1.4",
+    "@devnetic/utils": "^1.2.1",
+    "esm": "^3.2.25",
+    "fastify": "^3.7.0"
   },
   "devDependencies": {
-    "ava": "^3.5.2",
-    "nyc": "^15.0.0",
-    "sinon": "^9.0.1",
-    "standard": "^14.3.3"
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
+    "@commitlint/format": "^11.0.0",
+    "ava": "^3.13.0",
+    "husky": "^4.3.0",
+    "nyc": "^15.1.0",
+    "sinon": "^9.2.1",
+    "standard": "^16.0.1",
+    "standard-version": "^9.0.0"
   }
 }

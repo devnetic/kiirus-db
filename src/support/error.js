@@ -1,4 +1,4 @@
-import { utils } from './../support'
+import * as utils from '@devnetic/utils'
 
 /**
  *
@@ -21,7 +21,7 @@ const createError = (error, command) => {
  * @returns {string}
  */
 const getErrorMessage = (code, message) => {
-  return `${code}: ${process.env[code].replace('{{}}', message ? ` [${message}]` : '')} - ${utils.dateFormat(new Date(), 'yyyy-mm-dd HH:nn:ss')}`
+  return `${code}: ${process.env[code].replace('{{}}', message ? ` [${message}]` : '')} - ${utils.dateFormat(new Date(), 'YYYY-MM-dd HH:mm:ss')}`
 }
 
 export {

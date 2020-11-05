@@ -1,18 +1,17 @@
-export default class BaseCommand {
-  constructor (method) {
-    this.method = method
+export class BaseCommand {
+  constructor (action) {
+    this.action = action
   }
 
-  getMethod (method) {
-    return this.method
+  getAction (action) {
+    return this.action
   }
 
-  setMethod (method) {
-    this.method = method
+  setAction (action) {
+    this.action = action
 
     return this
   }
 
-  async run (database, options) {
-  }
+  async run (database, options) { }
 }

@@ -1,52 +1,25 @@
-// import CollectionCommand from './CollectionCommand'
-// import DatabaseCommand from './DatabaseCommand'
-// import RoleCommand from './RoleCommand'
-import {
-  CollectionCommand,
-  DatabaseCommand,
-  RoleCommand,
-  UserCommand
-} from './'
-import { getErrorMessage, utils } from './../../support'
+import { CollectionCommand } from './CollectionCommand'
 
 /**
  *
  * @param {string} command
- * @returns {object}
+ * @returns {BaseCommand}
  */
-const getCommand = (command) => {
-  const { type, method } = parseCommand(command)
-
-  switch (type) {
+export const getCommand = (command, action) => {
+  switch (command) {
     case 'collection':
-      return new CollectionCommand(method)
+      return new CollectionCommand(action)
 
     case 'database':
-      return new DatabaseCommand(method)
+      return new DatabaseCommand(action)
 
     case 'role':
-      return new RoleCommand(method)
+      return new RoleCommand(action)
 
     case 'user':
-      return new UserCommand(method)
+      return new UserCommand(action)
 
     default:
       throw new Error(getErrorMessage('KDB0005'))
   }
 }
-
-/**
- *
- * @param {string} command
- * @returns {object}
- */
-const parseCommand = (command) => {
-  const methodMatch = command.split(/(\w+)-(.+)/)
-
-  return {
-    type: methodMatch[1],
-    method: utils.camelCase(methodMatch[2])
-  }
-}
-
-export default getCommand

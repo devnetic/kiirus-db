@@ -1,6 +1,6 @@
-import Collection from './Collection'
+import { Collection } from './Collection'
 
-export default class BaseEntity {
+export class BaseEntity {
   /**
    *
    * @param {string} collection

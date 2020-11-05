@@ -1,6 +1,6 @@
-const RECORD_NAME = 'record'
+export const RECORD_NAME = 'record'
 
-const OPERATORS = {
+export const OPERATORS = {
   comparison: {
     $eq: '===',
     $gt: '>',
@@ -31,7 +31,7 @@ const OPERATORS = {
  * @param {string} operator
  * @returns {string}
  */
-const getOperatorType = (operator) => {
+export const getOperatorType = (operator) => {
   if (Object.keys(OPERATORS.logical).includes(operator)) {
     return 'logical'
   } else if (Object.keys(OPERATORS.comparison).includes(operator)) {
@@ -39,10 +39,4 @@ const getOperatorType = (operator) => {
   } else if (Object.keys(OPERATORS.aggregation).includes(operator)) {
     return 'aggregation'
   }
-}
-
-export {
-  OPERATORS,
-  RECORD_NAME,
-  getOperatorType
 }

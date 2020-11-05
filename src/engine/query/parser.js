@@ -104,8 +104,6 @@ const getTokens = (query, operand) => {
  * @param {Object} query
  * @returns {Array<Object>}
  */
-const parse = (query) => {
+export const parse = (query) => {
   return getTokens(query)
 }
-
-export default parse

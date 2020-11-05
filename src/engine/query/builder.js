@@ -5,7 +5,7 @@ import { RECORD_NAME } from './common'
  * @param {string} compiled
  * @returns {Function}
  */
-const build = (compiled, type = 'query') => {
+export const build = (compiled, type = 'query') => {
   const functionBody = type === 'query' ? `return ${compiled || true}` : `${compiled}; return ${RECORD_NAME};`
 
   if (process.env.LOG_QUERIES === 'true') {
@@ -14,5 +14,3 @@ const build = (compiled, type = 'query') => {
 
   return new Function(RECORD_NAME, 'isEqual', 'getType', `'use strict'; ${functionBody}`) // eslint-disable-line
 }
-
-export default build

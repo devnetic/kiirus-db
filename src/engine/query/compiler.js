@@ -7,7 +7,7 @@ import { OPERATORS, RECORD_NAME, getOperatorType } from './common'
  * @param {string} [join='&&']
  * @returns {string}
  */
-const compile = (syntaxTree, commandType = 'query', join = '&&') => {
+export const compile = (syntaxTree, commandType = 'query', join = '&&') => {
   const compiled = []
 
   for (const token of syntaxTree) {
@@ -154,5 +154,3 @@ const getType = (value) => {
     return typeof value
   }
 }
-
-export default compile

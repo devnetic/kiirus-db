@@ -1,20 +1,20 @@
-import { utils } from './../support'
+import * as utils from '@devnetic/utils'
 
-const stats = {
-  startTime: undefined,
-  endTime: undefined
+const STATS = {
+  startTime: 0,
+  endTime: 0
 }
 
 const getUptime = () => {
-  return utils.msToTime(Date.now() - stats.startTime)
+  return utils.msToTime(Date.now() - STATS.startTime)
 }
 
 const setEndTime = () => {
-  stats.endTime = Date.now()
+  STATS.endTime = Date.now()
 }
 
 const setStartTime = () => {
-  stats.startTime = Date.now()
+  STATS.startTime = Date.now()
 }
 
 export {
