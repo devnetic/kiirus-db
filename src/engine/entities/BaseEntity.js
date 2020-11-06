@@ -1,6 +1,7 @@
 import { Collection } from './Collection'
+import { CommonEntity } from './CommonEntity'
 
-export class BaseEntity {
+export class BaseEntity extends CommonEntity {
   /**
    *
    * @param {string} collection

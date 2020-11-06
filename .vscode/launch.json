@@ -5,22 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "args": [
-        "--timeout",
-        "999999",
-        "--colors",
-        "${workspaceFolder}/test"
-      ],
-      "internalConsoleOptions": "openOnSessionStart",
-      "name": "Mocha Tests",
-      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-      // Workspace relative or absolute path to the runtime executable to be used. Default is the runtime executable on the PATH.
-      "runtimeExecutable": "/home/aagamezl/.nvm/versions/node/v12.14.1/bin/node",
+      "type": "node",
       "request": "launch",
+      "name": "Launch Program",
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "type": "pwa-node"
+      "program": "${file}"
     },
     {
       "type": "node",
@@ -30,15 +21,6 @@
       "skipFiles": [
         "<node_internals>/**"
       ]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Launch Program",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "program": "${file}"
     },
     {
       "type": "node",

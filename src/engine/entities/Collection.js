@@ -5,19 +5,39 @@ import * as utils from '@devnetic/utils'
 import * as storage from './../storage'
 import { ObjectId } from '../ObjectId'
 import { runner } from './../query'
+import { CommonEntity } from './CommonEntity'
 
-export class Collection {
+export class Collection extends CommonEntity {
   /**
    *
    * @param {string} database
    * @param {string} name
    */
   constructor (database, name = '') {
+    super()
+
     this.database = database
     this.extension = '.json'
     this.name = name
     this.query = { run: runner }
     this.records = []
+  }
+
+  /**
+   * Returns the count of documents that would match a find() query for the
+   * collection
+   *
+   * @param {object} query
+   * @returns {number}
+   */
+  async count (query) {
+    try {
+      const result = await this.find(query)
+
+      return result.length
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
   }
 
   /**
@@ -32,6 +52,96 @@ export class Collection {
   }
 
   /**
+   * Perform a decipher over the data
+   *
+   * @param {string} data
+   * @returns {string}
+   * @memberof Collection
+   */
+  decipher (data) {
+    return data
+  }
+
+  /**
+   * Delete one or many records from the collection using a query
+   *
+   * @param {Function|Object} query
+   *
+   * @return Promise<Object>
+   */
+  async delete (query) {
+    try {
+      const records = await this.getRecords(this.query.run(query))
+
+      const response = {
+        deletedCount: 0
+      }
+
+      for (const record of records) {
+        const result = await storage.deleteFile(record.file)
+
+        if (result === undefined) {
+          response.deletedCount += 1
+        }
+      }
+
+      return response
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
+  }
+
+  async drop () {
+    try {
+      await storage.deleteDir(this.getPath())
+
+      return true
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
+  }
+
+  /**
+   * Select a record set using a query expression
+   *
+   * @param {Function|Object} [query = {}]
+   * @returns {Promise<Array>}
+   */
+  async find (query = {}) {
+    try {
+      const result = await this.getRecords(this.query.run(query))
+
+      return result.map(record => {
+        this.records.push(record.file)
+
+        return record.data
+      })
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
+  }
+
+  /**
+   * Select a record using a query expression
+   *
+   * @param {Function|Object} query
+   * @returns {Promise<Array>}
+   */
+  async findOne (query = {}) {
+    try {
+      const result = await this.find(query)
+
+      if (result.length > 0) {
+        return result[0]
+      }
+
+      return {}
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
+  }
+
+  /**
    * Return the collection path
    *
    * @returns {string}
@@ -43,6 +153,36 @@ export class Collection {
       this.database,
       this.name
     )
+  }
+
+  /**
+   * Read a set of files from the collection path
+   *
+   * @param {object} query
+   * @returns {Promise<array>}
+   */
+  async getRecords (query) {
+    const pathname = this.getPath()
+
+    try {
+      const files = await storage.readDir(pathname)
+
+      const records = []
+
+      for (let file of files) {
+        file = path.join(pathname, file)
+
+        const data = await storage.readJson(file)
+
+        if (query(data) === true) {
+          records.push({ file, data })
+        }
+      }
+
+      return records
+    } catch (e) {
+      throw new Error(this.getError(e))
+    }
   }
 
   /**
@@ -71,11 +211,77 @@ export class Collection {
    * @return {Promise<boolean>}
    */
   async insert (data) {
-    const pathname = this.getPath()
+    try {
+      const pathname = this.getPath()
 
-    await this.init(pathname)
+      await this.init(pathname)
 
-    return this.write(pathname, data)
+      return this.write(pathname, data)
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
+  }
+
+  /**
+ * Rename a file or directory
+ *
+ * @param {string} newName
+ * @returns {Promise<boolean|NodeJS.ErrnoException>}
+ * @memberof Collection
+ */
+  async rename (newName) {
+    const newPathname = path.join(
+      process.env.DB_PATH,
+      this.database,
+      newName
+    )
+
+    const response = {
+      nModified: 0
+    }
+
+    try {
+      await storage.rename(this.getPath(), newPathname)
+
+      response.nModified = 1
+
+      return response
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
+  }
+
+  /**
+   * Update a collection using a query to select the records to update and a
+   * update object, containing the key and values to be updated
+   *
+   * @param {Array<{query: Object, update: Array}>} query
+   * @param {object} update
+   *
+   * @return {Promise<object>}
+   */
+  async update ([query, update]) {
+    try {
+      const records = await this.getRecords(this.query.run(query))
+
+      const response = {
+        nModified: 0
+      }
+
+      for (const record of records) {
+        record.data = this.query.run(update, 'aggregation', ';')(record.data, utils.isEqual, utils.getType)
+
+        const result = await storage.writeJson(record.file, record.data)
+
+        if (result === undefined) {
+          response.nModified += 1
+        }
+      }
+
+      return response
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
   }
 
   /**

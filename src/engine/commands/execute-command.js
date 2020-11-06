@@ -1,5 +1,5 @@
 import * as commands from './'
-import { createError } from '../../support'
+import { unexpectedError } from '../../support'
 import { Database } from '../entities'
 
 /**
@@ -16,7 +16,7 @@ export const executeCommand = async (request, response) => {
 
     response.send(result)
   } catch (error) {
-    const errorMessage = createError(error.message || error, request.body.command)
+    const errorMessage = unexpectedError(error.message || error, request.body.command)
 
     const stack = error.stack.split(/\n/g).slice(1).map(line => '  ' + line.trim())
 

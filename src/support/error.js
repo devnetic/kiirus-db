@@ -6,9 +6,9 @@ import * as utils from '@devnetic/utils'
  * @param {string} command
  * @returns {Object}
  */
-const createError = (error, command) => {
+export const unexpectedError = (error, command) => {
   if (error.includes('is not a function')) {
-    return { error: `${command}: command not implemented` }
+    return getErrorMessage('KDB0002')
   }
 
   return { error }
@@ -20,11 +20,6 @@ const createError = (error, command) => {
  * @param {string} code
  * @returns {string}
  */
-const getErrorMessage = (code, message) => {
+export const getErrorMessage = (code, message) => {
   return `${code}: ${process.env[code].replace('{{}}', message ? ` [${message}]` : '')} - ${utils.dateFormat(new Date(), 'YYYY-MM-dd HH:mm:ss')}`
-}
-
-export {
-  createError,
-  getErrorMessage
 }
