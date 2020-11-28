@@ -1,5 +1,6 @@
 export * from './BaseCommand'
 export * from './CollectionCommand'
 export * from './DatabaseCommand'
+export * from './RoleCommand'
 export * from './execute-command'
 export * from './factory'

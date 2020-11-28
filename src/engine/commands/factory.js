@@ -2,7 +2,8 @@ import * as utils from '@devnetic/utils'
 
 import {
   CollectionCommand,
-  DatabaseCommand
+  DatabaseCommand,
+  RoleCommand
 } from '.'
 
 /**

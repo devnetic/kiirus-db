@@ -135,7 +135,7 @@ export class Collection extends CommonEntity {
         return result[0]
       }
 
-      return {}
+      return undefined
     } catch (error) {
       throw new Error(this.getError(error))
     }
@@ -180,8 +180,8 @@ export class Collection extends CommonEntity {
       }
 
       return records
-    } catch (e) {
-      throw new Error(this.getError(e))
+    } catch (error) {
+      throw new Error(this.getError(error))
     }
   }
 

@@ -24,11 +24,35 @@ export class Database extends BaseEntity {
     )
   }
 
-  /**
-   * Get
-   * @param {Object} options
-   */
-  list (options) {
+  list () {
     return storage.readDir(process.env.DB_PATH)
+  }
+
+  /**
+   * Rename a file or directory
+   *
+   * @param {string} newName
+   * @returns {Promise<boolean|NodeJS.ErrnoException>}
+   * @memberof Collection
+   */
+  async rename (newName) {
+    const newPathname = path.join(
+      process.env.DB_PATH,
+      newName
+    )
+
+    const response = {
+      nModified: 0
+    }
+
+    try {
+      await storage.rename(this.getPath(), newPathname)
+
+      response.nModified = 1
+
+      return response
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
   }
 }

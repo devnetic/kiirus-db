@@ -1,7 +1,7 @@
 import * as storage from './../storage'
 
 export class CommonEntity {
-  async drop (options) {
+  async drop (body) {
     try {
       await storage.deleteDir(this.getPath())
 

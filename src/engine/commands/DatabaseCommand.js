@@ -21,20 +21,8 @@ export class DatabaseCommand extends BaseCommand {
       throw new Error(getErrorMessage('KDB0002'))
     }
 
-    const result = await database[this.action](options)
+    const result = await database[this.action](options.body)
 
     return result
-
-    // const result = await database[this.action](options)
-    //   .catch(error => {
-    //     const message = error.message || error
-
-    //     // If the error message is a engine error, just throw it
-    //     if (message.indexOf('KDB') !== -1) {
-    //       throw new Error(error)
-    //     }
-
-    //     throw new Error(getErrorMessage('KDB0007', error))
-    //   })
   }
 }
