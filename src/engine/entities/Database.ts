@@ -2,13 +2,13 @@ import { BaseEntity } from './BaseEntity'
 import * as storage from './../storage'
 
 export class Database extends BaseEntity {
-  constructor() {
+  constructor () {
     super()
 
     this.init(this.getPath())
   }
 
-  list () {
+  async list (): Promise<string[]> {
     return storage.readDir(process.env.DB_PATH ?? '')
   }
 }

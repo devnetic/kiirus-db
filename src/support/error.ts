@@ -17,7 +17,7 @@ export const getErrorMessage = (code: string, message: string = ''): string => {
  * @param {string} command
  * @returns {Object}
  */
-export const unexpectedError = (error: string, command: string) => {
+export const unexpectedError = (error: string, command: string): Object => {
   if (error.includes('is not a function')) {
     return getErrorMessage('KDB0002')
   }

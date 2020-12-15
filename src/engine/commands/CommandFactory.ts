@@ -23,7 +23,7 @@ export class CommandFactory {
     return utils.camelCase(action)
   }
 
-  protected static getCommand(command: string, action: string): BaseCommand {
+  protected static getCommand (command: string, action: string): BaseCommand {
     switch (command) {
       case 'collection':
         return new CollectionCommand(this.formatAction(action))
@@ -36,21 +36,19 @@ export class CommandFactory {
     }
   }
 
-  static async execute(request: FastifyRequest, reply: FastifyReply) {
+  static async execute (request: FastifyRequest, reply: FastifyReply): Promise<any> {
     const { command, action, options } = request.body as Command
-
-    // console.log({ command, action, options })
 
     try {
       const result = await this.getCommand(command, action).run(new Database(), options)
 
       return result
     } catch (error) {
-      const errorMessage = unexpectedError(error.message || error, command)
+      const errorMessage = unexpectedError(error.message ?? error, command)
 
       const stack = error.stack.split(/\n/g).slice(1).map((line: string) => '  ' + line.trim())
 
-      console.log(`${error.message} - Stack \n[\n%s\n]`, stack.join('\n'))
+      console.log(`${error.message as string} - Stack \n[\n%s\n]`, stack.join('\n'))
 
       return errorMessage
     }

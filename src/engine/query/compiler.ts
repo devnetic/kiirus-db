@@ -15,7 +15,7 @@ import { Token } from './parser'
  * @returns {string}
  */
 export const compile = (
-  syntaxTree: Array<Token> = [],
+  syntaxTree: Token[] = [],
   commandType: string = 'query',
   join: ComplexOperator | string = '&&'
 ): string => {
@@ -149,7 +149,7 @@ const formatJoin = (join: string): string => {
  * @param {string} [type='query|aggregation']
  * @returns {string}
  */
-const getOperator = (operator = '$eq', commandType = 'query') => {
+const getOperator = (operator = '$eq', commandType = 'query'): string => {
   if (commandType === 'aggregation') {
     return '='
   }

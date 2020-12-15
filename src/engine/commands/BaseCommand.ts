@@ -7,11 +7,11 @@ export abstract class BaseCommand {
     return this.action
   }
 
-  setAction(action: string) {
+  setAction (action: string): this {
     this.action = action
 
     return this
   }
 
-  async run(database: Database, options: unknown) { }
+  abstract run (database: Database, options: unknown): Promise<any>
 }

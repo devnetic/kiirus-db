@@ -4,7 +4,7 @@ import { Collection, CollectionOptions, Database } from './../entities'
 import { getErrorMessage } from './../../support'
 
 export class CollectionCommand extends BaseCommand {
-  async run(database: Database, options: CollectionOptions) {
+  async run (database: Database, options: CollectionOptions): Promise<any> {
     if (!options.database) {
       throw new Error('No database selected')
     }

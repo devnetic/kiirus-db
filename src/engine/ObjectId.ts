@@ -22,7 +22,7 @@ export class ObjectId {
    * @return {number} returns next index value.
    * @ignore
    */
-  static getInc () {
+  static getInc (): number {
     return (ObjectId.index = (ObjectId.index + 1) % 0xffffff)
   }
 

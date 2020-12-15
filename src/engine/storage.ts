@@ -9,7 +9,7 @@ import { promises as fs } from 'fs'
  *
  * @return {Promise<string | undefined>}
  */
-export const createDir = (
+export const createDir = async (
   pathname: string, recursive: boolean = true, mode: number = 0o777
 ): Promise<string | undefined> => {
   return fs.mkdir(pathname, { recursive, mode })
@@ -35,7 +35,7 @@ export const deleteDir = async (pathname: string): Promise<void> => {
 *
 * @returns {Promise<boolean|NodeJS.ErrnoException>}
 */
-export const deleteFile = (pathname: string): Promise<void> => {
+export const deleteFile = async (pathname: string): Promise<void> => {
   return fs.unlink(pathname)
 }
 
@@ -45,7 +45,7 @@ export const deleteFile = (pathname: string): Promise<void> => {
  * @param {string} encoding
  * @returns {Promise<object[]>}
  */
-export const readDir = (pathname: string, encoding: BufferEncoding = 'utf8'): Promise<string[]> => {
+export const readDir = async (pathname: string, encoding: BufferEncoding = 'utf8'): Promise<string[]> => {
   return fs.readdir(pathname, { encoding })
 }
 
@@ -57,7 +57,7 @@ export const readDir = (pathname: string, encoding: BufferEncoding = 'utf8'): Pr
  *
  * @returns {Promise<string|NodeJS.ErrnoException>}
  */
-export const readFile = (pathname: string, encoding: BufferEncoding = 'utf8'): Promise<string> => {
+export const readFile = async (pathname: string, encoding: BufferEncoding = 'utf8'): Promise<string> => {
   return fs.readFile(pathname, encoding)
 }
 
@@ -84,9 +84,9 @@ export const readJson = async (pathname: string): Promise<any> => {
  *
  * @returns {Promise<boolean|NodeJS.ErrnoException>}
  */
-export const writeFile = (
+export const writeFile = async (
   pathname: string, content: string, encoding: BufferEncoding = 'utf8',
   mode: number = 0o666
-) => {
+): Promise<void> => {
   return fs.writeFile(pathname, content, { encoding, mode })
 }

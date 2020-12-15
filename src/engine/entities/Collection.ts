@@ -13,15 +13,19 @@ interface WriteError {
   message: string
 }
 
-interface WriteResponse {
+interface InsertResponse {
   nInserted: number
   writeError?: WriteError
+}
+
+interface DeleteResponse {
+  deletedCount: number
 }
 
 // export interface CollectionOptions {
 //   database: string
 //   collection: string
-//   data?: Array<any>
+//   data?: any[]
 // }
 
 interface Query {
@@ -38,20 +42,20 @@ interface CollectionDeleteOptions extends CollectionOptions {
 }
 
 interface CollectionInsertOptions extends CollectionOptions {
-  documents: Array<any>
+  documents: any[]
 }
 
 export class Collection extends BaseCommonEntity {
   private extension: string
-  private query: Query
-  private records: Array<any> = []
+  private readonly query: Query
+  private readonly records: any[] = []
 
   /**
    *
    * @param {string} database
    * @param {string} name
    */
-  constructor(protected database: string, name: string = '') {
+  constructor (protected database: string, name: string = '') {
     super()
 
     this.extension = '.json'
@@ -78,7 +82,7 @@ export class Collection extends BaseCommonEntity {
    *
    * @return Promise<Object>
    */
-  async delete ({ query }: CollectionDeleteOptions) {
+  async delete ({ query }: CollectionDeleteOptions): Promise<DeleteResponse> {
     try {
       const records = await this.getRecords(this.query.run(query))
 
@@ -95,6 +99,26 @@ export class Collection extends BaseCommonEntity {
       }
 
       return response
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
+  }
+
+  /**
+   * Select a record set using a query expression
+   *
+   * @param {Function|Object} [query = {}]
+   * @returns {Promise<Array>}
+   */
+  async find (query: any = {}): Promise<string[]> {
+    try {
+      const result = await this.getRecords(this.query.run(query))
+
+      return result.map(record => {
+        this.records.push(record.file)
+
+        return record.data
+      })
     } catch (error) {
       throw new Error(this.getError(error))
     }
@@ -120,7 +144,7 @@ export class Collection extends BaseCommonEntity {
    * @param {Function} query
    * @returns {Promise<array>}
    */
-  async getRecords (query: Function): Promise<Array<any>> {
+  async getRecords (query: Function): Promise<any[]> {
     const pathname = this.getPath()
 
     try {
@@ -150,7 +174,7 @@ export class Collection extends BaseCommonEntity {
    * @param {Array<Object>} data
    * @return {Promise<boolean>}
    */
-  async insert({ documents }: CollectionInsertOptions): Promise<WriteResponse> {
+  async insert ({ documents }: CollectionInsertOptions): Promise<InsertResponse> {
     try {
       const pathname = this.getPath()
 
@@ -170,8 +194,8 @@ export class Collection extends BaseCommonEntity {
    *
    * @return {Promise<array>}
    */
-  async write (collection: string, data: Array<any>): Promise<WriteResponse> {
-    const response: WriteResponse = {
+  async write (collection: string, data: any[]): Promise<InsertResponse> {
+    const response: InsertResponse = {
       nInserted: 0
     }
 

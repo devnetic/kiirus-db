@@ -5,7 +5,7 @@ export interface Token {
   operator: string
   operand?: string
   value?: unknown
-  children?: Array<Token>
+  children?: Token[]
 }
 
 /**
@@ -61,10 +61,10 @@ const isStatement = (key: string): boolean => {
  *
  * @param {Object} query
  * @param {string} [operand]
- * @returns {Array<Token>}
+ * @returns {Token[]}
  */
-const getTokens = (query: ArrayLike<any>, operand?: string): Array<Token> => {
-  const tokens: Array<Token> = []
+const getTokens = (query: ArrayLike<any>, operand?: string): Token[] => {
+  const tokens: Token[] = []
 
   for (const [key, item] of Object.entries(query)) {
     const itemType = getItemType(item)
@@ -111,8 +111,8 @@ const getTokens = (query: ArrayLike<any>, operand?: string): Array<Token> => {
 /**
  *
  * @param {Object} query
- * @returns {Array<Token>}
+ * @returns {Token[]}
  */
-export const parse = (query: ArrayLike<any>): Array<Token> => {
+export const parse = (query: ArrayLike<any>): Token[] => {
   return getTokens(query)
 }

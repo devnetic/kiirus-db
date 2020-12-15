@@ -19,8 +19,8 @@ export interface ComplexOperator {
 
 export interface LogicalOperators {
   $and: string
-  $nor: ComplexOperator,
-  $not: ComplexOperator,
+  $nor: ComplexOperator
+  $not: ComplexOperator
   $or: string
 }
 
@@ -76,5 +76,5 @@ export const getOperatorType = (operator: string): string => {
     return 'aggregation'
   }
 
-  throw new Error(process.env['KDB0011'])
+  throw new Error(process.env.KDB0011)
 }
