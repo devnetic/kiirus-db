@@ -63,5 +63,7 @@ typings/
 # vscode
 .vscode
 
-# data
-data
+# database
+database
+
+/lib
