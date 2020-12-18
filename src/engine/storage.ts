@@ -75,6 +75,18 @@ export const readJson = async (pathname: string): Promise<any> => {
 }
 
 /**
+ * Rename a file or directory
+ *
+ * @param {string} oldPath
+ * @param {string} newPath
+ *
+ * @returns {Promise<void|NodeJS.ErrnoException>}
+ */
+export const rename = (oldPath: string, newPath: string): Promise<void> => {
+  return fs.rename(oldPath, newPath)
+}
+
+/**
  * Write to a file the given content
  *
  * @param {string} pathname
@@ -89,4 +101,23 @@ export const writeFile = async (
   mode: number = 0o666
 ): Promise<void> => {
   return fs.writeFile(pathname, content, { encoding, mode })
+}
+
+/**
+ * Write to a file in JSON format the given object
+ *
+ * @param {string} pathname
+ * @param {Object} content
+ * @param {string} [encoding=utf8]
+ * @param {string} [mode=0o666]
+ *
+ * @returns {Promise<boolean|NodeJS.ErrnoException>}
+ */
+export const writeJson = (
+  pathname: string,
+  content: any,
+  encoding: BufferEncoding = 'utf8',
+  mode: number = 0o666
+) => {
+  return writeFile(pathname, JSON.stringify(content), encoding, mode)
 }

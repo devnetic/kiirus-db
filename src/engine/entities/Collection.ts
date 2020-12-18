@@ -18,18 +18,19 @@ interface InsertResponse {
   writeError?: WriteError
 }
 
+interface UpdateResponse {
+  nModified: number
+  writeError?: WriteError
+}
+
 interface DeleteResponse {
   deletedCount: number
 }
 
-// export interface CollectionOptions {
-//   database: string
-//   collection: string
-//   data?: any[]
-// }
+// type T0 = Parameters<typeof runner>
 
 interface Query {
-  run: Function
+  run: typeof runner
 }
 
 export interface CollectionOptions {
@@ -37,12 +38,20 @@ export interface CollectionOptions {
   collection: string
 }
 
-interface CollectionDeleteOptions extends CollectionOptions {
-  query: object
+interface CollectionQueryOptions extends CollectionOptions {
+  query: ArrayLike<any>
 }
 
 interface CollectionInsertOptions extends CollectionOptions {
   documents: any[]
+}
+
+interface CollectionUpdateOptions extends CollectionQueryOptions {
+  update: ArrayLike<any>
+}
+
+interface CollectionRenameOptions extends CollectionOptions {
+  target: string
 }
 
 export class Collection extends BaseCommonEntity {
@@ -76,13 +85,30 @@ export class Collection extends BaseCommonEntity {
   }
 
   /**
+   * Returns the count of documents that would match a find() query for the
+   * collection
+   *
+   * @param {CollectionQueryOptions} options
+   * @returns {number}
+   */
+  async count (options: CollectionQueryOptions): Promise<number> {
+    try {
+      const result = await this.find(options)
+
+      return result.length
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
+  }
+
+  /**
    * Delete one or many records from the collection using a query
    *
-   * @param {Function|Object} query
+   * @param {CollectionQueryOptions} options
    *
    * @return Promise<Object>
    */
-  async delete ({ query }: CollectionDeleteOptions): Promise<DeleteResponse> {
+  async delete ({ query }: CollectionQueryOptions): Promise<DeleteResponse> {
     try {
       const records = await this.getRecords(this.query.run(query))
 
@@ -110,7 +136,7 @@ export class Collection extends BaseCommonEntity {
    * @param {Function|Object} [query = {}]
    * @returns {Promise<Array>}
    */
-  async find (query: any = {}): Promise<string[]> {
+  async find ({ query }: CollectionQueryOptions): Promise<string[]> {
     try {
       const result = await this.getRecords(this.query.run(query))
 
@@ -119,6 +145,26 @@ export class Collection extends BaseCommonEntity {
 
         return record.data
       })
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
+  }
+
+  /**
+   * Select a record using a query expression
+   *
+   * @param {CollectionQueryOptions} options
+   * @returns {Promise<ArrayLike<any>>}
+   */
+  async findOne (options: CollectionQueryOptions) {
+    try {
+      const result = await this.find(options)
+
+      if (result.length > 0) {
+        return result[0]
+      }
+
+      return undefined
     } catch (error) {
       throw new Error(this.getError(error))
     }
@@ -181,6 +227,70 @@ export class Collection extends BaseCommonEntity {
       await this.init(pathname)
 
       return this.write(pathname, documents)
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
+  }
+
+  async list (): Promise<string[]> {
+    return storage.readDir(this.getPath())
+  }
+
+  /**
+   * Rename a file or directory
+   *
+   * @param {string} newName
+   * @returns {Promise<boolean|NodeJS.ErrnoException>}
+   * @memberof Collection
+   */
+  async rename({ target }: CollectionRenameOptions): Promise<UpdateResponse> {
+    const newPathname = path.join(
+      process.env.DB_PATH ?? '',
+      this.database,
+      target
+    )
+
+    try {
+      await storage.rename(this.getPath(), newPathname)
+
+      const response: UpdateResponse = {
+        nModified: 1
+      }
+
+      return response
+    } catch (error) {
+      throw new Error(this.getError(error))
+    }
+  }
+
+  /**
+   * Update a collection using a query to select the records to update and a
+   * update object, containing the key and values to be updated
+   *
+   * @param {Array<{query: Object, update: Array}>} query
+   * @param {object} update
+   *
+   * @return {Promise<object>}
+   */
+  async update ({ query, update }: CollectionUpdateOptions): Promise<UpdateResponse> {
+    try {
+      const records = await this.getRecords(this.query.run(query))
+
+      const response: UpdateResponse = {
+        nModified: 0
+      }
+
+      for (const record of records) {
+        record.data = this.query.run(update, 'aggregation', ';')(record.data, utils.isEqual, utils.getType)
+
+        const result = await storage.writeJson(record.file, record.data)
+
+        if (result === undefined) {
+          response.nModified += 1
+        }
+      }
+
+      return response
     } catch (error) {
       throw new Error(this.getError(error))
     }
