@@ -1,6 +1,7 @@
 import path from 'path'
 
 import * as storage from './../storage'
+import { getErrorMessage } from './../../support'
 
 export abstract class BaseCommonEntity {
   protected name: string = ''
@@ -11,8 +12,7 @@ export abstract class BaseCommonEntity {
 
       return true
     } catch (error) {
-      // throw new Error(this.getError(error))
-      throw new Error(error)
+      throw new Error(getErrorMessage('KDB0006', error.message))
     }
   }
 
@@ -44,19 +44,6 @@ export abstract class BaseCommonEntity {
       if ((error.message ?? error).indexOf('EEXIST') === -1) {
         throw new Error(error)
       }
-    }
-  }
-
-  getError (error: NodeJS.ErrnoException): string {
-    if (!error.code) {
-      return error.message
-    }
-
-    switch (error.code) {
-      case 'ENOENT':
-        return `'${this.name}' ${this.constructor.name.toLowerCase()} doesn't exist`
-      default:
-        return error.message
     }
   }
 }

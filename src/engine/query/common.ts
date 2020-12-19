@@ -1,3 +1,5 @@
+import { getErrorMessage } from './../../support'
+
 export const RECORD_NAME: string = 'record'
 
 export interface ComparisonOperators {
@@ -76,5 +78,5 @@ export const getOperatorType = (operator: string): string => {
     return 'aggregation'
   }
 
-  throw new Error(process.env.KDB0011)
+  throw new Error(getErrorMessage('KDB0010'))
 }

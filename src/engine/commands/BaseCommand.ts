@@ -13,5 +13,5 @@ export abstract class BaseCommand {
     return this
   }
 
-  abstract run (database: Database, options: unknown): Promise<any>
+  abstract run (database: Database, options: unknown): Promise<unknown>
 }

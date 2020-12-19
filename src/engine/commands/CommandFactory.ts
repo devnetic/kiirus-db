@@ -5,7 +5,7 @@ import { BaseCommand } from './BaseCommand'
 import { CollectionCommand } from './CollectionCommand'
 import { Database } from './../entities'
 import { DatabaseCommand } from './DatabaseCommand'
-import { getErrorMessage, unexpectedError } from './../../support'
+import { getErrorMessage } from './../../support'
 
 interface Command {
   command: string
@@ -32,7 +32,7 @@ export class CommandFactory {
         return new DatabaseCommand(this.formatAction(action))
 
       default:
-        throw new Error(getErrorMessage('KDB0005'))
+        throw new Error(getErrorMessage('KDB0002'))
     }
   }
 
@@ -44,13 +44,7 @@ export class CommandFactory {
 
       return result
     } catch (error) {
-      const errorMessage = unexpectedError(error.message ?? error, command)
-
-      const stack = error.stack.split(/\n/g).slice(1).map((line: string) => '  ' + line.trim())
-
-      console.log(`${error.message as string} - Stack \n[\n%s\n]`, stack.join('\n'))
-
-      return errorMessage
+      throw error
     }
   }
 }

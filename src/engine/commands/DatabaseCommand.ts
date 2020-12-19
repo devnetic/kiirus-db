@@ -19,7 +19,7 @@ export class DatabaseCommand extends BaseCommand {
     }
 
     if (!Reflect.has(database, this.action)) {
-      throw new Error(getErrorMessage('KDB0002'))
+      throw new Error(getErrorMessage('KDB0013', 'Database'))
     }
 
     const result = await Reflect.get(database, this.action)(options)

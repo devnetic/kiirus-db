@@ -3,6 +3,7 @@ import { IncomingMessage, Server, ServerResponse } from 'http'
 import { FastifyReply, FastifyRequest, RouteOptions } from 'fastify'
 
 import { CommandFactory } from '../engine/commands'
+import { logger } from './../support'
 
 export const engine: Array<RouteOptions<Server, IncomingMessage, ServerResponse>> = [{
   method: 'POST',
@@ -16,7 +17,9 @@ export const engine: Array<RouteOptions<Server, IncomingMessage, ServerResponse>
         .header('Content-Type', 'application/json; charset=utf-8')
         .send(result)
     } catch (error) {
-      response.send(error)
+      logger(error.message, 'error')
+
+      response.code(500).send(error)
     }
   }
 }]

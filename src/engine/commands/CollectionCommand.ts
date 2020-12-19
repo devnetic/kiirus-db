@@ -14,7 +14,7 @@ export class CollectionCommand extends BaseCommand {
     const collection: Collection = database.getCollection(options.collection)
 
     if (!Reflect.has(collection, this.action)) {
-      throw new Error(getErrorMessage('KDB0002'))
+      throw new Error(getErrorMessage('KDB0013', 'Collection'))
     }
 
     // const result = await Reflect.get(collection, this.action, collection)(options)

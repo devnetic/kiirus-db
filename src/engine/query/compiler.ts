@@ -88,7 +88,7 @@ const compileExpression = (token: Token, commandType: string = 'query'): string 
       }
   }
 
-  throw new Error(getErrorMessage('KDB0012'))
+  throw new Error(getErrorMessage('KDB0011'))
 }
 
 const compileFilter = (operand: string, value: any, valueType: string): string => {
@@ -135,7 +135,7 @@ const compileValue = (value: any, type: string): string => {
       return `'${value}'`
   }
 
-  throw new Error(getErrorMessage('KDB0013'))
+  throw new Error(getErrorMessage('KDB0012'))
 }
 
 const formatJoin = (join: string): string => {

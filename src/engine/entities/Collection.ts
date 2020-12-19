@@ -7,6 +7,7 @@ import { BaseCommonEntity } from './BaseCommonEntity'
 import { runner } from './../query'
 import { ObjectId } from './../ObjectId'
 import * as storage from './../storage'
+import { getErrorMessage, logger } from './../../support'
 
 interface WriteError {
   code: number
@@ -26,8 +27,6 @@ interface UpdateResponse {
 interface DeleteResponse {
   deletedCount: number
 }
-
-// type T0 = Parameters<typeof runner>
 
 interface Query {
   run: typeof runner
@@ -97,7 +96,9 @@ export class Collection extends BaseCommonEntity {
 
       return result.length
     } catch (error) {
-      throw new Error(this.getError(error))
+      const message = getErrorMessage('KDB0006', error.message)
+
+      throw new Error(message)
     }
   }
 
@@ -126,7 +127,7 @@ export class Collection extends BaseCommonEntity {
 
       return response
     } catch (error) {
-      throw new Error(this.getError(error))
+      throw new Error(getErrorMessage('KDB0006', error.message))
     }
   }
 
@@ -146,7 +147,7 @@ export class Collection extends BaseCommonEntity {
         return record.data
       })
     } catch (error) {
-      throw new Error(this.getError(error))
+      throw new Error(getErrorMessage('KDB0006', error.message))
     }
   }
 
@@ -166,7 +167,7 @@ export class Collection extends BaseCommonEntity {
 
       return undefined
     } catch (error) {
-      throw new Error(this.getError(error))
+      throw new Error(getErrorMessage('KDB0006', error.message))
     }
   }
 
@@ -210,7 +211,7 @@ export class Collection extends BaseCommonEntity {
 
       return records
     } catch (error) {
-      throw new Error(this.getError(error))
+      throw new Error(getErrorMessage('KDB0006', error.message))
     }
   }
 
@@ -228,7 +229,7 @@ export class Collection extends BaseCommonEntity {
 
       return this.write(pathname, documents)
     } catch (error) {
-      throw new Error(this.getError(error))
+      throw new Error(getErrorMessage('KDB0006', error.message))
     }
   }
 
@@ -259,7 +260,7 @@ export class Collection extends BaseCommonEntity {
 
       return response
     } catch (error) {
-      throw new Error(this.getError(error))
+      throw new Error(getErrorMessage('KDB0006', error.message))
     }
   }
 
@@ -292,7 +293,7 @@ export class Collection extends BaseCommonEntity {
 
       return response
     } catch (error) {
-      throw new Error(this.getError(error))
+      throw new Error(getErrorMessage('KDB0006', error.message))
     }
   }
 

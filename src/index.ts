@@ -5,6 +5,7 @@ import * as loadEnv from '@devnetic/load-env'
 
 import * as routes from './routes'
 import * as stats from './support/stats'
+import { logger } from './support'
 
 loadEnv.load()
 loadEnv.load('.errors_description')
@@ -29,5 +30,5 @@ app.listen(port, hostname, (error, address): void => {
 
   const { address: hostname, port } = app.server.address() as AddressInfo
 
-  console.log(`Server is listening on host ${hostname} and port ${port}`)
+  logger(`Server is listening on host ${hostname} and port ${port}`, 'info')
 })

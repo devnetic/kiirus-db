@@ -1,3 +1,4 @@
+import { logger } from './../../support'
 import { RECORD_NAME } from './common'
 
 /**
@@ -9,7 +10,7 @@ export const build = (compiled: string, type = 'query'): Function => {
   const functionBody = type === 'query' ? `return ${compiled ?? true}` : `${compiled}; return ${RECORD_NAME};`
 
   if (process.env.LOG_QUERIES === 'true') {
-    console.log('query: %o', functionBody)
+    logger(`Query: [ ${functionBody} ]`, 'debug')
   }
 
   return new Function(RECORD_NAME, 'isEqual', 'getType', `'use strict'; ${functionBody}`) // eslint-disable-line
