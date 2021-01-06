@@ -22,15 +22,39 @@ export const compile = (
   const compiled = []
 
   for (const token of syntaxTree) {
-    if (token.type === 'statement') {
-      compiled.push(`(${compile(token.children, commandType, getOperator(token.operator))})`)
-    } else {
-      const expression = compileExpression(token, commandType)
+    switch (token.type) {
+      case 'aggregation': {
+        const expression = compileAggregation(token)
 
-      if (expression) {
-        compiled.push(expression)
+        if (expression) {
+          compiled.push(expression)
+        }
+
+        break
       }
+
+      case 'statement':
+        compiled.push(`(${compile(token.children, commandType, getOperator(token.operator))})`)
+
+        break
+
+      default:
+        const expression = compileExpression(token, commandType)
+
+        if (expression) {
+          compiled.push(expression)
+        }
     }
+
+    // if (token.type === 'statement') {
+    //   compiled.push(`(${compile(token.children, commandType, getOperator(token.operator))})`)
+    // } else {
+    //   const expression = compileExpression(token, commandType)
+
+    //   if (expression) {
+    //     compiled.push(expression)
+    //   }
+    // }
   }
 
   if (getType(join) === 'object') {
@@ -40,12 +64,7 @@ export const compile = (
   return compiled.join(`${formatJoin(join as string)}`)
 }
 
-const compileEqual = (
-  operand: string,
-  value: any,
-  valueType: string,
-  commandType?: string
-): string => {
+const compileEqual = ( operand: string, value: any, valueType: string, commandType?: string): string => {
   if (commandType === 'query') {
     return `getType(${RECORD_NAME}.${operand}) === 'array' ? ${compileFind(operand, value, valueType)} : isEqual(${RECORD_NAME}.${operand}, ${compileValue(value, valueType)})`
   }
@@ -55,6 +74,21 @@ const compileEqual = (
 
 const compileNotEqual = (operand: string, value: any, valueType: string): string => {
   return `!${compileEqual(operand, value, valueType)}`
+}
+
+const compileAggregation = (token: Token): string => {
+  const { operand = '', operator, value, children } = token
+
+  switch (operator) {
+    case '$filter':
+      // return `${RECORD_NAME}.${operand} = ${RECORD_NAME}.${operand}.filter(record => ${value ? compileFilterValue2(value, getType(value)) : compile(children)})`
+      // return `${RECORD_NAME}.${operand}.filter(record => ${value ? compileFilterValue2(value, getType(value)) : compile(children)})`
+      // return `${RECORD_NAME}.${operand} = ${RECORD_NAME}.${operand}.filter(record => ${value ? compileFilterValue2(value, getType(value)) : compile(children)})`
+      return compileFilter(operand, value, children)
+
+    default:
+      return ''
+  }
 }
 
 const compileExpression = (token: Token, commandType: string = 'query'): string => {
@@ -73,8 +107,8 @@ const compileExpression = (token: Token, commandType: string = 'query'): string 
       switch (operator) {
         case '$eq':
           return compileEqual(operand, value, valueType, commandType)
-        case '$filter':
-          return compileFilter(operand, value, valueType)
+        // case '$filter':
+        //   return compileFilter(operand, value, valueType)
         case '$in':
           return compileIn(operand, value, valueType)
         case '$ne':
@@ -91,20 +125,32 @@ const compileExpression = (token: Token, commandType: string = 'query'): string 
   throw new Error(getErrorMessage('KDB0011'))
 }
 
-const compileFilter = (operand: string, value: any, valueType: string): string => {
-  return `${RECORD_NAME}.${operand} = ${RECORD_NAME}.${operand}.filter(item => ${compileFilterValue(value, valueType)})`
+const compileFilter = (operand: string, value: any, children?: Token[]): string => {
+  return `${RECORD_NAME}.${operand} = ${RECORD_NAME}.${operand}.filter(record => ${value ? compileFilterValue(value, getType(value)) : compile(children)})`
 }
 
-const compileFind = (operand: string, value: any, valueType: string): string => {
-  return `${RECORD_NAME}.${operand}.find(item => ${compileFilterValue(value, valueType)})`
-}
+// const compileFilter = (operand: string, value: any, valueType: string): string => {
+//   return `${RECORD_NAME}.${operand} = ${RECORD_NAME}.${operand}.filter(item => ${compileFilterValue(value, valueType)})`
+// }
 
 const compileFilterValue = (value: any, valueType: string): string => {
   if (valueType === 'object') {
-    return `isEqual(item, ${JSON.stringify(value)})`
+    return `isEqual(record, ${JSON.stringify(value)})`
   } else {
-    return `${JSON.stringify(value)}.some(element => isEqual(item, element))`
+    return `record === ${JSON.stringify(value)}`
   }
+}
+
+// const compileFilterValue = (value: any, valueType: string): string => {
+//   if (valueType === 'object') {
+//     return `isEqual(item, ${JSON.stringify(value)})`
+//   } else {
+//     return `${JSON.stringify(value)}.some(element => isEqual(item, element))`
+//   }
+// }
+
+const compileFind = (operand: string, value: any, valueType: string): string => {
+  return `${RECORD_NAME}.${operand}.find(item => ${compileFilterValue(value, valueType)})`
 }
 
 const compileIn = (operand: string, value: any, valueType: string): string => {
@@ -153,6 +199,10 @@ const getOperator = (operator = '$eq', commandType = 'query'): string => {
   if (commandType === 'aggregation') {
     return '='
   }
+
+  console.log(getOperatorType(operator))
+  console.log(Reflect.get(OPERATORS, getOperatorType(operator)))
+  console.log(Reflect.get(Reflect.get(OPERATORS, getOperatorType(operator)), operator))
 
   return Reflect.get(Reflect.get(OPERATORS, getOperatorType(operator)), operator) ?? undefined
 }

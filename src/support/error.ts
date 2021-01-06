@@ -14,7 +14,9 @@ export const getErrorMessage = (code: string, message: string = ''): string => {
     return message
   }
 
-  return `${code}: ${process.env[code]?.replace('{{}}', message ? `${message}` : '')}`
+  message = process.env[code]?.replace('{{}}', message ? `${message}` : '') ?? ''
+
+  return `${code}: ${message}`
 }
 
 const bold = (message: string): string => {
@@ -36,7 +38,7 @@ const color = (name: string, message: string): string => {
   return colors[name]
 }
 
-export const logger = (message: string, level: LoggerLevel): void => {
+export const logger = (message: string, level: LoggerLevel = 'info'): void => {
   const levelColor = {
     'debug': color('green', level.toUpperCase()),
     'error': bold(color('red', level.toUpperCase())),

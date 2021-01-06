@@ -5,7 +5,8 @@ import * as loadEnv from '@devnetic/load-env'
 
 import * as routes from './routes'
 import * as stats from './support/stats'
-import { logger } from './support'
+import { getErrorMessage, logger } from './support'
+import { startEngine } from './engine'
 
 loadEnv.load()
 loadEnv.load('.errors_description')
@@ -21,9 +22,16 @@ for (const [, module] of Object.entries(routes)) {
 const port: string = process.env.PORT ?? '8008'
 const hostname = process.env.HOSTNAME ?? '::'
 
-app.listen(port, hostname, (error, address): void => {
+app.listen(port, hostname, async (error): Promise<void> => {
   if (error !== null) {
-    console.error('Something bad happened: %o', error)
+    logger(`Something bad happened: ${error.message}`, 'error')
+  }
+
+  try {
+    await startEngine()
+
+  } catch (error) {
+    logger(error.message, 'error')
   }
 
   stats.setStartTime()

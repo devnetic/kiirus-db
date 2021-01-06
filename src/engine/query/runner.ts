@@ -8,7 +8,8 @@ import { parse } from './parser'
  * @returns {Function}
  */
 export const runner = (
-  query: ArrayLike<any>,
+  // query: ArrayLike<any>,
+  query: any,
   type: string = 'query',
   join: string = ' && '
 ): Function => {

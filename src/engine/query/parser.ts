@@ -26,7 +26,7 @@ const getItemType = (item: unknown): string => {
  * @param {*} item
  * @returns {boolean}
  */
-const isOperation = (item: ArrayLike<unknown>): boolean => {
+const isOperation = (item: any): boolean => {
   return Object.entries(item).some(([key]) => {
     return isOperator(key)
   })
@@ -55,6 +55,7 @@ const isOperator = (element: string): boolean => {
  */
 const isStatement = (key: string): boolean => {
   return getOperatorType(key) === 'logical'
+  // return ['logical', 'aggregation'].includes(getOperatorType(key))
 }
 
 /**
@@ -63,7 +64,8 @@ const isStatement = (key: string): boolean => {
  * @param {string} [operand]
  * @returns {Token[]}
  */
-const getTokens = (query: ArrayLike<any>, operand?: string): Token[] => {
+// const getTokens = (query: ArrayLike<any>, operand?: string): Token[] => {
+const getTokens = (query: any, operand?: string): Token[] => {
   const tokens: Token[] = []
 
   for (const [key, item] of Object.entries(query)) {
@@ -77,12 +79,23 @@ const getTokens = (query: ArrayLike<any>, operand?: string): Token[] => {
         token.children = []
 
         if (itemType === 'array') {
-          for (const element of item) {
+          for (const element of (item as any)) {
             token.children.push(...getTokens(element))
           }
         } else {
           token.children.push(...getTokens(item, operand))
         }
+      } else if (getOperatorType(key) === 'aggregation') {
+        token.type = 'aggregation'
+        token.operand = operand
+        token.operator = key
+
+      token.children = [...getTokens(item, key)]
+        // if (isOperation(item)) {
+        //   token.children = [...getTokens(item, key)]
+        // } else {
+        //   token.value = item
+        // }
       } else {
         token.type = 'expression'
         token.operand = operand
@@ -113,6 +126,7 @@ const getTokens = (query: ArrayLike<any>, operand?: string): Token[] => {
  * @param {Object} query
  * @returns {Token[]}
  */
-export const parse = (query: ArrayLike<any>): Token[] => {
+// export const parse = (query: ArrayLike<any>): Token[] => {
+export const parse = (query: any): Token[] => {
   return getTokens(query)
 }

@@ -22,7 +22,8 @@ export class DatabaseCommand extends BaseCommand {
       throw new Error(getErrorMessage('KDB0013', 'Database'))
     }
 
-    const result = await Reflect.get(database, this.action)(options)
+    // const result = await Reflect.get(database, this.action)(options)
+    const result = await (database as any)[this.action](options)
 
     return result
   }

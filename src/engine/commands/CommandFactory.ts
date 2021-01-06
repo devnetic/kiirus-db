@@ -3,14 +3,16 @@ import * as utils from '@devnetic/utils'
 
 import { BaseCommand } from './BaseCommand'
 import { CollectionCommand } from './CollectionCommand'
+import { Credentials, getCredentials, isAuthorized } from './../auth'
 import { Database } from './../entities'
 import { DatabaseCommand } from './DatabaseCommand'
+import { UserCommand } from './UserCommand'
 import { getErrorMessage } from './../../support'
 
-interface Command {
+export interface Command {
   command: string
   action: string
-  options?: object | undefined
+  options?: any | undefined
 }
 
 export class CommandFactory {
@@ -31,6 +33,9 @@ export class CommandFactory {
       case 'database':
         return new DatabaseCommand(this.formatAction(action))
 
+      case 'user':
+        return new UserCommand(this.formatAction(action))
+
       default:
         throw new Error(getErrorMessage('KDB0002'))
     }
@@ -40,6 +45,16 @@ export class CommandFactory {
     const { command, action, options } = request.body as Command
 
     try {
+      const { username, password }: Credentials = getCredentials(request.headers)
+
+      console.log('credentials: %o', { username, password })
+
+      // const isAuth = await isAuthorized(username, password, { command, action, options })
+
+      // if (!isAuth) {
+      //   throw new Error(getErrorMessage('KDB0014'))
+      // }
+
       const result = await this.getCommand(command, action).run(new Database(), options)
 
       return result
