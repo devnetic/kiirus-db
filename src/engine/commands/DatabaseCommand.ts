@@ -14,7 +14,7 @@ export class DatabaseCommand extends BaseCommand {
    * @param {Options} options
    */
   async run (database: Database, options: DatabaseOptions = {}): Promise<any> {
-    if (options.database) {
+    if (options.database !== undefined) {
       database.use(options.database)
     }
 

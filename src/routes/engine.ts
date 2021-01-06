@@ -17,7 +17,9 @@ export const engine: Array<RouteOptions<Server, IncomingMessage, ServerResponse>
         .header('Content-Type', 'application/json; charset=utf-8')
         .send(result)
     } catch (error) {
-      logger(error.message, 'error')
+      const stack = error.stack.split('\n')
+
+      logger(`${error.message} at ${stack[1].trim().match(/\((.+)\)/)[1]}`, 'error')
 
       response.code(500).send(error)
     }

@@ -5,7 +5,7 @@ import { getErrorMessage } from './../../support'
 
 export class CollectionCommand extends BaseCommand {
   async run (database: Database, options: CollectionOptions): Promise<any> {
-    if (!options.database) {
+    if (options.database === undefined) {
       throw new Error('No database selected')
     }
 

@@ -1,9 +1,9 @@
 import { BaseEntity } from './BaseEntity'
-import { CollectionInsertOptions } from './types'
+import { CollectionInsertOptions, InsertResponse } from './types'
 import { getErrorMessage } from './../../support'
 
 export class User extends BaseEntity {
-  constructor(protected name: string = 'system') {
+  constructor (protected name: string = 'system') {
     super()
   }
 
@@ -13,7 +13,7 @@ export class User extends BaseEntity {
    *
    * @param {*} options
    */
-  async create({ document, database }: CollectionInsertOptions) {
+  async create ({ document, database }: CollectionInsertOptions): Promise<InsertResponse> {
     // Select the `system` database
     this.use('system')
 
@@ -28,11 +28,11 @@ export class User extends BaseEntity {
       }
     })
 
-    if (user) {
+    if (user === undefined) {
       throw new Error(getErrorMessage('KDB0003'))
     }
 
     // select the `users` collection inside the `system` database
-    return this.getCollection('users').insert({ document})
+    return this.getCollection('users').insert({ document })
   }
 }

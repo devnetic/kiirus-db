@@ -50,71 +50,63 @@ const isOperator = (element: string): boolean => {
 
 /**
  *
- * @param {string} key
- * @returns {boolean}
- */
-const isStatement = (key: string): boolean => {
-  return getOperatorType(key) === 'logical'
-  // return ['logical', 'aggregation'].includes(getOperatorType(key))
-}
-
-/**
- *
  * @param {Object} query
  * @param {string} [operand]
  * @returns {Token[]}
  */
-// const getTokens = (query: ArrayLike<any>, operand?: string): Token[] => {
 const getTokens = (query: any, operand?: string): Token[] => {
   const tokens: Token[] = []
 
-  for (const [key, item] of Object.entries(query)) {
-    const itemType = getItemType(item)
+  for (const [key, item] of Object.entries(query) as [string, any]) {
     const token: Token = { type: '', operator: '' }
+    const itemType = getItemType(item)
 
     if (isOperator(key)) {
-      if (isStatement(key)) {
-        token.type = 'statement'
-        token.operator = key
-        token.children = []
+      const operatorType = getOperatorType(key)
 
-        if (itemType === 'array') {
-          for (const element of (item as any)) {
-            token.children.push(...getTokens(element))
+      switch (operatorType) {
+        case 'aggregation':
+          token.type = 'aggregation'
+          token.operand = operand
+          token.operator = key
+          token.children = [...getTokens(item, key)]
+
+          break
+
+        case 'comparison':
+          token.type = 'expression'
+          token.operand = operand
+          token.operator = key
+          token.value = item
+
+          break
+
+        case 'logical':
+          token.type = 'statement'
+          token.operator = key
+          token.children = []
+
+          if (itemType === 'array') {
+            for (const element of item) {
+              token.children.push(...getTokens(element))
+            }
+          } else {
+            token.children.push(...getTokens(item, operand))
           }
-        } else {
-          token.children.push(...getTokens(item, operand))
-        }
-      } else if (getOperatorType(key) === 'aggregation') {
-        token.type = 'aggregation'
-        token.operand = operand
-        token.operator = key
 
-      token.children = [...getTokens(item, key)]
-        // if (isOperation(item)) {
-        //   token.children = [...getTokens(item, key)]
-        // } else {
-        //   token.value = item
-        // }
-      } else {
-        token.type = 'expression'
-        token.operand = operand
-        token.operator = key
-        token.value = item
+          break
       }
 
       tokens.push(token)
+    } else if (isOperation(item)) {
+      tokens.push(...getTokens(item, key))
     } else {
-      if (isOperation(item)) {
-        tokens.push(...getTokens(item, key))
-      } else {
-        token.type = 'expression'
-        token.operator = '$eq'
-        token.operand = key
-        token.value = item
+      token.type = 'expression'
+      token.operand = key
+      token.operator = '$eq'
+      token.value = item
 
-        tokens.push(token)
-      }
+      tokens.push(token)
     }
   }
 
@@ -126,7 +118,6 @@ const getTokens = (query: any, operand?: string): Token[] => {
  * @param {Object} query
  * @returns {Token[]}
  */
-// export const parse = (query: ArrayLike<any>): Token[] => {
 export const parse = (query: any): Token[] => {
   return getTokens(query)
 }

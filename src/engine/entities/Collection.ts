@@ -111,7 +111,7 @@ export class Collection extends BaseCommonEntity {
     }
   }
 
-  async drop () {
+  async drop (): Promise<boolean> {
     try {
       await storage.deleteDir(this.getPath())
 
@@ -121,7 +121,7 @@ export class Collection extends BaseCommonEntity {
     }
   }
 
-  async filter({ query }: Pick<CollectionQueryOptions, 'query'>): Promise<any[]> {
+  async filter ({ query }: Pick<CollectionQueryOptions, 'query'>): Promise<any[]> {
     try {
       const records = await this.getRecords()
 
@@ -214,7 +214,7 @@ export class Collection extends BaseCommonEntity {
 
         const data = await storage.readJson(file)
 
-        if (!query || query(data) === true) {
+        if (query === undefined || query(data, utils.isEqual) === true) {
           records.push({ file, data })
         }
       }

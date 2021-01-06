@@ -82,7 +82,7 @@ export const readJson = async (pathname: string): Promise<any> => {
  *
  * @returns {Promise<void|NodeJS.ErrnoException>}
  */
-export const rename = (oldPath: string, newPath: string): Promise<void> => {
+export const rename = async (oldPath: string, newPath: string): Promise<void> => {
   return fs.rename(oldPath, newPath)
 }
 
@@ -113,11 +113,11 @@ export const writeFile = async (
  *
  * @returns {Promise<boolean|NodeJS.ErrnoException>}
  */
-export const writeJson = (
+export const writeJson = async (
   pathname: string,
   content: any,
   encoding: BufferEncoding = 'utf8',
   mode: number = 0o666
-) => {
+): Promise<void> => {
   return writeFile(pathname, JSON.stringify(content), encoding, mode)
 }

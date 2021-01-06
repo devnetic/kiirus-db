@@ -44,22 +44,18 @@ export class CommandFactory {
   static async execute (request: FastifyRequest, reply: FastifyReply): Promise<any> {
     const { command, action, options } = request.body as Command
 
-    try {
-      const { username, password }: Credentials = getCredentials(request.headers)
+    const { username, password }: Credentials = getCredentials(request.headers)
 
-      console.log('credentials: %o', { username, password })
+    console.log('credentials: %o', { username, password })
 
-      // const isAuth = await isAuthorized(username, password, { command, action, options })
+    const isAuth = await isAuthorized(username, password, { command, action, options })
 
-      // if (!isAuth) {
-      //   throw new Error(getErrorMessage('KDB0014'))
-      // }
-
-      const result = await this.getCommand(command, action).run(new Database(), options)
-
-      return result
-    } catch (error) {
-      throw error
+    if (!isAuth) {
+      throw new Error(getErrorMessage('KDB0014'))
     }
+
+    const result = await this.getCommand(command, action).run(new Database(), options)
+
+    return result
   }
 }

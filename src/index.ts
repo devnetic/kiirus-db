@@ -5,7 +5,7 @@ import * as loadEnv from '@devnetic/load-env'
 
 import * as routes from './routes'
 import * as stats from './support/stats'
-import { getErrorMessage, logger } from './support'
+import { logger } from './support'
 import { startEngine } from './engine'
 
 loadEnv.load()
@@ -29,7 +29,6 @@ app.listen(port, hostname, async (error): Promise<void> => {
 
   try {
     await startEngine()
-
   } catch (error) {
     logger(error.message, 'error')
   }

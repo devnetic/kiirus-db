@@ -70,7 +70,7 @@ const createUsersCollection = async (): Promise<boolean> => {
       document: {
         username: 'root',
         password: 'root',
-        roles: [ 'admin' ]
+        roles: ['admin']
       }
     })
   }
@@ -82,12 +82,8 @@ const createUsersCollection = async (): Promise<boolean> => {
  * Create the system databases and collections
  */
 export const startEngine = async (): Promise<true> => {
-  try {
-    await createRolesCollection()
-    await createUsersCollection()
+  await createRolesCollection()
+  await createUsersCollection()
 
-    return true
-  } catch (error) {
-    throw error
-  }
+  return true
 }

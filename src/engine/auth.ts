@@ -31,10 +31,9 @@ export const getActions = (name: keyof Actions): string[] => {
 export const getCredentials = (headers: IncomingHttpHeaders): Credentials => {
   const authorization = headers.authorization ?? ''
 
-  if (!authorization || authorization?.indexOf('Basic ') === -1) {
+  if (authorization === undefined || !authorization?.includes('Basic ')) {
     throw new Error(getErrorMessage('KDB0007'))
   }
-
 
   const credentials = Buffer.from(authorization.split(' ')[1], 'base64').toString()
   const [username, password] = credentials.split(':')
@@ -46,7 +45,7 @@ export const getCredentials = (headers: IncomingHttpHeaders): Credentials => {
 }
 
 export const isAuthorized = async (username: string, password: string, body: Command): Promise<boolean> => {
-  const { command, action, options } = body
+  const { action, options } = body
 
   let collection = new Collection('system', 'users')
 
@@ -59,9 +58,7 @@ export const isAuthorized = async (username: string, password: string, body: Com
     }
   })
 
-  console.log('user: %o', user)
-
-  if (user.roles.length === 0) {
+  if (user === undefined || user.roles.length === 0) {
     return false
   }
 
@@ -70,17 +67,21 @@ export const isAuthorized = async (username: string, password: string, body: Com
   const roles = await collection.find({
     query: {
       name: { $in: user.roles },
-      // database: options.database
-      privileges: { $filter: { database: options.database } }
-      // 'privileges[index].database': options.database
+      // privileges: { $filter: { database: options.database } }
+      privileges: {
+        $filter: {
+          $and: [{
+            database: options.database,
+            actions: { $in: [action] }
+          }]
+        }
+      }
     }
   })
 
   if (roles.length === 0) {
     return false
   }
-
-  console.log('roles: %o', roles)
 
   return true
 }

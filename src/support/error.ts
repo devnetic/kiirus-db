@@ -14,7 +14,7 @@ export const getErrorMessage = (code: string, message: string = ''): string => {
     return message
   }
 
-  message = process.env[code]?.replace('{{}}', message ? `${message}` : '') ?? ''
+  message = process.env[code]?.replace('{{}}', message !== undefined ? `${message}` : '') ?? ''
 
   return `${code}: ${message}`
 }
@@ -25,14 +25,14 @@ const bold = (message: string): string => {
 
 const color = (name: string, message: string): string => {
   const colors: Record<string, string> = {
-    'black': `\x1b[30m${message}\x1b[39m`,
-    'cyan': `\x1b[36m${message}\x1b[39m`,
-    'green': `\x1b[32m${message}\x1b[39m`,
-    'red': `\x1b[31m${message}\x1b[39m`,
-    'blue': `\x1b[34m${message}\x1b[39m`,
-    'magenta': `\x1b[35m${message}\x1b[39m`,
-    'white': `\x1b[37m${message}\x1b[39m`,
-    'yellow': `\x1b[33m${message}\x1b[39m`,
+    black: `\x1b[30m${message}\x1b[39m`,
+    cyan: `\x1b[36m${message}\x1b[39m`,
+    green: `\x1b[32m${message}\x1b[39m`,
+    red: `\x1b[31m${message}\x1b[39m`,
+    blue: `\x1b[34m${message}\x1b[39m`,
+    magenta: `\x1b[35m${message}\x1b[39m`,
+    white: `\x1b[37m${message}\x1b[39m`,
+    yellow: `\x1b[33m${message}\x1b[39m`
   }
 
   return colors[name]
@@ -40,10 +40,10 @@ const color = (name: string, message: string): string => {
 
 export const logger = (message: string, level: LoggerLevel = 'info'): void => {
   const levelColor = {
-    'debug': color('green', level.toUpperCase()),
-    'error': bold(color('red', level.toUpperCase())),
-    'info': color('blue', level.toUpperCase()),
-    'warning': color('yellow', level.toUpperCase())
+    debug: color('yellow', level.toUpperCase()),
+    error: bold(color('red', level.toUpperCase())),
+    info: color('blue', level.toUpperCase()),
+    warning: color('yellow', level.toUpperCase())
   }
 
   console.log('%s - %s: %s',
