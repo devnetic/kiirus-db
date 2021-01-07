@@ -77,6 +77,13 @@ const compileAggregation = (token: Token, commandType: string): string => {
   throw new Error(getErrorMessage('KDB0011'))
 }
 
+/**
+ *
+ * @param {string} operand
+ * @param {*} value
+ * @param {string} valueType
+ * @param {string} commandType
+ */
 const compileEqual = (operand: string, value: any, valueType: string, commandType?: string): string => {
   if (commandType === 'query') {
     if (['array', 'object'].includes(valueType)) {
@@ -87,6 +94,12 @@ const compileEqual = (operand: string, value: any, valueType: string, commandTyp
   return `${RECORD_NAME}.${operand} = ${compileValue(value, valueType)}`
 }
 
+/**
+ *
+ * @param {Token} token
+ * @param {string} commandType
+ * @returns {string}
+ */
 const compileExpression = (token: Token, commandType: string = 'query'): string => {
   const { operand = '', operator, value } = token
 
@@ -113,27 +126,16 @@ const compileExpression = (token: Token, commandType: string = 'query'): string 
   throw new Error(getErrorMessage('KDB0011'))
 }
 
-const compileFilterValue = (value: any, valueType: string): string => {
-  if (valueType === 'object') {
-    return `isEqual(record, ${JSON.stringify(value)})`
-  } else {
-    return `record === ${JSON.stringify(value)}`
-  }
-}
-
 const compileIn = (operand: string, value: any, valueType: string): string => {
-  // return `${compileValue(value, valueType)}.includes(${RECORD_NAME}.${operand})`
   return `[].concat(${RECORD_NAME}.${operand}).filter(item => ${compileValue(value, valueType)}.some(element => isEqual(item, element))).length > 0`
 }
 
-const compilePull = (operand: string, value: any, valueType: string): string => {
-  return `${RECORD_NAME}.${operand} = ${RECORD_NAME}.${operand}.filter(item => !${compileFilterValue(value, valueType)})`
-}
-
-const compilePush = (operand: string, value: any, valueType: string): string => {
-  return `${RECORD_NAME}.${operand}.push(${valueType === 'array' ? '...' : ''}${compileValue(value, valueType)})`
-}
-
+/**
+ *
+ * @param {*} value
+ * @param {string} type
+ * @returns {string}
+ */
 const compileValue = (value: any, type: string): string => {
   switch (type) {
     case 'array':
@@ -149,6 +151,11 @@ const compileValue = (value: any, type: string): string => {
   throw new Error(getErrorMessage('KDB0012'))
 }
 
+/**
+ *
+ * @param {string} join
+ * @returns {string}
+ */
 const formatJoin = (join: string): string => {
   return join === ';' ? `${join} ` : ` ${join} `
 }
