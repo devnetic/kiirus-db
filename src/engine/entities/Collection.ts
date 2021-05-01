@@ -1,55 +1,50 @@
-import path from 'path'
+import path from 'path';
 
-import * as utils from '@devnetic/utils'
+import * as utils from '@devnetic/utils';
 
-import { BaseCommonEntity } from './BaseCommonEntity'
+import { BaseCommonEntity } from './BaseCommonEntity';
 
-import { runner } from './../query'
-import { ObjectId } from './../ObjectId'
-import * as storage from './../storage'
-import { getErrorMessage } from './../../support'
-import {
-  CollectionInsertOptions,
-  CollectionOptions,
-  DeleteResponse,
-  InsertResponse,
-  UpdateResponse
-} from './types'
+import { runner } from './../query';
+import { ObjectId } from './../ObjectId';
+import * as storage from './../storage';
+import { getErrorMessage } from './../../support';
+import { CollectionInsertOptions, CollectionOptions, DeleteResponse, InsertResponse, UpdateResponse } from './types';
 
-interface Query {
-  run: typeof runner
+interface Runner {
+  run: typeof runner;
 }
 
+export type Query = { [s: string]: unknown };
+
 interface CollectionQueryOptions extends CollectionOptions {
-  // query: ArrayLike<any>
-  query: any
+  query: Query;
 }
 
 interface CollectionUpdateOptions extends CollectionQueryOptions {
-  update: ArrayLike<any>
+  update: Query;
 }
 
 interface CollectionRenameOptions extends CollectionOptions {
-  target: string
+  target: string;
 }
 
 export class Collection extends BaseCommonEntity {
-  private extension: string
-  private readonly query: Query
-  private readonly records: any[] = []
+  private extension: string;
+  private readonly query: Runner;
+  private readonly records: unknown[] = [];
 
   /**
    *
    * @param {string} database
    * @param {string} name
    */
-  constructor (protected database: string, name: string = '') {
-    super()
+  constructor(protected database: string, name = '') {
+    super();
 
-    this.extension = '.json'
-    this.name = name
-    this.query = { run: runner }
-    this.records = []
+    this.extension = '.json';
+    this.name = name;
+    this.query = { run: runner };
+    this.records = [];
   }
 
   /**
@@ -59,8 +54,8 @@ export class Collection extends BaseCommonEntity {
    * @returns {string}
    * @memberof Collection
    */
-  cipher (data: any): string {
-    return data
+  cipher(data: string): string {
+    return data;
   }
 
   /**
@@ -70,15 +65,15 @@ export class Collection extends BaseCommonEntity {
    * @param {CollectionQueryOptions} options
    * @returns {number}
    */
-  async count (options: CollectionQueryOptions): Promise<number> {
+  async count(options: CollectionQueryOptions): Promise<number> {
     try {
-      const result = await this.find(options)
+      const result = await this.find(options);
 
-      return result.length
+      return result.length;
     } catch (error) {
-      const message = getErrorMessage('KDB0006', error.message)
+      const message = getErrorMessage('KDB0006', error.message);
 
-      throw new Error(message)
+      throw new Error(message);
     }
   }
 
@@ -89,41 +84,41 @@ export class Collection extends BaseCommonEntity {
    *
    * @return Promise<Object>
    */
-  async delete ({ query }: Pick<CollectionQueryOptions, 'query'>): Promise<DeleteResponse> {
+  async delete({ query }: Pick<CollectionQueryOptions, 'query'>): Promise<DeleteResponse> {
     try {
-      const records = await this.getRecords(this.query.run(query))
+      const records = await this.getRecords(this.query.run(query));
 
       const response = {
-        deletedCount: 0
-      }
+        deletedCount: 0,
+      };
 
       for (const record of records) {
-        const result = await storage.deleteFile(record.file)
+        const result = await storage.deleteFile(record.file);
 
         if (result === undefined) {
-          response.deletedCount += 1
+          response.deletedCount += 1;
         }
       }
 
-      return response
+      return response;
     } catch (error) {
-      throw new Error(getErrorMessage('KDB0006', error.message))
+      throw new Error(getErrorMessage('KDB0006', error.message));
     }
   }
 
-  async drop (): Promise<boolean> {
+  async drop(): Promise<boolean> {
     try {
-      await storage.deleteDir(this.getPath())
+      await storage.deleteDir(this.getPath());
 
-      return true
+      return true;
     } catch (error) {
-      throw new Error(getErrorMessage('KDB0006', error.message))
+      throw new Error(getErrorMessage('KDB0006', error.message));
     }
   }
 
-  async filter ({ query }: Pick<CollectionQueryOptions, 'query'>): Promise<any[]> {
+  async filter({ query }: Pick<CollectionQueryOptions, 'query'>): Promise<unknown[]> {
     try {
-      const records = await this.getRecords()
+      const records = await this.getRecords();
 
       // return records.map(record => {
       //   this.records.push(record.file)
@@ -131,13 +126,15 @@ export class Collection extends BaseCommonEntity {
       //   return record.data
       // })
 
-      return records.filter(item => this.query.run(query)(item.data)).map(record => {
-        this.records.push(record.file)
+      return records
+        .filter((item) => this.query.run(query)(item.data))
+        .map((record) => {
+          this.records.push(record.file);
 
-        return record.data
-      })
+          return record.data;
+        });
     } catch (error) {
-      throw new Error(getErrorMessage('KDB0006', error.message))
+      throw new Error(getErrorMessage('KDB0006', error.message));
     }
   }
 
@@ -147,17 +144,17 @@ export class Collection extends BaseCommonEntity {
    * @param {Function|Object} [query = {}]
    * @returns {Promise<Array>}
    */
-  async find ({ query }: Pick<CollectionQueryOptions, 'query'>): Promise<any[]> {
+  async find({ query }: Pick<CollectionQueryOptions, 'query'>): Promise<unknown[]> {
     try {
-      const result = await this.getRecords(this.query.run(query))
+      const result = await this.getRecords(this.query.run(query));
 
-      return result.map(record => {
-        this.records.push(record.file)
+      return result.map((record) => {
+        this.records.push(record.file);
 
-        return record.data
-      })
+        return record.data;
+      });
     } catch (error) {
-      throw new Error(getErrorMessage('KDB0006', error.message))
+      throw new Error(getErrorMessage('KDB0006', error.message));
     }
   }
 
@@ -167,17 +164,17 @@ export class Collection extends BaseCommonEntity {
    * @param {CollectionQueryOptions} options
    * @returns {Promise<ArrayLike<any>>}
    */
-  async findOne (options: CollectionQueryOptions): Promise<any> {
+  async findOne(options: CollectionQueryOptions): Promise<any> { // eslint-disable-line
     try {
-      const result = await this.find(options)
+      const result = await this.find(options);
 
       if (result.length > 0) {
-        return result[0]
+        return result[0];
       }
 
-      return undefined
+      return undefined;
     } catch (error) {
-      throw new Error(getErrorMessage('KDB0006', error.message))
+      throw new Error(getErrorMessage('KDB0006', error.message));
     }
   }
 
@@ -187,12 +184,8 @@ export class Collection extends BaseCommonEntity {
    * @returns {string}
    * @memberof Collection
    */
-  getPath (): string {
-    return path.join(
-      process.env.DB_PATH ?? '',
-      this.database,
-      this.name
-    )
+  getPath(): string {
+    return path.join(process.env.DB_PATH ?? '', this.database, this.name);
   }
 
   /**
@@ -201,27 +194,27 @@ export class Collection extends BaseCommonEntity {
    * @param {Function} query
    * @returns {Promise<array>}
    */
-  async getRecords (query?: Function): Promise<any[]> {
-    const pathname = this.getPath()
+  async getRecords(query?: Function): Promise<any[]> { // eslint-disable-line
+    const pathname = this.getPath();
 
     try {
-      const files = await storage.readDir(pathname)
+      const files = await storage.readDir(pathname);
 
-      const records = []
+      const records = [];
 
       for (let file of files) {
-        file = path.join(pathname, file)
+        file = path.join(pathname, file);
 
-        const data = await storage.readJson(file)
+        const data = await storage.readJson(file);
 
         if (query === undefined || query(data, utils.isEqual) === true) {
-          records.push({ file, data })
+          records.push({ file, data });
         }
       }
 
-      return records
+      return records;
     } catch (error) {
-      throw new Error(getErrorMessage('KDB0006', error.message))
+      throw new Error(getErrorMessage('KDB0006', error.message));
     }
   }
 
@@ -231,20 +224,20 @@ export class Collection extends BaseCommonEntity {
    * @param {Array<Object>} data
    * @return {Promise<boolean>}
    */
-  async insert ({ document }: Pick<CollectionInsertOptions, 'document'>): Promise<InsertResponse> {
+  async insert({ document }: Pick<CollectionInsertOptions, 'document'>): Promise<InsertResponse> {
     try {
-      const pathname = this.getPath()
+      const pathname = this.getPath();
 
-      await this.init(pathname)
+      await this.init(pathname);
 
-      return this.write(pathname, document)
+      return await this.write(pathname, document);
     } catch (error) {
-      throw new Error(getErrorMessage('KDB0006', error.message))
+      throw new Error(getErrorMessage('KDB0006', error.message));
     }
   }
 
-  async list (): Promise<string[]> {
-    return storage.readDir(this.getPath())
+  async list(): Promise<string[]> {
+    return await storage.readDir(this.getPath());
   }
 
   /**
@@ -254,24 +247,24 @@ export class Collection extends BaseCommonEntity {
    * @returns {Promise<boolean|NodeJS.ErrnoException>}
    * @memberof Collection
    */
-  async rename ({ target }: CollectionRenameOptions): Promise<UpdateResponse> {
+  async rename({ target }: CollectionRenameOptions): Promise<UpdateResponse> {
     try {
-      const newPathname = path.join(
-        process.env.DB_PATH ?? '',
-        this.database,
-        target
-      )
+      const newPathname = path.join(process.env.DB_PATH ?? '', this.database, target);
 
-      await storage.rename(this.getPath(), newPathname)
+      await storage.rename(this.getPath(), newPathname);
 
       const response: UpdateResponse = {
-        nModified: 1
-      }
+        nModified: 1,
+      };
 
-      return response
+      return response;
     } catch (error) {
-      throw new Error(getErrorMessage('KDB0006', error.message))
+      throw new Error(getErrorMessage('KDB0006', error.message));
     }
+  }
+
+  setExtension(extension: string): void {
+    this.extension = extension;
   }
 
   /**
@@ -283,27 +276,27 @@ export class Collection extends BaseCommonEntity {
    *
    * @return {Promise<object>}
    */
-  async update ({ query, update }: CollectionUpdateOptions): Promise<UpdateResponse> {
+  async update({ query, update }: CollectionUpdateOptions): Promise<UpdateResponse> {
     try {
-      const records = await this.getRecords(this.query.run(query))
+      const records = await this.getRecords(this.query.run(query));
 
       const response: UpdateResponse = {
-        nModified: 0
-      }
+        nModified: 0,
+      };
 
       for (const record of records) {
-        record.data = this.query.run(update, 'aggregation', ';')(record.data, utils.isEqual, utils.getType)
+        record.data = this.query.run(update, 'aggregation', ';')(record.data, utils.isEqual, utils.getType);
 
-        const result = await storage.writeJson(record.file, record.data)
+        const result = await storage.writeJson(record.file, record.data);
 
         if (result === undefined) {
-          response.nModified += 1
+          response.nModified += 1;
         }
       }
 
-      return response
+      return response;
     } catch (error) {
-      throw new Error(getErrorMessage('KDB0006', error.message))
+      throw new Error(getErrorMessage('KDB0006', error.message));
     }
   }
 
@@ -315,34 +308,34 @@ export class Collection extends BaseCommonEntity {
    *
    * @return {Promise<array>}
    */
-  async write (collection: string, data: unknown | unknown[]): Promise<InsertResponse> {
+  async write(collection: string, data: unknown | unknown[]): Promise<InsertResponse> {
     const response: InsertResponse = {
-      nInserted: 0
-    }
+      nInserted: 0,
+    };
 
-    for (const record of (Array.isArray(data) ? data : [data])) {
+    for (const record of Array.isArray(data) ? data : [data]) {
       // a 4 - byte value representing the seconds since the Unix epoch,
       // a 5 - byte random value, and
       // a 3 - byte counter, starting with a random value.
       if (record._id === undefined) {
-        record._id = new ObjectId().toString()
+        record._id = new ObjectId().toString();
       }
 
       try {
         await storage.writeFile(
           path.join(collection, utils.uuid() + this.extension),
-          this.cipher(JSON.stringify(record))
-        )
+          this.cipher(JSON.stringify(record)),
+        );
 
-        response.nInserted += 1
+        response.nInserted += 1;
       } catch (error) {
         response.writeError = {
           code: error.name,
-          message: error.message
-        }
+          message: error.message,
+        };
       }
     }
 
-    return response
+    return response;
   }
 }

@@ -1,25 +1,24 @@
-
-import { BaseCommand } from './BaseCommand'
-import { Collection, CollectionOptions, Database } from './../entities'
-import { getErrorMessage } from './../../support'
+import { BaseCommand } from './BaseCommand';
+import { Collection, CollectionOptions, Database } from './../entities';
+import { getErrorMessage } from './../../support';
 
 export class CollectionCommand extends BaseCommand {
-  async run (database: Database, options: CollectionOptions): Promise<any> {
+  async run(database: Database, options: CollectionOptions): Promise<unknown> {
     if (options.database === undefined) {
-      throw new Error('No database selected')
+      throw new Error('No database selected');
     }
 
-    database.use(options.database)
+    database.use(options.database);
 
-    const collection: Collection = database.getCollection(options.collection)
+    const collection: Collection = database.getCollection(options.collection);
 
     if (!Reflect.has(collection, this.action)) {
-      throw new Error(getErrorMessage('KDB0013', 'Collection'))
+      throw new Error(getErrorMessage('KDB0013', 'Collection'));
     }
 
     // const result = await Reflect.get(collection, this.action, collection)(options)
-    const result = await (collection as any)[this.action](options)
+    const result = await (collection as any)[this.action](options); // eslint-disable-line
 
-    return result
+    return result;
   }
 }

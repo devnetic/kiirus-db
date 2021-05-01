@@ -1,18 +1,18 @@
-import path from 'path'
+import path from 'path';
 
-import * as storage from './../storage'
-import { getErrorMessage } from './../../support'
+import * as storage from './../storage';
+import { getErrorMessage } from './../../support';
 
 export abstract class BaseCommonEntity {
-  protected name: string = ''
+  protected name = '';
 
-  async drop (database: string): Promise<boolean> {
+  async drop(database: string): Promise<boolean> {
     try {
-      await storage.deleteDir(this.getPath(database))
+      await storage.deleteDir(this.getPath(database));
 
-      return true
+      return true;
     } catch (error) {
-      throw new Error(getErrorMessage('KDB0006', error.message))
+      throw new Error(getErrorMessage('KDB0006', error.message));
     }
   }
 
@@ -23,11 +23,8 @@ export abstract class BaseCommonEntity {
    * @returns {string}
    * @memberof Collection
    */
-  getPath (database?: string): string {
-    return path.join(
-      process.env.DB_PATH ?? '',
-      database ?? this.name
-    )
+  getPath(database?: string): string {
+    return path.join(process.env.DB_PATH ?? '', database ?? this.name);
   }
 
   /**
@@ -37,12 +34,12 @@ export abstract class BaseCommonEntity {
    * @returns Promise<boolean>
    * @memberof Collection
    */
-  async init (pathname: string): Promise<string | undefined> {
+  async init(pathname: string): Promise<string | undefined> {
     try {
-      return await storage.createDir(pathname, true, 0o766)
+      return await storage.createDir(pathname, true, 0o766);
     } catch (error) {
       if ((error.message ?? error).indexOf('EEXIST') === -1) {
-        throw new Error(error)
+        throw new Error(error);
       }
     }
   }

@@ -1,42 +1,42 @@
-import { getErrorMessage } from './../../support'
+import { getErrorMessage } from './../../support';
 
-export const RECORD_NAME: string = 'record'
+export const RECORD_NAME = 'record';
 
 export interface ComparisonOperators {
-  $eq: string
-  $gt: string
-  $gte: string
-  $in: string
-  $lt: string
-  $lte: string
-  $ne: string
-  $nin: string
+  $eq: string;
+  $gt: string;
+  $gte: string;
+  $in: string;
+  $lt: string;
+  $lte: string;
+  $ne: string;
+  $nin: string;
 }
 
 export interface ComplexOperator {
-  name: string
-  template: string
-  join: string
+  name: string;
+  template: string;
+  join: string;
 }
 
 export interface LogicalOperators {
-  $and: string
-  $nor: ComplexOperator
-  $not: ComplexOperator
-  $or: string
+  $and: string;
+  $nor: ComplexOperator;
+  $not: ComplexOperator;
+  $or: string;
 }
 
 export interface AggregationOperators {
-  $filter: string
-  $pull: string
-  $push: string
+  $filter: string;
+  $pull: string;
+  $push: string;
 }
 
 export interface Operators {
-  comparison: ComparisonOperators
-  logical: LogicalOperators
-  aggregation: AggregationOperators
-  array: Array<'$filter' | '$in' | '$nin'>
+  comparison: ComparisonOperators;
+  logical: LogicalOperators;
+  aggregation: AggregationOperators;
+  array: Array<'$filter' | '$in' | '$nin'>;
 }
 
 export const OPERATORS: Operators = {
@@ -48,21 +48,21 @@ export const OPERATORS: Operators = {
     $lt: '<',
     $lte: '<=',
     $ne: '!==',
-    $nin: '$nin'
+    $nin: '$nin',
   },
   logical: {
     $and: '&&',
     $nor: { name: '$nor', template: '!(BODY)', join: '||' },
     $not: { name: '$not', template: '!(BODY)', join: '&&' },
-    $or: '||'
+    $or: '||',
   },
   aggregation: {
     $filter: 'filter',
     $pull: 'filter',
-    $push: 'push'
+    $push: 'push',
   },
-  array: ['$filter', '$in', '$nin']
-}
+  array: ['$filter', '$in', '$nin'],
+};
 
 /**
  *
@@ -71,12 +71,12 @@ export const OPERATORS: Operators = {
  */
 export const getOperatorType = (operator: string): string => {
   if (Object.keys(OPERATORS.logical).includes(operator)) {
-    return 'logical'
+    return 'logical';
   } else if (Object.keys(OPERATORS.comparison).includes(operator)) {
-    return 'comparison'
+    return 'comparison';
   } else if (Object.keys(OPERATORS.aggregation).includes(operator)) {
-    return 'aggregation'
+    return 'aggregation';
   }
 
-  throw new Error(getErrorMessage('KDB0010'))
-}
+  throw new Error(getErrorMessage('KDB0010'));
+};

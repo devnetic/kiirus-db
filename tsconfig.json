@@ -4,6 +4,7 @@
     "declaration": true,
     "declarationDir": "./lib/types",
     "esModuleInterop": true,
+    "experimentalDecorators": true,
     "lib": [
       "es2016"
     ],

@@ -169,7 +169,7 @@ test('parser aggregation operator: filter with object value', t => {
 })
 
 test('parser aggregation operator: complex filter with object value', t => {
-  const testQuery = { specification: { $filter: { $and: [{ frameBuffer: { $eq: '6 GB GDDR6' } }, { ram: '32 GB'} ] } } }
+  const testQuery = { specification: { $filter: { $and: [{ frameBuffer: { $eq: '6 GB GDDR6' } }, { ram: '32 GB' }] } } }
   const parsedQuery = query.parse(testQuery)
   const compiledQuery = 'record.specification.filter(record => ((record.frameBuffer === "6 GB GDDR6" && record.ram === "32 GB"))).length > 0'
 

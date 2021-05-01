@@ -1,10 +1,10 @@
-import { BaseEntity } from './BaseEntity'
-import { CollectionInsertOptions, InsertResponse } from './types'
-import { getErrorMessage } from './../../support'
+import { BaseEntity } from './BaseEntity';
+import { CollectionInsertOptions, InsertResponse } from './types';
+import { getErrorMessage } from './../../support';
 
 export class User extends BaseEntity {
-  constructor (protected name: string = 'system') {
-    super()
+  constructor(protected name: string = 'system') {
+    super();
   }
 
   /**
@@ -13,26 +13,23 @@ export class User extends BaseEntity {
    *
    * @param {*} options
    */
-  async create ({ document, database }: CollectionInsertOptions): Promise<InsertResponse> {
+  async create({ document }: CollectionInsertOptions): Promise<InsertResponse> {
     // Select the `system` database
-    this.use('system')
+    this.use('system');
 
     const user = await this.getCollection('users').findOne({
       database: '',
       collection: '',
       query: {
-        $and: [
-          { username: document.username },
-          { password: document.password }
-        ]
-      }
-    })
+        $and: [{ username: document.username }, { password: document.password }],
+      },
+    });
 
     if (user === undefined) {
-      throw new Error(getErrorMessage('KDB0003'))
+      throw new Error(getErrorMessage('KDB0003'));
     }
 
     // select the `users` collection inside the `system` database
-    return this.getCollection('users').insert({ document })
+    return await this.getCollection('users').insert({ document });
   }
 }

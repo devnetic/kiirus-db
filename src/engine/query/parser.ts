@@ -1,11 +1,12 @@
-import { OPERATORS, getOperatorType } from './common'
+import { Query } from './../entities';
+import { OPERATORS, getOperatorType } from './common';
 
 export interface Token {
-  type: string
-  operator: string
-  operand?: string
-  value?: unknown
-  children?: Token[]
+  type: string;
+  operator: string;
+  operand?: string;
+  value?: unknown;
+  children?: Token[];
 }
 
 /**
@@ -15,22 +16,22 @@ export interface Token {
  */
 const getItemType = (item: unknown): string => {
   if (Array.isArray(item)) {
-    return 'array'
+    return 'array';
   } else {
-    return typeof item
+    return typeof item;
   }
-}
+};
 
 /**
  *
- * @param {*} item
+ * @param {ArrayLike<unknown>} item
  * @returns {boolean}
  */
-const isOperation = (item: any): boolean => {
+const isOperation = (item: ArrayLike<unknown>): boolean => {
   return Object.entries(item).some(([key]) => {
-    return isOperator(key)
-  })
-}
+    return isOperator(key);
+  });
+};
 
 /**
  *
@@ -38,86 +39,87 @@ const isOperation = (item: any): boolean => {
  * @returns {boolean}
  */
 const isOperator = (element: string): boolean => {
-  if (Object.keys(OPERATORS.logical).includes(element) ||
+  if (
+    Object.keys(OPERATORS.logical).includes(element) ||
     Object.keys(OPERATORS.comparison).includes(element) ||
     Object.keys(OPERATORS.aggregation).includes(element)
   ) {
-    return true
+    return true;
   }
 
-  return false
-}
+  return false;
+};
 
 /**
  *
- * @param {Object} query
+ * @param {Query} query
  * @param {string} [operand]
  * @returns {Token[]}
  */
-const getTokens = (query: any, operand?: string): Token[] => {
-  const tokens: Token[] = []
+const getTokens = (query: Query, operand?: string): Token[] => {
+  const tokens: Token[] = [];
 
-  for (const [key, item] of Object.entries(query) as [string, any]) {
-    const token: Token = { type: '', operator: '' }
-    const itemType = getItemType(item)
+  for (const [key, item] of Object.entries(query) as [string, any]) {  // eslint-disable-line
+    const token: Token = { type: '', operator: '' };
+    const itemType = getItemType(item);
 
     if (isOperator(key)) {
-      const operatorType = getOperatorType(key)
+      const operatorType = getOperatorType(key);
 
       switch (operatorType) {
         case 'aggregation':
-          token.type = 'aggregation'
-          token.operand = operand
-          token.operator = key
-          token.children = [...getTokens(item, key)]
+          token.type = 'aggregation';
+          token.operand = operand;
+          token.operator = key;
+          token.children = [...getTokens(item, key)];
 
-          break
+          break;
 
         case 'comparison':
-          token.type = 'expression'
-          token.operand = operand
-          token.operator = key
-          token.value = item
+          token.type = 'expression';
+          token.operand = operand;
+          token.operator = key;
+          token.value = item;
 
-          break
+          break;
 
         case 'logical':
-          token.type = 'statement'
-          token.operator = key
-          token.children = []
+          token.type = 'statement';
+          token.operator = key;
+          token.children = [];
 
           if (itemType === 'array') {
             for (const element of item) {
-              token.children.push(...getTokens(element))
+              token.children.push(...getTokens(element));
             }
           } else {
-            token.children.push(...getTokens(item, operand))
+            token.children.push(...getTokens(item, operand));
           }
 
-          break
+          break;
       }
 
-      tokens.push(token)
+      tokens.push(token);
     } else if (isOperation(item)) {
-      tokens.push(...getTokens(item, key))
+      tokens.push(...getTokens(item, key));
     } else {
-      token.type = 'expression'
-      token.operand = key
-      token.operator = '$eq'
-      token.value = item
+      token.type = 'expression';
+      token.operand = key;
+      token.operator = '$eq';
+      token.value = item;
 
-      tokens.push(token)
+      tokens.push(token);
     }
   }
 
-  return tokens
-}
+  return tokens;
+};
 
 /**
  *
- * @param {Object} query
+ * @param {Query} query
  * @returns {Token[]}
  */
-export const parse = (query: any): Token[] => {
-  return getTokens(query)
-}
+export const parse = (query: Query): Token[] => {
+  return getTokens(query);
+};
