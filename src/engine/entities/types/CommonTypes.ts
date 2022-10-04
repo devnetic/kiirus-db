@@ -1,25 +1,25 @@
 export interface WriteError {
-  code: number;
-  message: string;
+  code: number
+  message: string
 }
 
 export interface InsertResponse {
-  nInserted: number;
-  writeError?: WriteError;
+  nInserted: number
+  writeError?: WriteError
 }
 
 export interface UpdateResponse {
-  nModified: number;
-  writeError?: WriteError;
+  nModified: number
+  writeError?: WriteError
 }
 
 export interface DeleteResponse {
-  deletedCount: number;
+  deletedCount: number
 }
 
 export interface CollectionOptions {
-  database: string;
-  collection: string;
+  database: string
+  collection: string
 }
 
 export interface CollectionInsertOptions extends CollectionOptions {

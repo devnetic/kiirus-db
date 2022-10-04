@@ -1,48 +1,48 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
-import * as utils from '@devnetic/utils';
+import { FastifyReply, FastifyRequest } from 'fastify'
+import * as utils from '@devnetic/utils'
 
-import { BaseCommand } from './BaseCommand';
-import { CollectionCommand } from './CollectionCommand';
-import { Credentials, getCredentials, isAuthorized } from './../auth';
-import { Database } from './../entities';
-import { DatabaseCommand } from './DatabaseCommand';
-import { UserCommand } from './UserCommand';
-import { getErrorMessage } from './../../support';
+import { BaseCommand } from './BaseCommand'
+import { CollectionCommand } from './CollectionCommand'
+import { getCredentials } from './../auth'
+import { Database } from './../entities'
+import { DatabaseCommand } from './DatabaseCommand'
+import { UserCommand } from './UserCommand'
+import { getErrorMessage } from './../../support'
 
 export interface Command {
-  command: string;
-  action: string;
+  command: string
+  action: string
   options?: any | undefined; // eslint-disable-line
 }
 
-export class CommandFactory {
+export const CommandFactory = {
   /**
    *
    * @param {string} command
    * @returns {string}
    */
-  protected static formatAction(action: string): string {
-    return utils.camelCase(action);
-  }
+  formatAction: (action: string): string => {
+    return utils.camelCase(action)
+  },
 
-  protected static getCommand(command: string, action: string): BaseCommand {
+  getCommand: (command: string, action: string): BaseCommand => {
     switch (command) {
       case 'collection':
-        return new CollectionCommand(this.formatAction(action));
+        return new CollectionCommand(CommandFactory.formatAction(action))
 
       case 'database':
-        return new DatabaseCommand(this.formatAction(action));
+        return new DatabaseCommand(CommandFactory.formatAction(action))
 
       case 'user':
-        return new UserCommand(this.formatAction(action));
+        return new UserCommand(CommandFactory.formatAction(action))
 
       default:
-        throw new Error(getErrorMessage('KDB0002'));
+        throw new Error(getErrorMessage('KDB0002'))
     }
-  }
+  },
 
-  static async execute(request: FastifyRequest, reply: FastifyReply): Promise<any> { // eslint-disable-line
-    const { command, action, options } = request.body as Command;
+  execute: async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    const { command, action, options } = request.body as Command
 
     // const { username, password }: Credentials = getCredentials(request.headers);
 
@@ -54,9 +54,14 @@ export class CommandFactory {
     //   throw new Error(getErrorMessage('KDB0014'));
     // }
 
-    const result = await this.getCommand(command, action).run(new Database(getCredentials(request.headers)), options);
+    const result = await CommandFactory
+      .getCommand(command, action)
+      .run(
+        new Database(getCredentials(request.headers)),
+        options
+      )
 
     // return result;
-    reply.send(result);
+    return await reply.send(result)
   }
 }

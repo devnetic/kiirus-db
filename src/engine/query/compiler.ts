@@ -1,6 +1,6 @@
-import { getErrorMessage } from '../../support';
-import { OPERATORS, RECORD_NAME, getOperatorType, ComplexOperator } from './common';
-import { Token } from './parser';
+import { getErrorMessage } from '../../support'
+import { OPERATORS, RECORD_NAME, getOperatorType, ComplexOperator } from './common'
+import { Token } from './parser'
 
 /**
  *
@@ -12,44 +12,44 @@ import { Token } from './parser';
 export const compile = (
   syntaxTree: Token[] = [],
   commandType = 'query',
-  join: ComplexOperator | string = '&&',
+  join: ComplexOperator | string = '&&'
 ): string => {
-  const compiled: string[] = [];
+  const compiled: string[] = []
 
   for (const token of syntaxTree) {
     switch (token.type) {
       case 'aggregation': {
-        const aggregation = compileAggregation(token, commandType);
+        const aggregation = compileAggregation(token, commandType)
 
         if (aggregation !== undefined) {
-          compiled.push(aggregation);
+          compiled.push(aggregation)
         }
 
-        break;
+        break
       }
 
       case 'expression': {
-        const expression = compileExpression(token, commandType);
+        const expression = compileExpression(token, commandType)
 
         if (expression !== undefined) {
-          compiled.push(expression);
+          compiled.push(expression)
         }
 
-        break;
+        break
       }
 
       case 'statement':
-        compiled.push(`(${compile(token.children, commandType, getOperator(token.operator))})`);
-        break;
+        compiled.push(`(${compile(token.children, commandType, getOperator(token.operator))})`)
+        break
     }
   }
 
   if (getType(join) === 'object') {
-    return (join as ComplexOperator).template.replace('BODY', compiled.join(` ${(join as ComplexOperator).join} `));
+    return (join as ComplexOperator).template.replace('BODY', compiled.join(` ${(join as ComplexOperator).join} `))
   }
 
-  return compiled.join(`${formatJoin(String(join))}`);
-};
+  return compiled.join(`${formatJoin(String(join))}`)
+}
 
 /**
  *
@@ -58,21 +58,21 @@ export const compile = (
  * @returns {string}
  */
 const compileAggregation = (token: Token, commandType: string): string => {
-  const { operand, operator } = token;
+  const { operand, operator } = token
 
   switch (operator) {
     case '$filter':
       if (commandType === 'query') {
-        return `${RECORD_NAME}.${String(operand)}.filter(record => (${compile(token.children)})).length > 0`;
+        return `${RECORD_NAME}.${String(operand)}.filter(record => (${compile(token.children)})).length > 0`
       } else {
         return `${RECORD_NAME}.${String(operand)} = ${RECORD_NAME}.${String(operand)}.filter(record => (${compile(
-          token.children,
-        )}))`;
+            token.children
+          )}))`
       }
   }
 
-  throw new Error(getErrorMessage('KDB0011'));
-};
+  throw new Error(getErrorMessage('KDB0011'))
+}
 
 /**
  *
@@ -84,12 +84,12 @@ const compileAggregation = (token: Token, commandType: string): string => {
 const compileEqual = (operand: string, value: unknown, valueType: string, commandType?: string): string => {
   if (commandType === 'query') {
     if (['array', 'object'].includes(valueType)) {
-      return `isEqual(${RECORD_NAME}.${operand}, ${compileValue(value, valueType)})`;
+      return `isEqual(${RECORD_NAME}.${operand}, ${compileValue(value, valueType)})`
     }
   }
 
-  return `${RECORD_NAME}.${operand} = ${compileValue(value, valueType)}`;
-};
+  return `${RECORD_NAME}.${operand} = ${compileValue(value, valueType)}`
+}
 
 /**
  *
@@ -98,37 +98,37 @@ const compileEqual = (operand: string, value: unknown, valueType: string, comman
  * @returns {string}
  */
 const compileExpression = (token: Token, commandType = 'query'): string => {
-  const { operand = '', operator, value } = token;
+  const { operand = '', operator, value } = token
 
-  const valueType = getType(value);
+  const valueType = getType(value)
 
   switch (valueType) {
     case 'boolean':
     case 'number':
     case 'string':
-      return `${RECORD_NAME}.${operand} ${getOperator(operator, commandType)} ${compileValue(value, valueType)}`;
+      return `${RECORD_NAME}.${operand} ${getOperator(operator, commandType)} ${compileValue(value, valueType)}`
 
     case 'array':
     case 'object':
       switch (operator) {
         case '$eq':
-          return compileEqual(operand, value, valueType, commandType);
+          return compileEqual(operand, value, valueType, commandType)
         case '$in':
-          return compileIn(operand, value, valueType);
+          return compileIn(operand, value, valueType)
         case '$nin':
-          return `!${compileIn(operand, value, valueType)}`;
+          return `!${compileIn(operand, value, valueType)}`
       }
   }
 
-  throw new Error(getErrorMessage('KDB0011'));
-};
+  throw new Error(getErrorMessage('KDB0011'))
+}
 
 const compileIn = (operand: string, value: unknown, valueType: string): string => {
   return `[].concat(${RECORD_NAME}.${operand}).filter(item => ${compileValue(
     value,
-    valueType,
-  )}.some(element => isEqual(item, element))).length > 0`;
-};
+    valueType
+  )}.some(element => isEqual(item, element))).length > 0`
+}
 
 /**
  *
@@ -140,16 +140,16 @@ const compileValue = (value: unknown, type: string): string => {
   switch (type) {
     case 'array':
     case 'object':
-      return JSON.stringify(value);
+      return JSON.stringify(value)
     case 'boolean':
     case 'number':
-      return value as string;
+      return value as string
     case 'string':
-      return `"${String(value)}"`;
+      return `"${String(value)}"`
   }
 
-  throw new Error(getErrorMessage('KDB0012'));
-};
+  throw new Error(getErrorMessage('KDB0012'))
+}
 
 /**
  *
@@ -157,8 +157,8 @@ const compileValue = (value: unknown, type: string): string => {
  * @returns {string}
  */
 const formatJoin = (join: string): string => {
-  return join === ';' ? `${join} ` : ` ${join} `;
-};
+  return join === ';' ? `${join} ` : ` ${join} `
+}
 
 /**
  * Get the language operator symbol for the given query symbol
@@ -169,11 +169,11 @@ const formatJoin = (join: string): string => {
  */
 const getOperator = (operator = '$eq', commandType = 'query'): string => {
   if (commandType === 'aggregation') {
-    return '=';
+    return '='
   }
 
   return (OPERATORS as any)[getOperatorType(operator)][operator] || undefined; // eslint-disable-line
-};
+}
 
 /**
  * Return the operand type <array|logical|comparison|object|primitive>
@@ -183,12 +183,12 @@ const getOperator = (operator = '$eq', commandType = 'query'): string => {
  */
 const getType = (value: unknown): string => {
   if (Array.isArray(value)) {
-    return 'array';
+    return 'array'
   } else if (Object.keys(OPERATORS.logical).includes(value as string)) {
-    return 'logical';
+    return 'logical'
   } else if (Object.keys(OPERATORS.comparison).includes(value as string)) {
-    return 'comparison';
+    return 'comparison'
   } else {
-    return typeof value;
+    return typeof value
   }
-};
+}

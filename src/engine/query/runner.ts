@@ -1,7 +1,7 @@
-import { Query } from '../entities';
-import { build } from './builder';
-import { compile } from './compiler';
-import { parse } from './parser';
+import { Query } from '../entities'
+import { build } from './builder'
+import { compile } from './compiler'
+import { parse } from './parser'
 
 /**
  *
@@ -11,5 +11,5 @@ import { parse } from './parser';
  * @returns {Function}
  */
 export const runner = (query: Query, type = 'query', join = ' && '): Function => {  // eslint-disable-line
-  return build(compile(parse(query), type, join), type);
-};
+  return build(compile(parse(query), type, join), type)
+}

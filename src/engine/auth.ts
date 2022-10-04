@@ -1,68 +1,68 @@
-import { IncomingHttpHeaders } from 'http';
+import { IncomingHttpHeaders } from 'http'
 
-import { getErrorMessage } from './../support';
-import { Command } from './commands';
-import { Collection } from './entities';
+import { getErrorMessage } from './../support'
+import { Command } from './commands'
+import { Collection } from './entities'
 
 export interface Credentials {
-  username: string;
-  password: string;
+  username: string
+  password: string
 }
 
 export interface Actions {
-  read: string[];
-  write: string[];
-  readWrite: string[];
+  read: string[]
+  write: string[]
+  readWrite: string[]
 }
 
 export const getActions = (name: keyof Actions): string[] => {
-  const read = ['count', 'find', 'findOne', 'list'];
-  const write = ['delete', 'drop', 'insert', 'rename', 'update'];
+  const read = ['count', 'find', 'findOne', 'list']
+  const write = ['delete', 'drop', 'insert', 'rename', 'update']
 
   const actions: Actions = {
     read,
     write,
-    readWrite: read.concat(write),
-  };
-
-  return Reflect.get(actions, name);
-};
-
-export const getCredentials = (headers: IncomingHttpHeaders): Credentials => {
-  const authorization = headers.authorization ?? '';
-
-  if (authorization === undefined || !authorization?.includes('Basic ')) {
-    throw new Error(getErrorMessage('KDB0007'));
+    readWrite: read.concat(write)
   }
 
-  const credentials = Buffer.from(authorization.split(' ')[1], 'base64').toString();
-  const [username, password] = credentials.split(':');
+  return Reflect.get(actions, name)
+}
+
+export const getCredentials = (headers: IncomingHttpHeaders): Credentials => {
+  const authorization = headers.authorization ?? ''
+
+  if (authorization === undefined || !authorization?.includes('Basic ')) {
+    throw new Error(getErrorMessage('KDB0007'))
+  }
+
+  const credentials = Buffer.from(authorization.split(' ')[1], 'base64').toString()
+  const [username, password] = credentials.split(':')
 
   return {
     username,
-    password,
-  };
-};
+    password
+  }
+}
 
 export const isAuthorized = async (username: string, password: string, body: Command): Promise<boolean> => {
-  const { action, options } = body;
+  const { action, options } = body
 
-  let collection = new Collection('system', 'users');
+  let collection = new Collection('system', 'users')
 
   const user = await collection.findOne({
     database: 'system',
     collection: 'users',
     query: {
       username,
-      password,
-    },
-  });
+      password
+    }
+  })
 
   if (user === undefined || user.roles.length === 0) {
-    return false;
+    return false
   }
 
-  collection = new Collection('system', 'roles');
+  collection = new Collection('system', 'roles')
 
   const roles = await collection.find({
     query: {
@@ -73,17 +73,17 @@ export const isAuthorized = async (username: string, password: string, body: Com
           $and: [
             {
               database: options.database,
-              actions: { $in: [action] },
-            },
-          ],
-        },
-      },
-    },
-  });
+              actions: { $in: [action] }
+            }
+          ]
+        }
+      }
+    }
+  })
 
   if (roles.length === 0) {
-    return false;
+    return false
   }
 
-  return true;
-};
+  return true
+}

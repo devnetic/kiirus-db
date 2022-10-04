@@ -1,5 +1,5 @@
-import { BaseCommonEntity } from './BaseCommonEntity';
-import { Collection } from './Collection';
+import { BaseCommonEntity } from './BaseCommonEntity'
+import { Collection } from './Collection'
 
 export class BaseEntity extends BaseCommonEntity {
   /**
@@ -7,8 +7,8 @@ export class BaseEntity extends BaseCommonEntity {
    * @param {string} collection
    * @returns Collection
    */
-  getCollection(collection: string): Collection {
-    return new Collection(this.name, collection);
+  getCollection (collection: string): Collection {
+    return new Collection(this.name, collection)
   }
 
   /**
@@ -16,7 +16,7 @@ export class BaseEntity extends BaseCommonEntity {
    *
    * @param {string} name
    */
-  use(name: string): void {
-    this.name = name;
+  use (name: string): void {
+    this.name = name
   }
 }

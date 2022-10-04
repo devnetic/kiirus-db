@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+import { promises as fs } from 'fs'
 
 /**
  * Recursively creates a directory in the hard disk
@@ -10,8 +10,8 @@ import { promises as fs } from 'fs';
  * @return {Promise<string | undefined>}
  */
 export const createDir = async (pathname: string, recursive = true, mode = 0o777): Promise<string | undefined> => {
-  return fs.mkdir(pathname, { recursive, mode });
-};
+  return await fs.mkdir(pathname, { recursive, mode })
+}
 
 /**
  * Recursively deletes a directory and all its contents
@@ -21,10 +21,10 @@ export const createDir = async (pathname: string, recursive = true, mode = 0o777
  * @returns {Promise<boolean|NodeJS.ErrnoException>}
  */
 export const deleteDir = async (pathname: string): Promise<void> => {
-  await fs.access(pathname);
+  await fs.access(pathname)
 
-  return fs.rmdir(pathname, { recursive: true });
-};
+  return await fs.rmdir(pathname, { recursive: true })
+}
 
 /**
  * Delete a file from the fyle system
@@ -34,8 +34,8 @@ export const deleteDir = async (pathname: string): Promise<void> => {
  * @returns {Promise<boolean|NodeJS.ErrnoException>}
  */
 export const deleteFile = async (pathname: string): Promise<void> => {
-  return fs.unlink(pathname);
-};
+  return await fs.unlink(pathname)
+}
 
 /**
  *
@@ -44,8 +44,8 @@ export const deleteFile = async (pathname: string): Promise<void> => {
  * @returns {Promise<object[]>}
  */
 export const readDir = async (pathname: string, encoding: BufferEncoding = 'utf8'): Promise<string[]> => {
-  return fs.readdir(pathname, { encoding });
-};
+  return await fs.readdir(pathname, { encoding })
+}
 
 /**
  * Read a file from the filesystem, optionally the file can be synchronously
@@ -56,8 +56,8 @@ export const readDir = async (pathname: string, encoding: BufferEncoding = 'utf8
  * @returns {Promise<string|NodeJS.ErrnoException>}
  */
 export const readFile = async (pathname: string, encoding: BufferEncoding = 'utf8'): Promise<string> => {
-  return fs.readFile(pathname, encoding);
-};
+  return await fs.readFile(pathname, encoding)
+}
 
 /**
  * Read a file in JSON format
@@ -67,10 +67,10 @@ export const readFile = async (pathname: string, encoding: BufferEncoding = 'utf
  * @returns {Promsie<object|NodeJS.ErrnoException>}
  */
 export const readJson = async (pathname: string): Promise<unknown> => {
-  const data = await readFile(pathname);
+  const data = await readFile(pathname)
 
-  return JSON.parse(data);
-};
+  return JSON.parse(data)
+}
 
 /**
  * Rename a file or directory
@@ -81,8 +81,8 @@ export const readJson = async (pathname: string): Promise<unknown> => {
  * @returns {Promise<void|NodeJS.ErrnoException>}
  */
 export const rename = async (oldPath: string, newPath: string): Promise<void> => {
-  return fs.rename(oldPath, newPath);
-};
+  return await fs.rename(oldPath, newPath)
+}
 
 /**
  * Write to a file the given content
@@ -98,10 +98,10 @@ export const writeFile = async (
   pathname: string,
   content: string,
   encoding: BufferEncoding = 'utf8',
-  mode = 0o666,
+  mode = 0o666
 ): Promise<void> => {
-  return fs.writeFile(pathname, content, { encoding, mode });
-};
+  return await fs.writeFile(pathname, content, { encoding, mode })
+}
 
 /**
  * Write to a file in JSON format the given object
@@ -117,7 +117,7 @@ export const writeJson = async (
   pathname: string,
   content: unknown,
   encoding: BufferEncoding = 'utf8',
-  mode = 0o666,
+  mode = 0o666
 ): Promise<void> => {
-  return writeFile(pathname, JSON.stringify(content), encoding, mode);
-};
+  return await writeFile(pathname, JSON.stringify(content), encoding, mode)
+}

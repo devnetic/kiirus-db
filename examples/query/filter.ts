@@ -35,13 +35,17 @@ const compiled = query.compile(parsed);
 
 console.log(compiled);
 
+const filteredDocument = query.runner(testQuery)(document)
+
+console.log(JSON.stringify(filteredDocument, null, 2))
+
 // const result = document.privileges.filter(item => item.collection === 'roles')
 // console.log('result: %o', JSON.stringify(result))
 
 // const result = document.privileges.filter(record => record.collection === 'roles')
 // console.log('result: %o', JSON.stringify(result))
 
-const result = document.privileges.filter((record) =>
-  record.actions.includes('update')
-);
-console.log('result: %o', JSON.stringify(result));
+// const result = document.privileges.filter((record) =>
+//   record.actions.includes('update')
+// );
+// console.log('result: %o', JSON.stringify(result));
